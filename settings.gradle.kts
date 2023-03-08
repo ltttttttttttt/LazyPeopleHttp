@@ -18,4 +18,14 @@ pluginManagement {
 
 rootProject.name = "LazyPeopleHttp"
 
-include(":android", ":desktop", ":common", ":js", ":ios", ":LazyPeopleHttp")
+include(
+    ":android",
+    ":desktop",
+    ":common",
+    ":js",
+    ":ios",
+    ":LazyPeopleHttp-lib",
+    ":LazyPeopleHttp"
+)
+
+includeBuild("convention-plugins")

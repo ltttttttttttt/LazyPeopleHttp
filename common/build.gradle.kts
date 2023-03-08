@@ -38,6 +38,7 @@ kotlin {
             //配置ksp生成目录
             kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
             dependencies {
+                api(project(":LazyPeopleHttp-lib"))
                 api(compose.runtime)
                 api(compose.foundation)
                 api(compose.material)
