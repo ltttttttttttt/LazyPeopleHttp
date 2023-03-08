@@ -18,4 +18,4 @@ pluginManagement {
 
 rootProject.name = "LazyPeopleHttp"
 
-include(":android", ":desktop", ":common",":js")
+include(":android", ":desktop", ":common", ":js", ":ios")

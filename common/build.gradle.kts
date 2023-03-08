@@ -23,7 +23,7 @@ kotlin {
         summary = "LazyPeopleHttp"
         homepage = "https://github.com/ltttttttttttt/LazyPeopleHttp"
         ios.deploymentTarget = "14.1"
-        podfile = project.file("../ios/Podfile")
+        podfile = project.file("../iosApp/Podfile")
         framework {
             baseName = "common"
             isStatic = true
