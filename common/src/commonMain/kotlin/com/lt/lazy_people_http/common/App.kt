@@ -12,14 +12,17 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
+private val json = Json { ignoreUnknownKeys = true }
+
 @Composable
 fun App() {
     var text by remember { mutableStateOf("Hello, World!") }
     suspend fun getData() {
         val client = HttpClient()
-        val response: HttpResponse = client.get("https://wanandroid.com/wenda/list/1/json")
-        val list = Json.decodeFromString<Data>(response.body())
-        text = list.data?.size?.toString() ?: "0"
+        val response: HttpResponse =
+            client.get("http://t.weather.sojson.com/api/weather/city/101030100")
+        val data = json.decodeFromString<MData>(response.body())
+        text = data.cityInfo?.city ?: "..."
     }
 
     Button(onClick = {

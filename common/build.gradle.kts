@@ -3,6 +3,7 @@ plugins {
     id("org.jetbrains.compose")
     id("com.android.library")
     kotlin("native.cocoapods")
+    kotlin("plugin.serialization") version "1.8.0"
 }
 
 group = "com.lt"

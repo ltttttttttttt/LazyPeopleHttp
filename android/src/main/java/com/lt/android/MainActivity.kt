@@ -1,6 +1,6 @@
 package com.lt.android
 
-import com.lt.Lazy_people_http.common.App
+import com.lt.lazy_people_http.common.App
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
