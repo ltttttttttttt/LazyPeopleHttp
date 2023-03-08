@@ -4,6 +4,7 @@ plugins {
     id("com.android.library")
     kotlin("native.cocoapods")
     kotlin("plugin.serialization") version "1.8.0"
+    id("com.google.devtools.ksp") version "1.8.0-1.0.9"
 }
 
 group = "com.lt"
@@ -34,6 +35,8 @@ kotlin {
     }
     sourceSets {
         val commonMain by getting {
+            //配置ksp生成目录
+            kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
             dependencies {
                 api(compose.runtime)
                 api(compose.foundation)
@@ -99,4 +102,8 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+}
+
+dependencies {
+    add("kspCommonMainMetadata", project(":LazyPeopleHttp"))
 }
