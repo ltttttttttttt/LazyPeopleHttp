@@ -27,4 +27,5 @@ publishing {
 
 dependencies {
     implementation("com.google.devtools.ksp:symbol-processing-api:$kspVersion")
+    implementation(project(":LazyPeopleHttp-lib"))
 }

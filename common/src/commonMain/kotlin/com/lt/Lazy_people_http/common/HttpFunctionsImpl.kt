@@ -1,10 +1,10 @@
 package com.lt.lazy_people_http.common
 
-import com.lt.reflection.LazyPeopleHttpConfig
-import com.lt.reflection.call.Call
-import com.lt.reflection.call._createCall
-import com.lt.reflection.request.RequestMethod
-import com.lt.reflection.service.HttpServiceImpl
+import com.lt.lazy_people_http.LazyPeopleHttpConfig
+import com.lt.lazy_people_http.call.Call
+import com.lt.lazy_people_http.call._createCall
+import com.lt.lazy_people_http.request.RequestMethod
+import com.lt.lazy_people_http.service.HttpServiceImpl
 import kotlin.reflect.typeOf
 
 /**

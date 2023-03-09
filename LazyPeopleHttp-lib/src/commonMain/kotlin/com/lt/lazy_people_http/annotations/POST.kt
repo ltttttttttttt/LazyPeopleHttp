@@ -1,4 +1,4 @@
-package com.lt.reflection.annotations
+package com.lt.lazy_people_http.annotations
 
 /**
  * creator: lt  2023/3/8  lt.dygzs@qq.com

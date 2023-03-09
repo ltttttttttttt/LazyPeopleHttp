@@ -1,6 +1,6 @@
-package com.lt.reflection
+package com.lt.lazy_people_http
 
-import com.lt.reflection.request.RequestMethod
+import com.lt.lazy_people_http.request.RequestMethod
 import io.ktor.client.*
 import kotlinx.serialization.json.Json
 

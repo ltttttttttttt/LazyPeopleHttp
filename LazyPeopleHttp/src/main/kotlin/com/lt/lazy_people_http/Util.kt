@@ -1,9 +1,9 @@
-package com.lt.reflection
+package com.lt.lazy_people_http
 
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.Nullability
-import com.lt.reflection.options.KSTypeInfo
+import com.lt.lazy_people_http.options.KSTypeInfo
 import java.io.OutputStream
 
 /**

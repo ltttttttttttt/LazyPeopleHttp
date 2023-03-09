@@ -1,6 +1,6 @@
-package com.lt.reflection.call
+package com.lt.lazy_people_http.call
 
-import com.lt.reflection.LazyPeopleHttpConfig
+import com.lt.lazy_people_http.LazyPeopleHttpConfig
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -12,16 +12,16 @@ import kotlin.reflect.KType
 
 /**
  * creator: lt  2023/3/9  lt.dygzs@qq.com
- * effect : 使用GlobalScope作用域的协程进行post请求
+ * effect : 使用GlobalScope作用域的协程进行get请求
  * warning:
  */
-class PostCall<T>(
+class GetCall<T>(
     val config: LazyPeopleHttpConfig,
     val url: String?,
     val parameter: Map<String?, String?>,
     val returnType: KType,
 ) : Call<T> {
-    override fun enqueue(callback: Callback<T>, scope: CoroutineScope) {
+    override fun enqueue(callback: Callback<T>,scope: CoroutineScope) {
         scope.launch {
             try {
                 val response: HttpResponse =
@@ -34,11 +34,11 @@ class PostCall<T>(
                     config.json.serializersModule.serializer(returnType),
                     response.body()
                 ) as T
-                callback.onResponse(this@PostCall, data)
+                callback.onResponse(this@GetCall, data)
             } catch (e: Exception) {
                 if (e is CancellationException)
                     throw e
-                callback.onFailure(this@PostCall, e)
+                callback.onFailure(this@GetCall, e)
             }
         }
     }

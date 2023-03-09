@@ -1,4 +1,4 @@
-package com.lt.reflection.provider
+package com.lt.lazy_people_http.provider
 
 import com.google.devtools.ksp.processing.SymbolProcessor
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment

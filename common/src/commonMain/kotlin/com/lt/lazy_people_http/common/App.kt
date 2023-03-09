@@ -7,9 +7,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.lt.reflection.LazyPeopleHttpConfig
-import com.lt.reflection.call.Call
-import com.lt.reflection.call.Callback
+import com.lt.lazy_people_http.LazyPeopleHttpConfig
+import com.lt.lazy_people_http.call.Call
+import com.lt.lazy_people_http.call.Callback
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.logging.*

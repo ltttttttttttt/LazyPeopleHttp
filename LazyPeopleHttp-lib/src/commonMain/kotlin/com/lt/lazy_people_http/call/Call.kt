@@ -1,9 +1,9 @@
-package com.lt.reflection.call
+package com.lt.lazy_people_http.call
 
-import com.lt.reflection.LazyPeopleHttpConfig
-import com.lt.reflection.request.RequestMethod
-import com.lt.reflection.request.RequestMethod.GET
-import com.lt.reflection.request.RequestMethod.POST
+import com.lt.lazy_people_http.LazyPeopleHttpConfig
+import com.lt.lazy_people_http.request.RequestMethod
+import com.lt.lazy_people_http.request.RequestMethod.GET
+import com.lt.lazy_people_http.request.RequestMethod.POST
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
 import kotlin.reflect.KType

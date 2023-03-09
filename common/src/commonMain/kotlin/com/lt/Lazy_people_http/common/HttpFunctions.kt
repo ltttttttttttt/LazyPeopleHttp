@@ -1,9 +1,9 @@
 package com.lt.lazy_people_http.common
 
-import com.lt.reflection.annotations.GET
-import com.lt.reflection.annotations.LazyPeopleHttpService
-import com.lt.reflection.annotations.POST
-import com.lt.reflection.call.Call
+import com.lt.lazy_people_http.annotations.GET
+import com.lt.lazy_people_http.annotations.LazyPeopleHttpService
+import com.lt.lazy_people_http.annotations.POST
+import com.lt.lazy_people_http.call.Call
 
 /**
  * creator: lt  2023/3/8  lt.dygzs@qq.com
