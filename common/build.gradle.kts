@@ -109,3 +109,14 @@ android {
 dependencies {
     add("kspCommonMainMetadata", project(":LazyPeopleHttp"))
 }
+
+tasks.register<Delete>("clearBuild") {
+    doLast {
+        fun d(file: File) {
+            if (file.isDirectory)
+                file.listFiles()?.forEach(::d)
+            file.delete()
+        }
+        d(buildDir)
+    }
+}

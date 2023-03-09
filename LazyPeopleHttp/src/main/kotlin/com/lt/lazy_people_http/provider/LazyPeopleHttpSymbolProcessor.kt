@@ -21,7 +21,7 @@ internal class LazyPeopleHttpSymbolProcessor(private val environment: SymbolProc
         resolver.getSymbolsWithAnnotation(LazyPeopleHttpService::class.qualifiedName!!)
             .toList()
             .forEach {
-                if (it is KSClassDeclaration && it.classKind.type == "class") {
+                if (it is KSClassDeclaration) {
                     if (!it.validate()) ret.add(it)
                     else it.accept(LazyPeopleHttpVisitor(environment), Unit)//处理符号
                 }

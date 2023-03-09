@@ -6,4 +6,4 @@ package com.lt.lazy_people_http.annotations
  * warning:
  */
 @Target(AnnotationTarget.FUNCTION)
-annotation class POST(val url: String = "")
+annotation class POST(val url: String)

@@ -12,11 +12,16 @@ import com.lt.lazy_people_http.call.Call
  */
 @LazyPeopleHttpService
 interface HttpFunctions {
-    @GET
+    @GET("get111")
     fun get(): Call<MData>
 
-    @POST
+    @POST("post111")
     fun post(): Call<MData>
 
     fun a_a(): Call<MData>
+
+
+    fun ccc():Int{
+        return 0
+    }
 }
