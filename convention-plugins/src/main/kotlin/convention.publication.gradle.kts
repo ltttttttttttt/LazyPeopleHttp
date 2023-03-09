@@ -76,9 +76,9 @@ publishing {
 
         // Provide artifacts information requited by Maven Central
         pom {
-            name.set("ComposeViews")
-            description.set("Jatpack(JetBrains) Compose views")
-            url.set("https://github.com/ltttttttttttt/ComposeViews")
+            name.set("LazyPeopleHttp")
+            description.set("Lazy people http, Retrofit of kmp all targets")
+            url.set("https://github.com/ltttttttttttt/LazyPeopleHttp")
 
             licenses {
                 license {
@@ -94,7 +94,7 @@ publishing {
                 }
             }
             scm {
-                url.set("https://github.com/ltttttttttttt/ComposeViews")
+                url.set("https://github.com/ltttttttttttt/LazyPeopleHttp")
             }
         }
     }

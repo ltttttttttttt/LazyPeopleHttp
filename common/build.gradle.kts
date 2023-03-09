@@ -3,13 +3,12 @@ plugins {
     id("org.jetbrains.compose")
     id("com.android.library")
     kotlin("native.cocoapods")
-    kotlin("plugin.serialization") version "1.8.0"
-    id("com.google.devtools.ksp") version "1.8.0-1.0.9"
+    kotlin("plugin.serialization") version kotlinVersion
+    id("com.google.devtools.ksp") version kspVersion
 }
 
 group = "com.lt"
 version = "1.0-SNAPSHOT"
-val ktorVersion = "2.2.4"
 
 kotlin {
     android()
@@ -45,7 +44,9 @@ kotlin {
                 //跨平台网络请求
                 api("io.ktor:ktor-client-core:$ktorVersion")
                 //kt的跨平台json解析
-                api("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
+                api("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationJsonVersion")
+                //跨平台网络请求-日志打印
+                api("io.ktor:ktor-client-logging:$ktorVersion")
             }
         }
         val commonTest by getting {
