@@ -4,6 +4,7 @@ import com.lt.lazy_people_http.LazyPeopleHttpConfig
 import com.lt.lazy_people_http.mergeMap
 import com.lt.lazy_people_http.request.RequestInfo
 import com.lt.lazy_people_http.request.RequestMethod
+import kotlinx.serialization.encodeToString
 import kotlin.reflect.KType
 
 /**
@@ -52,9 +53,20 @@ object CallAdapter {
 
     }
 
-    inline fun <reified T : Any> parameterToJson(parameter: T?): String? {
+    /**
+     * 将对象转为json
+     */
+    inline fun <reified T : Any> parameterToJson(
+        config: LazyPeopleHttpConfig,
+        parameter: T?
+    ): String? {
         parameter ?: return null
-
-        return ""
+        return when (parameter) {
+            is String -> parameter
+            is Char -> parameter.toString()
+            is Number -> parameter.toString()
+            is Boolean -> parameter.toString()
+            else -> config.json.encodeToString(parameter)
+        }
     }
 }
