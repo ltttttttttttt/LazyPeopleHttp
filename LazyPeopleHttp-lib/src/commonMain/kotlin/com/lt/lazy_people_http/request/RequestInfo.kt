@@ -10,8 +10,10 @@ import kotlin.reflect.KType
 class RequestInfo(
     //请求链接
     val url: String,
-    //请求参数
-    val parameter: Map<String, String?>?,
+    //url请求参数
+    val parameters: Map<String, String?>?,
+    //表单请求参数
+    val formParameters: Map<String, String?>?,
     //请求返回的类型,[requestMethod]如果为null,就使用默认指定的请求方式
     val returnType: KType,
     //请求方式

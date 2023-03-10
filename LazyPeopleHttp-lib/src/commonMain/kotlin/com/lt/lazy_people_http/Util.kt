@@ -11,3 +11,18 @@ package com.lt.lazy_people_http
  */
 internal inline fun String?.ifNullOfEmpty(defaultValue: () -> String): String =
     if (this.isNullOrEmpty()) defaultValue() else this
+
+/**
+ * 将两个map合并为一个map
+ */
+internal fun mergeMap(
+    map1: Map<String, String?>?,
+    map2: Map<String, String?>?
+): Map<String, String?>? {
+    return if (map1 == null)
+        map2
+    else if (map2 == null)
+        map1
+    else
+        map1 + map2
+}

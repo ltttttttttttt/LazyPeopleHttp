@@ -4,16 +4,12 @@ import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.getAnnotationsByType
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
-import com.google.devtools.ksp.symbol.ClassKind
-import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSFunctionDeclaration
-import com.google.devtools.ksp.symbol.KSVisitorVoid
-import com.lt.lazy_people_http.annotations.GET
-import com.lt.lazy_people_http.annotations.Header
-import com.lt.lazy_people_http.annotations.POST
+import com.google.devtools.ksp.symbol.*
+import com.lt.lazy_people_http.annotations.*
 import com.lt.lazy_people_http.appendText
 import com.lt.lazy_people_http.getKSTypeInfo
 import com.lt.lazy_people_http.options.MethodInfo
+import com.lt.lazy_people_http.options.ParameterInfo
 import java.io.OutputStream
 
 /**
@@ -85,16 +81,72 @@ internal class LazyPeopleHttpVisitor(
             val typeOf =
                 getKSTypeInfo(it.returnType!!.element!!.typeArguments.first().type!!).toString()
             val headers = getHeaders(it)
+            val parameterInfo = getParameters(it)
             file.appendText(
-                "    override fun $functionName(): $returnType = CallAdapter.createCall(\n" +
+                "    override fun $functionName(${parameterInfo.funParameter}): $returnType = CallAdapter.createCall(\n" +
                         "        config,\n" +
                         "        \"${methodInfo.url}\",\n" +
-                        "        mapOf(),\n" +
+                        "        ${parameterInfo.urlParameter},\n" +
+                        "        ${parameterInfo.formParameter},\n" +
+                        "        ${parameterInfo.runtimeParameter},\n" +
                         "        typeOf<$typeOf>(),\n" +
                         "        ${methodInfo.method},\n" +
                         "        $headers,\n" +
                         "    )\n\n"
             )
+        }
+    }
+
+    //获取方法的参数和请求参数
+    private fun getParameters(it: KSFunctionDeclaration): ParameterInfo {
+        if (it.parameters.isEmpty()) return ParameterInfo("", "null", "null", "null")
+        val funPList = ArrayList<String>()
+        val urlPList = ArrayList<String>()
+        val fromPList = ArrayList<String>()
+        val runtimePList = ArrayList<String>()
+        it.parameters.forEach {
+            val funPName = it.name!!.asString()
+            val type = getKSTypeInfo(it.type).toString()
+            funPList.add("$funPName: $type")
+            getParameterInfo(it, funPName, urlPList, fromPList, runtimePList)
+        }
+        return ParameterInfo(
+            if (funPList.isEmpty()) "" else funPList.joinToString(),
+            if (urlPList.isEmpty()) "null" else urlPList.joinToString(
+                prefix = "mapOf(",
+                postfix = ")"
+            ),
+            if (fromPList.isEmpty()) "null" else fromPList.joinToString(
+                prefix = "mapOf(",
+                postfix = ")"
+            ),
+            if (runtimePList.isEmpty()) "null" else runtimePList.joinToString(
+                prefix = "mapOf(",
+                postfix = ")"
+            ),
+        )
+    }
+
+    //获取参数设置的参数的内容
+    @OptIn(KspExperimental::class)
+    private fun getParameterInfo(
+        it: KSValueParameter,
+        funPName: String,
+        urlPList: ArrayList<String>,
+        fromPList: ArrayList<String>,
+        runtimePList: ArrayList<String>
+    ) {
+        val list =
+            (it.getAnnotationsByType(Query::class) + it.getAnnotationsByType(Field::class)).toList()
+        //"aaa" to a
+        if (list.isEmpty()) {
+            runtimePList.add("\"$funPName\" to $funPName")
+            return
+        }
+        when (val annotation = list.first()) {
+            is Query -> urlPList.add("\"${annotation.name}\" to $funPName")
+            is Field -> fromPList.add("\"${annotation.name}\" to $funPName")
+            else -> throw RuntimeException("There is a problem with the getParameterInfo function")
         }
     }
 

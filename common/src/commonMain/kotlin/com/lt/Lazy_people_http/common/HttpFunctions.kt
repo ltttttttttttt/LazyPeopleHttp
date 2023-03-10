@@ -1,9 +1,6 @@
 package com.lt.lazy_people_http.common
 
-import com.lt.lazy_people_http.annotations.GET
-import com.lt.lazy_people_http.annotations.Header
-import com.lt.lazy_people_http.annotations.LazyPeopleHttpService
-import com.lt.lazy_people_http.annotations.POST
+import com.lt.lazy_people_http.annotations.*
 import com.lt.lazy_people_http.call.Call
 
 /**
@@ -15,12 +12,12 @@ import com.lt.lazy_people_http.call.Call
 interface HttpFunctions {
     @GET("get111")
     @Header("Accept", "true")
-    fun get(): Call<MData>
+    fun get(@Query("aaa") a: String, @Query("bbb") b: Int): Call<MData>
 
     @POST("post111")
-    fun post(): Call<MData>
+    fun post(@Field("aaa") a: String, @Field("bbb") b: Int, @Field("ccc") c: String): Call<MData>
 
-    fun a_a(): Call<MData>
+    fun a_a(a: String, b: Int, ccc: String): Call<MData>
 
 
     fun ccc(): Int {

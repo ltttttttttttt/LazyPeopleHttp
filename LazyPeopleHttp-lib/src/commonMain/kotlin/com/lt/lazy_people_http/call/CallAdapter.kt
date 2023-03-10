@@ -1,6 +1,7 @@
 package com.lt.lazy_people_http.call
 
 import com.lt.lazy_people_http.LazyPeopleHttpConfig
+import com.lt.lazy_people_http.mergeMap
 import com.lt.lazy_people_http.request.RequestInfo
 import com.lt.lazy_people_http.request.RequestMethod
 import kotlin.reflect.KType
@@ -18,7 +19,9 @@ object CallAdapter {
     fun <T> createCall(
         config: LazyPeopleHttpConfig,
         url: String,
-        parameter: Map<String, String?>?,
+        parameters: Map<String, String?>?,
+        formParameters: Map<String, String?>?,
+        runtimeParameters: Map<String, String?>?,
         returnType: KType,
         requestMethod: RequestMethod?,
         headers: Map<String, String>?,
@@ -26,7 +29,14 @@ object CallAdapter {
         return RealCall(
             config, RequestInfo(
                 url,
-                parameter,
+                mergeMap(
+                    parameters,
+                    if (config.defaultRequestMethod == RequestMethod.GET) runtimeParameters else null
+                ),
+                mergeMap(
+                    formParameters,
+                    if (config.defaultRequestMethod == RequestMethod.POST) runtimeParameters else null
+                ),
                 returnType,
                 requestMethod,
                 headers,
@@ -38,13 +48,11 @@ object CallAdapter {
      * 根据参数执行具体的请求流程
      */
     suspend fun suspendCall(
-        config: LazyPeopleHttpConfig,
-        url: String,
-        parameter: Map<String, String?>?,
-        returnType: KType,
-        requestMethod: RequestMethod?,
-        headers: Map<String, String>?,
     ) {
 
+    }
+
+    inline fun <reified T> parameterToJson(parameter: T): String? {
+// fun Any?.asString() = CallAdapter.parameterToJson(this)
     }
 }
