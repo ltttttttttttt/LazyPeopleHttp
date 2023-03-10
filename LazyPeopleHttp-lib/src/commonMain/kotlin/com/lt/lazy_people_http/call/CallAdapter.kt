@@ -52,7 +52,9 @@ object CallAdapter {
 
     }
 
-    inline fun <reified T> parameterToJson(parameter: T): String? {
-// fun Any?.asString() = CallAdapter.parameterToJson(this)
+    inline fun <reified T : Any> parameterToJson(parameter: T?): String? {
+        parameter ?: return null
+
+        return ""
     }
 }

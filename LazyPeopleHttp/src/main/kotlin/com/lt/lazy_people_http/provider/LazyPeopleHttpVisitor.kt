@@ -60,7 +60,8 @@ internal class LazyPeopleHttpVisitor(
                     "\n" +
                     "class $className(\n" +
                     "    val config: LazyPeopleHttpConfig,\n" +
-                    ") : $originalClassName, HttpServiceImpl {\n"
+                    ") : $originalClassName, HttpServiceImpl {\n" +
+                    "    fun Any?.asString() = CallAdapter.parameterToJson(this)\n\n"
         )
         writeFunction(file, classDeclaration)
         file.appendText(
@@ -81,7 +82,7 @@ internal class LazyPeopleHttpVisitor(
             val typeOf =
                 getKSTypeInfo(it.returnType!!.element!!.typeArguments.first().type!!).toString()
             val headers = getHeaders(it)
-            val parameterInfo = getParameters(it)
+            val parameterInfo = getParameters(it, methodInfo.method)
             file.appendText(
                 "    override fun $functionName(${parameterInfo.funParameter}): $returnType = CallAdapter.createCall(\n" +
                         "        config,\n" +
@@ -98,25 +99,36 @@ internal class LazyPeopleHttpVisitor(
     }
 
     //获取方法的参数和请求参数
-    private fun getParameters(it: KSFunctionDeclaration): ParameterInfo {
+    private fun getParameters(it: KSFunctionDeclaration, method: String): ParameterInfo {
+        //如果没有参数
         if (it.parameters.isEmpty()) return ParameterInfo("", "null", "null", "null")
+        //有参数的话就将参数拆为:方法参数,query参数,field参数,和只有运行时才能处理的参数
         val funPList = ArrayList<String>()
-        val urlPList = ArrayList<String>()
-        val fromPList = ArrayList<String>()
+        val queryPList = ArrayList<String>()
+        val fieldPList = ArrayList<String>()
         val runtimePList = ArrayList<String>()
         it.parameters.forEach {
             val funPName = it.name!!.asString()
             val type = getKSTypeInfo(it.type).toString()
             funPList.add("$funPName: $type")
-            getParameterInfo(it, funPName, urlPList, fromPList, runtimePList)
+            getParameterInfo(it, funPName, queryPList, fieldPList, runtimePList)
         }
+        //处理方法加了注解,但参数没加注解的情况
+        if (method == "RequestMethod.GET") {
+            queryPList.addAll(runtimePList)
+            runtimePList.clear()
+        } else if (method == "RequestMethod.POST") {
+            fieldPList.addAll(runtimePList)
+            runtimePList.clear()
+        }
+        //将所有参数拼接成代码
         return ParameterInfo(
             if (funPList.isEmpty()) "" else funPList.joinToString(),
-            if (urlPList.isEmpty()) "null" else urlPList.joinToString(
+            if (queryPList.isEmpty()) "null" else queryPList.joinToString(
                 prefix = "mapOf(",
                 postfix = ")"
             ),
-            if (fromPList.isEmpty()) "null" else fromPList.joinToString(
+            if (fieldPList.isEmpty()) "null" else fieldPList.joinToString(
                 prefix = "mapOf(",
                 postfix = ")"
             ),
@@ -132,20 +144,19 @@ internal class LazyPeopleHttpVisitor(
     private fun getParameterInfo(
         it: KSValueParameter,
         funPName: String,
-        urlPList: ArrayList<String>,
-        fromPList: ArrayList<String>,
+        queryPList: ArrayList<String>,
+        fieldPList: ArrayList<String>,
         runtimePList: ArrayList<String>
     ) {
         val list =
             (it.getAnnotationsByType(Query::class) + it.getAnnotationsByType(Field::class)).toList()
-        //"aaa" to a
         if (list.isEmpty()) {
-            runtimePList.add("\"$funPName\" to $funPName")
+            runtimePList.add("\"$funPName\" to $funPName.asString()")
             return
         }
         when (val annotation = list.first()) {
-            is Query -> urlPList.add("\"${annotation.name}\" to $funPName")
-            is Field -> fromPList.add("\"${annotation.name}\" to $funPName")
+            is Query -> queryPList.add("\"${annotation.name}\" to $funPName.asString()")
+            is Field -> fieldPList.add("\"${annotation.name}\" to $funPName.asString()")
             else -> throw RuntimeException("There is a problem with the getParameterInfo function")
         }
     }

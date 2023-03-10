@@ -15,7 +15,10 @@ interface HttpFunctions {
     fun get(@Query("aaa") a: String, @Query("bbb") b: Int): Call<MData>
 
     @POST("post111")
-    fun post(@Field("aaa") a: String, @Field("bbb") b: Int, @Field("ccc") c: String): Call<MData>
+    fun post(@Field("aaa") a: String, @Field("bbb") b: Int, c: String): Call<MData>
+
+    @POST("post222")
+    fun post2(@Field("aaa") a: String, @Query("bbb") b: Int, c: String): Call<MData>
 
     fun a_a(a: String, b: Int, ccc: String): Call<MData>
 
