@@ -9,6 +9,7 @@ import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSFunctionDeclaration
 import com.google.devtools.ksp.symbol.KSVisitorVoid
 import com.lt.lazy_people_http.annotations.GET
+import com.lt.lazy_people_http.annotations.Header
 import com.lt.lazy_people_http.annotations.POST
 import com.lt.lazy_people_http.appendText
 import com.lt.lazy_people_http.getKSTypeInfo
@@ -83,6 +84,7 @@ internal class LazyPeopleHttpVisitor(
             val returnType = getKSTypeInfo(it.returnType!!).toString()
             val typeOf =
                 getKSTypeInfo(it.returnType!!.element!!.typeArguments.first().type!!).toString()
+            val headers = getHeaders(it)
             file.appendText(
                 "    override fun $functionName(): $returnType = CallAdapter.createCall(\n" +
                         "        config,\n" +
@@ -90,14 +92,24 @@ internal class LazyPeopleHttpVisitor(
                         "        mapOf(),\n" +
                         "        typeOf<$typeOf>(),\n" +
                         "        ${methodInfo.method},\n" +
+                        "        $headers,\n" +
                         "    )\n\n"
             )
         }
     }
 
-    /**
-     * 获取函数的请求方法相关数据
-     */
+    //获取请求头的内容
+    @OptIn(KspExperimental::class)
+    private fun getHeaders(it: KSFunctionDeclaration): String {
+        val list = it.getAnnotationsByType(Header::class).toList()
+        if (list.isEmpty()) return "null"
+        return list.joinToString(
+            prefix = "mapOf(",
+            postfix = ")"
+        ) { "\"${it.name}\" to \"${it.value}\"" }
+    }
+
+    //获取函数的请求方法相关数据
     @OptIn(KspExperimental::class)
     private fun getMethodInfo(it: KSFunctionDeclaration, functionName: String): MethodInfo {
         val list =

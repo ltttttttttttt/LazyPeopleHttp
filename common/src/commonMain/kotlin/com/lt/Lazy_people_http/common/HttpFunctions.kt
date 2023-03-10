@@ -1,6 +1,7 @@
 package com.lt.lazy_people_http.common
 
 import com.lt.lazy_people_http.annotations.GET
+import com.lt.lazy_people_http.annotations.Header
 import com.lt.lazy_people_http.annotations.LazyPeopleHttpService
 import com.lt.lazy_people_http.annotations.POST
 import com.lt.lazy_people_http.call.Call
@@ -13,6 +14,7 @@ import com.lt.lazy_people_http.call.Call
 @LazyPeopleHttpService
 interface HttpFunctions {
     @GET("get111")
+    @Header("Accept", "true")
     fun get(): Call<MData>
 
     @POST("post111")
@@ -21,7 +23,7 @@ interface HttpFunctions {
     fun a_a(): Call<MData>
 
 
-    fun ccc():Int{
+    fun ccc(): Int {
         return 0
     }
 }
