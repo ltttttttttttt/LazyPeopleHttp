@@ -2,9 +2,10 @@ package com.lt.lazy_people_http.common
 
 import com.lt.lazy_people_http.LazyPeopleHttpConfig
 import com.lt.lazy_people_http.call.Call
-import com.lt.lazy_people_http.call._createCall
+import com.lt.lazy_people_http.call.CallAdapter
 import com.lt.lazy_people_http.request.RequestMethod
 import com.lt.lazy_people_http.service.HttpServiceImpl
+import kotlin.reflect.KClass
 import kotlin.reflect.typeOf
 
 /**
@@ -15,33 +16,27 @@ import kotlin.reflect.typeOf
 class HttpFunctionsImpl(
     val config: LazyPeopleHttpConfig,
 ) : HttpFunctions, HttpServiceImpl {
-    override fun get(): Call<MData> {
-        return _createCall(
-            config,
-            "http://t.weather.sojson.com/api/weather/city/101030100",
-            mapOf(),
-            typeOf<MData>(),
-            RequestMethod.GET,
-        )
-    }
+    override fun get(): Call<MData> = CallAdapter.createCall(
+        config,
+        "get111",
+        mapOf(),
+        typeOf<MData>(),
+        RequestMethod.GET,
+    )
 
-    override fun post(): Call<MData> {
-        return _createCall(
-            config,
-            "http://t.weather.sojson.com/api/weather/city/101030100",
-            mapOf(),
-            typeOf<MData>(),
-            RequestMethod.POST,
-        )
-    }
+    override fun post(): Call<MData> = CallAdapter.createCall(
+        config,
+        "post111",
+        mapOf(),
+        typeOf<MData>(),
+        RequestMethod.POST,
+    )
 
-    override fun a_a(): Call<MData> {
-        return _createCall(
-            config,
-            "http://t.weather.sojson.com/api/weather/city/101030100",
-            mapOf(),
-            typeOf<MData>(),
-            null,
-        )
-    }
+    override fun a_a(): Call<MData> = CallAdapter.createCall(
+        config,
+        "a/a",
+        mapOf(),
+        typeOf<MData>(),
+        null,
+    )
 }

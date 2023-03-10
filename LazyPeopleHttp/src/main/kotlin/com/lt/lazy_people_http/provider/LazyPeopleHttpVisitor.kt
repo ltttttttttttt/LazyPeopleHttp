@@ -11,6 +11,7 @@ import com.google.devtools.ksp.symbol.KSVisitorVoid
 import com.lt.lazy_people_http.annotations.GET
 import com.lt.lazy_people_http.annotations.POST
 import com.lt.lazy_people_http.appendText
+import com.lt.lazy_people_http.getKSTypeInfo
 import com.lt.lazy_people_http.options.MethodInfo
 import java.io.OutputStream
 
@@ -55,8 +56,7 @@ internal class LazyPeopleHttpVisitor(
             "package $packageName\n" +
                     "\n" +
                     "import com.lt.lazy_people_http.LazyPeopleHttpConfig\n" +
-                    "import com.lt.lazy_people_http.call.Call\n" +
-                    "import com.lt.lazy_people_http.call._createCall\n" +
+                    "import com.lt.lazy_people_http.call.CallAdapter\n" +
                     "import com.lt.lazy_people_http.request.RequestMethod\n" +
                     "import com.lt.lazy_people_http.service.HttpServiceImpl\n" +
                     "import kotlin.reflect.typeOf\n" +
@@ -66,7 +66,11 @@ internal class LazyPeopleHttpVisitor(
                     ") : $originalClassName, HttpServiceImpl {\n"
         )
         writeFunction(file, classDeclaration)
-        file.appendText("}")
+        file.appendText(
+            "}\n\n" +
+                    "fun kotlin.reflect.KClass<$originalClassName>.createService(config: LazyPeopleHttpConfig) =\n" +
+                    "    $className(config)"
+        )
     }
 
     //向文件中写入变换后的函数
@@ -76,17 +80,17 @@ internal class LazyPeopleHttpVisitor(
         }.forEach {
             val functionName = it.simpleName.asString()
             val methodInfo = getMethodInfo(it, functionName)
+            val returnType = getKSTypeInfo(it.returnType!!).toString()
+            val typeOf =
+                getKSTypeInfo(it.returnType!!.element!!.typeArguments.first().type!!).toString()
             file.appendText(
-                "    override fun $functionName(): Call<MData> {\n" +
-                        "        return _createCall(\n" +
-                        "            config,\n" +
-                        "            \"${methodInfo.url}\",\n" +
-                        "            mapOf(),\n" +
-                        "            typeOf<MData>(),\n" +
-                        "            ${methodInfo.method},\n" +
-                        "        )\n" +
-                        "    }\n" +
-                        "\n"
+                "    override fun $functionName(): $returnType = CallAdapter.createCall(\n" +
+                        "        config,\n" +
+                        "        \"${methodInfo.url}\",\n" +
+                        "        mapOf(),\n" +
+                        "        typeOf<$typeOf>(),\n" +
+                        "        ${methodInfo.method},\n" +
+                        "    )\n\n"
             )
         }
     }
