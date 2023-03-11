@@ -5,6 +5,7 @@ import com.lt.backend.model.apiFail
 import com.lt.backend.model.apiSuccess
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 
 /**
@@ -20,10 +21,10 @@ class GetInterface {
     fun getA(t: String) = apiSuccess(t)
 
     @GetMapping("/getB")
-    fun getB(t: UserBean) = apiSuccess(t)
+    fun getB(name:String) = apiSuccess(UserBean(name,0,"0"))
 
     @GetMapping("/getC")
-    fun getC(t: UserBean) = apiSuccess(t.name)
+    fun getC(name:String) = apiSuccess(name)
 
     @GetMapping("/getD/success")
     fun success() = apiSuccess(null)

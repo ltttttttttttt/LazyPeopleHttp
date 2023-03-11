@@ -61,7 +61,7 @@ internal class LazyPeopleHttpVisitor(
                     "class $className(\n" +
                     "    val config: LazyPeopleHttpConfig,\n" +
                     ") : $originalClassName, HttpServiceImpl {\n" +
-                    "    fun Any?.asString() = CallAdapter.parameterToJson(config, this)\n\n"
+                    "    inline fun <reified T> T?.asString() = CallAdapter.parameterToJson(config, this)\n\n"
         )
         writeFunction(file, classDeclaration)
         file.appendText(

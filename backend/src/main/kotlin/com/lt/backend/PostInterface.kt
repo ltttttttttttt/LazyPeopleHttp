@@ -23,13 +23,13 @@ class PostInterface {
     fun postA(t: String) = apiSuccess(t)
 
     @PostMapping("/postB")
-    fun postB(t: UserBean) = apiSuccess(t)
+    fun postB(name: String) = apiSuccess(UserBean(name, 2, "3"))
 
     @PostMapping("/postC")
-    fun postC(t: UserBean) = apiSuccess(t.name)
+    fun postC(name: String) = apiSuccess(name)
 
     @PostMapping("/setUserName")
-    fun setUserName(t: UserBean, newName: String) = apiSuccess(t.copy(name = newName))
+    fun setUserName(lastName: String, firstName: String) = apiSuccess(UserBean("$firstName $lastName", 2, "3"))
 
     @PostMapping("/postError")
     fun postError(msg: String) = apiFail(msg)

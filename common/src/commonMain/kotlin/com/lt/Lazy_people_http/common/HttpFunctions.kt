@@ -18,26 +18,30 @@ interface HttpFunctions {
     fun postA(t: String): Call<NetBean<String>>
 
     @POST("post/postB")
-    fun postB(@Field("t") t2: UserBean): Call<NetBean<UserBean>>
+    fun postB(@Field("name") t: String): Call<NetBean<UserBean>>
 
-    fun post_postC(t: UserBean): Call<NetBean<String>>
+    fun post_postC(name: String): Call<NetBean<String>>
 
-    fun post_setUserName(t: UserBean, @Field("newName") newName: String): Call<NetBean<UserBean>>
+    fun post_setUserName(
+        lastName: String,
+        @Field("firstName") newName: String
+    ): Call<NetBean<UserBean>>
 
     fun post_postError(msg: String): Call<NetBean<String?>>
 
     @Header("aaa", "bbb")
     fun post_checkHeader(): Call<NetBean<String?>>
 
-    @GET("/getA")
+    @GET("get/getA")
     fun getA(@Query("t") t2: String): Call<NetBean<String>>
 
-    @GET("/getB")
-    fun getB(t: UserBean): Call<NetBean<UserBean>>
+    @GET("get/getB")
+    fun getB(name: String): Call<NetBean<UserBean>>
 
-    fun get_getC(t: UserBean): Call<NetBean<String>>
+    @GET("get/getC")
+    fun get_getC2(name: String): Call<NetBean<String>>
 
-    @GET("/getD/{type}")
+    @GET("get/getD/{type}")
     fun getD(@Url("type") url: String): Call<NetBean<String?>>
 
     @GET("{url}")

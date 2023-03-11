@@ -3,7 +3,9 @@ package com.lt.lazy_people_http.call
 import com.lt.lazy_people_http.LazyPeopleHttpConfig
 import com.lt.lazy_people_http.request.RequestInfo
 import io.ktor.client.request.*
+import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
+import io.ktor.http.*
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -40,10 +42,17 @@ class RealCall<T>(
             method = (info.requestMethod ?: config.defaultRequestMethod).method
             //设置请求地址
             url(info.url)
-            //传递参数
+            //传递Query参数
             info.parameters?.forEach {
                 parameter(it.key, it.value ?: "")
             }
+            //传递Field参数
+            if (!info.formParameters.isNullOrEmpty())
+                setBody(FormDataContent(Parameters.build {
+                    info.formParameters.forEach {
+                        append(it.key, it.value ?: "")
+                    }
+                }))
             //增加请求头
             info.headers?.forEach {
                 headers.append(it.key, it.value)

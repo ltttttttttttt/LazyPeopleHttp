@@ -12,6 +12,7 @@ import com.lt.lazy_people_http.call.Call
 import com.lt.lazy_people_http.call.Callback
 import io.ktor.client.*
 import io.ktor.client.call.*
+import io.ktor.client.plugins.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
@@ -21,6 +22,10 @@ import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
 private val client = HttpClient {
+    defaultRequest {
+        //配置baseUrl
+        url("http://127.0.0.1:666/")
+    }
     install(Logging)
 }
 private val json = Json { ignoreUnknownKeys = true }
@@ -74,19 +79,19 @@ fun testAll() {
     GlobalScope.launch {
         assert(hf.ccc() == 0)
         assert(hf.postA("123").awaitData() == "123")
-        assert(hf.postB(UserBean("1", 2, "3")).awaitData().name == "1")
-        assert(hf.post_postC(UserBean("1", 2, "3")).awaitData() == "1")
-        assert(hf.post_setUserName(UserBean("1", 2, "3"), "4").awaitData().name == "4")
+        assert(hf.postB("1").awaitData().name == "1")
+        assert(hf.post_postC("1").awaitData() == "1")
+        assert(hf.post_setUserName("1", "4").awaitData().name == "4 1")
         assert(hf.post_postError("error").await().msg == "error")
         assert(hf.post_checkHeader().awaitData() == "bbb")
         assert(hf.getA("bbb").awaitData() == "bbb")
-        assert(hf.getB(UserBean("1", 2, "3")).awaitData().name == "1")
-        assert(hf.get_getC(UserBean("1", 2, "3")).awaitData() == "1")
+        assert(hf.getB("1").awaitData().name == "1")
+        assert(hf.get_getC2("1").awaitData() == "1")
         assert(hf.getD("success").await().code == 200)
         assert(hf.getD("fail").await().code == 400)
         assert(
             hf.get("http://t.weather.sojson.com/api/weather/city/101030100")
-                .await().cityInfo != null
+                .await().cityInfo?.city == "天津市"
         )
         text4 = "测试完成"
     }
