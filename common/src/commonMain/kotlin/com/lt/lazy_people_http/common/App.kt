@@ -93,6 +93,8 @@ fun testAll() {
             hf.get("http://t.weather.sojson.com/api/weather/city/101030100")
                 .await().cityInfo?.city == "天津市"
         )
+        assert(hf.suspendGetB("2").data.name == "2")
+        assert(hf.post_postA("123").data == "123")
         text4 = "测试完成"
     }
 }

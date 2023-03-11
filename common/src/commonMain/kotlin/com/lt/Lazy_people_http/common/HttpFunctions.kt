@@ -46,4 +46,9 @@ interface HttpFunctions {
 
     @GET("{url}")
     fun get(@Url("url") url: String): Call<MData>
+
+    @GET("get/getB")
+    suspend fun suspendGetB(name: String): NetBean<UserBean>
+
+    suspend fun post_postA(t: String): NetBean<String>
 }

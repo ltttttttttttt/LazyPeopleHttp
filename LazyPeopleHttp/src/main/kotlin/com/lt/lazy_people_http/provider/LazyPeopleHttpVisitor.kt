@@ -83,17 +83,21 @@ internal class LazyPeopleHttpVisitor(
                 getKSTypeInfo(it.returnType!!.element!!.typeArguments.first().type!!).toString()
             val headers = getHeaders(it)
             val parameterInfo = getParameters(it, methodInfo.method)
+            val isSuspendFun = Modifier.SUSPEND in it.modifiers
+            if (isSuspendFun)
+                file.appendText("    override suspend fun $functionName(${parameterInfo.funParameter}) = CallAdapter.createCall<$returnType>(\n")
+            else
+                file.appendText("    override fun $functionName(${parameterInfo.funParameter}): $returnType = CallAdapter.createCall(\n")
             file.appendText(
-                "    override fun $functionName(${parameterInfo.funParameter}): $returnType = CallAdapter.createCall(\n" +
-                        "        config,\n" +
+                "        config,\n" +
                         "        \"${methodInfo.url}\"${parameterInfo.replaceUrlFunction},\n" +
                         "        ${parameterInfo.queryParameter},\n" +
                         "        ${parameterInfo.fieldParameter},\n" +
                         "        ${parameterInfo.runtimeParameter},\n" +
-                        "        typeOf<$typeOf>(),\n" +
+                        "        typeOf<${if (isSuspendFun) returnType else typeOf}>(),\n" +
                         "        ${methodInfo.method},\n" +
                         "        $headers,\n" +
-                        "    )\n\n"
+                        "    )${if (isSuspendFun) ".await()" else ""}\n\n"
             )
         }
     }
