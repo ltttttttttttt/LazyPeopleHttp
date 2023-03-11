@@ -6,9 +6,15 @@ package com.lt.lazy_people_http.options
  * warning:
  */
 internal class ParameterInfo(
+    //方法参数
     val funParameter: String,
-    val urlParameter: String,
-    val formParameter: String,
+    //query参数
+    val queryParameter: String,
+    //field参数
+    val fieldParameter: String,
+    //运行时判断的参数
     val runtimeParameter: String,
+    //替换url的方式
+    val replaceUrlFunction: String,
 ) {
 }
