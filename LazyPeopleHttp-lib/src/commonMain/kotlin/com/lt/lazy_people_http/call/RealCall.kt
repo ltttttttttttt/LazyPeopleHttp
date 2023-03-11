@@ -30,9 +30,12 @@ class RealCall<T>(
         }
     }
 
-    override suspend fun await(): T {
-        //todo config hook
-        return getData()
+    override suspend fun await(): T = try {
+        getData()
+    } catch (e: Exception) {
+        if (e is CancellationException)
+            throw e
+        config.onSuspendError(e)
     }
 
     private suspend fun getData(): T {
@@ -57,9 +60,10 @@ class RealCall<T>(
             info.headers?.forEach {
                 headers.append(it.key, it.value)
             }
+            config.onRequest(this, info)
         }
         //接收返回值
-        val json = response.bodyAsText()
+        val json = config.onResponse(response, info)
         //将返回的json序列化为指定对象
         val data = config.json.decodeFromString(
             config.json.serializersModule.serializer(info.returnType),
