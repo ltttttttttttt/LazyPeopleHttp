@@ -20,12 +20,12 @@ import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 
-private val client = HttpClient{
+private val client = HttpClient {
     install(Logging)
 }
 private val json = Json { ignoreUnknownKeys = true }
 private val config = LazyPeopleHttpConfig(client, json)
-private val hf = HttpFunctionsImpl(config)
+private val hf = HttpFunctions::class.createService(config)
 
 var text by mutableStateOf("普通请求")
 var text2 by mutableStateOf("封装后的get请求")
@@ -64,24 +64,25 @@ suspend fun getData() {
 }
 
 fun getData2() {
-    hf.get().enqueue(object : Callback<MData> {
-        override fun onResponse(call: Call<MData>, response: MData) {
-            text2 = response.cityInfo?.city ?: "onResponse"
-        }
+    hf.get("http://t.weather.sojson.com/api/weather/city/101030100")
+        .enqueue(object : Callback<MData> {
+            override fun onResponse(call: Call<MData>, response: MData) {
+                text2 = response.cityInfo?.city ?: "onResponse"
+            }
 
-        override fun onFailure(call: Call<MData>, t: Throwable?) {
-            text2 = t?.message ?: "onFailure"
-        }
-    })
+            override fun onFailure(call: Call<MData>, t: Throwable?) {
+                text2 = t?.message ?: "onFailure"
+            }
+        })
 }
 
 fun postData() {
-    hf.post().enqueue(object : Callback<MData> {
-        override fun onResponse(call: Call<MData>, response: MData) {
-            text3 = response.cityInfo?.city ?: "onResponse"
+    hf.postA("666").enqueue(object : Callback<NetBean<String>> {
+        override fun onResponse(call: Call<NetBean<String>>, response: NetBean<String>) {
+            text3 = response.data
         }
 
-        override fun onFailure(call: Call<MData>, t: Throwable?) {
+        override fun onFailure(call: Call<NetBean<String>>, t: Throwable?) {
             text3 = t?.message ?: "onFailure"
         }
     })

@@ -8,22 +8,40 @@ import com.lt.lazy_people_http.call.Call
  * effect : 网络请求接口
  * warning:
  */
+typealias  C<T> = Call<NetBean<T>>
+
 @LazyPeopleHttpService
 interface HttpFunctions {
-    @GET("get111")
-    @Header("Accept", "true")
-    fun get(@Query("aaa") a: String, @Query("bbb") b: Int): Call<MData>
-
-    @POST("post111")
-    fun post(@Field("aaa") a: String, @Field("bbb") b: Int, c: String): Call<MData>
-
-    @POST("post222")
-    fun post2(@Field("aaa") a: String, @Query("bbb") b: Int, c: String): Call<MData>
-
-    fun a_a(a: String, b: Int, ccc: String): Call<MData>
-
-
     fun ccc(): Int {
         return 0
     }
+
+    @POST("post/postA")
+    fun postA(t: String): Call<NetBean<String>>
+
+    @POST("post/postB")
+    fun postB(@Field("t") t2: UserBean): Call<NetBean<UserBean>>
+
+    fun post_postC(t: UserBean): Call<NetBean<UserBean>>
+
+    fun post_setUserName(t: UserBean, @Field("newName") newName: String): C<UserBean>
+
+    fun post_postError(msg: String): C<String?>
+
+    @Header("aaa", "bbb")
+    fun post_checkHeader(): C<String?>
+
+    @GET("/getA")
+    fun getA(@Query("t") t2: String): Call<NetBean<String>>
+
+    @GET("/getB")
+    fun getB(t: UserBean): Call<NetBean<UserBean>>
+
+    fun get_getC(t: UserBean): Call<NetBean<UserBean>>
+
+    @GET("/getD/{type}")
+    fun getD(@Url("type") url: String): Call<NetBean<String?>>
+
+    @GET("{url}")
+    fun get(@Url("url") url: String): Call<MData>
 }

@@ -66,7 +66,7 @@ internal class LazyPeopleHttpVisitor(
         writeFunction(file, classDeclaration)
         file.appendText(
             "}\n\n" +
-                    "fun kotlin.reflect.KClass<$originalClassName>.createService(config: LazyPeopleHttpConfig) =\n" +
+                    "fun kotlin.reflect.KClass<$originalClassName>.createService(config: LazyPeopleHttpConfig): $originalClassName =\n" +
                     "    $className(config)"
         )
     }
