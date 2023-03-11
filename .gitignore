@@ -112,3 +112,5 @@ iosApp/iosApp.xcworkspace/
 iosApp/iosApp.xcodeproj
 !iosApp/iosApp.xcodeproj/project.pbxproj
 *.podspec
+
+secring.gpg
