@@ -19,3 +19,5 @@ const val coroutinesVersion = "1.6.4"//协程版本
 const val ktorVersion = "2.2.4"//ktor版本
 const val serializationJsonVersion = "1.5.0"//json序列号版本
 const val kspVersion = "$kotlinVersion-1.0.9"//ksp版本
+
+const val mVersion = "0.0.5"//此库的版本

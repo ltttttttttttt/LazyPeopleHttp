@@ -1,15 +1,18 @@
 plugins {
     kotlin("multiplatform")
     kotlin("native.cocoapods")
+    id("com.android.library")
+    id("convention.publication")
 }
 
 group = "io.github.ltttttttttttt"
-version = "1.0.0"
+//上传到mavenCentral命令: ./gradlew publishAllPublicationsToSonatypeRepository
+//mavenCentral后台: https://s01.oss.sonatype.org/#stagingRepositories
+version = mVersion
 
 kotlin {
-    jvm("desktop") {
+    jvm {
         compilations.all {
-            defaultSourceSet.resources.srcDir("/resources")
             kotlinOptions {
                 jvmTarget = "11"
             }
@@ -27,8 +30,8 @@ kotlin {
     }
 
     cocoapods {
-        summary = "Jatpack(JetBrains) Compose views"
-        homepage = "https://github.com/ltttttttttttt/ComposeViews"
+        summary = "LazyPeopleHttp"
+        homepage = "https://github.com/ltttttttttttt/LazyPeopleHttp"
         ios.deploymentTarget = "14.1"
         podfile = project.file("../iosApp/Podfile")
         framework {
@@ -56,8 +59,8 @@ kotlin {
             }
         }
 
-        val desktopMain by getting
-        val desktopTest by getting
+        val jvmMain by getting
+        val jvmTest by getting
 
         val iosMain by getting
         val iosTest by getting
