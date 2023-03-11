@@ -8,8 +8,6 @@ import com.lt.lazy_people_http.call.Call
  * effect : 网络请求接口
  * warning:
  */
-typealias  C<T> = Call<NetBean<T>>
-
 @LazyPeopleHttpService
 interface HttpFunctions {
     fun ccc(): Int {
@@ -22,14 +20,14 @@ interface HttpFunctions {
     @POST("post/postB")
     fun postB(@Field("t") t2: UserBean): Call<NetBean<UserBean>>
 
-    fun post_postC(t: UserBean): Call<NetBean<UserBean>>
+    fun post_postC(t: UserBean): Call<NetBean<String>>
 
-    fun post_setUserName(t: UserBean, @Field("newName") newName: String): C<UserBean>
+    fun post_setUserName(t: UserBean, @Field("newName") newName: String): Call<NetBean<UserBean>>
 
-    fun post_postError(msg: String): C<String?>
+    fun post_postError(msg: String): Call<NetBean<String?>>
 
     @Header("aaa", "bbb")
-    fun post_checkHeader(): C<String?>
+    fun post_checkHeader(): Call<NetBean<String?>>
 
     @GET("/getA")
     fun getA(@Query("t") t2: String): Call<NetBean<String>>
@@ -37,7 +35,7 @@ interface HttpFunctions {
     @GET("/getB")
     fun getB(t: UserBean): Call<NetBean<UserBean>>
 
-    fun get_getC(t: UserBean): Call<NetBean<UserBean>>
+    fun get_getC(t: UserBean): Call<NetBean<String>>
 
     @GET("/getD/{type}")
     fun getD(@Url("type") url: String): Call<NetBean<String?>>

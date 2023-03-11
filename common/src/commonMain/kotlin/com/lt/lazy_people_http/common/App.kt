@@ -30,6 +30,7 @@ private val hf = HttpFunctions::class.createService(config)
 var text by mutableStateOf("普通请求")
 var text2 by mutableStateOf("封装后的get请求")
 var text3 by mutableStateOf("封装后的post请求")
+var text4 by mutableStateOf("手动测试全部接口")//全平台测试不支持异步的
 
 @Composable
 fun App() {
@@ -53,6 +54,41 @@ fun App() {
         }) {
             Text(text3)
         }
+        Button(onClick = {
+            testAll()
+        }) {
+            Text(text4)
+        }
+    }
+}
+
+fun testAll() {
+    var i = 0
+    fun assert(boolean: Boolean) {
+        if (!boolean) throw RuntimeException()
+        i++
+        text4 = "测试完成:$i"
+    }
+
+    suspend fun <T> Call<NetBean<T>>.awaitData() = await().data
+    GlobalScope.launch {
+        assert(hf.ccc() == 0)
+        assert(hf.postA("123").awaitData() == "123")
+        assert(hf.postB(UserBean("1", 2, "3")).awaitData().name == "1")
+        assert(hf.post_postC(UserBean("1", 2, "3")).awaitData() == "1")
+        assert(hf.post_setUserName(UserBean("1", 2, "3"), "4").awaitData().name == "4")
+        assert(hf.post_postError("error").await().msg == "error")
+        assert(hf.post_checkHeader().awaitData() == "bbb")
+        assert(hf.getA("bbb").awaitData() == "bbb")
+        assert(hf.getB(UserBean("1", 2, "3")).awaitData().name == "1")
+        assert(hf.get_getC(UserBean("1", 2, "3")).awaitData() == "1")
+        assert(hf.getD("success").await().code == 200)
+        assert(hf.getD("fail").await().code == 400)
+        assert(
+            hf.get("http://t.weather.sojson.com/api/weather/city/101030100")
+                .await().cityInfo != null
+        )
+        text4 = "测试完成"
     }
 }
 

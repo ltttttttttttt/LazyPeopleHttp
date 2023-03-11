@@ -20,33 +20,42 @@ class RealCall<T>(
 ) : Call<T> {
     override fun enqueue(callback: Callback<T>, scope: CoroutineScope) = scope.launch {
         try {
-            //创建请求对象
-            val response: HttpResponse = config.client.request {
-                //设置请求方法
-                method = (info.requestMethod ?: config.defaultRequestMethod).method
-                //设置请求地址
-                url(info.url)
-                //传递参数
-                info.parameters?.forEach {
-                    parameter(it.key, it.value ?: "")
-                }
-                //增加请求头
-                info.headers?.forEach {
-                    headers.append(it.key, it.value)
-                }
-            }
-            //接收返回值
-            val json = response.bodyAsText()
-            //将返回的json序列化为指定对象
-            val data = config.json.decodeFromString(
-                config.json.serializersModule.serializer(info.returnType),
-                json
-            ) as T
-            callback.onResponse(this@RealCall, data)
+            callback.onResponse(this@RealCall, getData())
         } catch (e: Exception) {
             if (e is CancellationException)
                 throw e
             callback.onFailure(this@RealCall, e)
         }
+    }
+
+    override suspend fun await(): T {
+        //todo config hook
+        return getData()
+    }
+
+    private suspend fun getData(): T {
+        //创建请求对象
+        val response: HttpResponse = config.client.request {
+            //设置请求方法
+            method = (info.requestMethod ?: config.defaultRequestMethod).method
+            //设置请求地址
+            url(info.url)
+            //传递参数
+            info.parameters?.forEach {
+                parameter(it.key, it.value ?: "")
+            }
+            //增加请求头
+            info.headers?.forEach {
+                headers.append(it.key, it.value)
+            }
+        }
+        //接收返回值
+        val json = response.bodyAsText()
+        //将返回的json序列化为指定对象
+        val data = config.json.decodeFromString(
+            config.json.serializersModule.serializer(info.returnType),
+            json
+        ) as T
+        return data
     }
 }
