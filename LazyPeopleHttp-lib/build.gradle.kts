@@ -11,6 +11,10 @@ group = "io.github.ltttttttttttt"
 version = mVersion
 
 kotlin {
+    android {
+        publishLibraryVariants("debug", "release")
+    }
+
     jvm {
         compilations.all {
             kotlinOptions {
@@ -59,6 +63,9 @@ kotlin {
             }
         }
 
+        val androidMain by getting
+        val androidUnitTest by getting
+
         val jvmMain by getting
         val jvmTest by getting
 
@@ -72,5 +79,19 @@ kotlin {
         }
 
         val jsMain by getting
+    }
+}
+
+android {
+    compileSdk = 33
+    defaultConfig {
+        minSdk = 21
+        targetSdk = 31
+        sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
+        sourceSets["main"].res.srcDir("resources")
+    }
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
 }
