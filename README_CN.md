@@ -3,7 +3,15 @@
 懒人http客户端,相当于kotlin全平台的Retrofit
 
 灵感来源于: https://github.com/ltttttttttttt/retrofit
+
 如果你想使用更多功能的库,可以使用: https://github.com/Foso/Ktorfit
+
+<p align="center">
+<img src="https://img.shields.io/badge/license-Apache%202-blue.svg?maxAge=2592000">
+<img src="https://img.shields.io/maven-central/v/io.github.ltttttttttttt/LazyPeopleHttp"/>
+</p>
+
+<div align="center"><a href="https://github.com/ltttttttttttt/LazyPeopleHttp/blob/main/README.md">us English</a> | cn 简体中文</div>
 
 ## 使用方式
 

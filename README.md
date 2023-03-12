@@ -3,7 +3,15 @@
 Lazy people http, Retrofit of kmp all targets
 
 Inspired by: https://github.com/ltttttttttttt/retrofit
+
 If you want to use a more functional library, you can use: https://github.com/Foso/Ktorfit
+
+<p align="center">
+<img src="https://img.shields.io/badge/license-Apache%202-blue.svg?maxAge=2592000">
+<img src="https://img.shields.io/maven-central/v/io.github.ltttttttttttt/LazyPeopleHttp"/>
+</p>
+
+<div align="center">us English | <a href="https://github.com/ltttttttttttt/LazyPeopleHttp/blob/main/README_CN.md">cn 简体中文</a></div>
 
 ## How to use
 
