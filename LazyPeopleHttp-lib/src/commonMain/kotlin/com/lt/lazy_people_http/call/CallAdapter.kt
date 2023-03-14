@@ -46,14 +46,6 @@ object CallAdapter {
     }
 
     /**
-     * 根据参数执行具体的请求流程
-     */
-    suspend fun suspendCall(
-    ) {
-
-    }
-
-    /**
      * 将对象转为json
      */
     inline fun <reified T : Any> parameterToJson(
