@@ -63,13 +63,28 @@ kotlin {
             }
         }
 
-        val androidMain by getting
+        val androidMain by getting{
+            dependencies {
+                //网络请求引擎
+                api("io.ktor:ktor-client-okhttp:$ktorVersion")
+            }
+        }
         val androidUnitTest by getting
 
-        val jvmMain by getting
+        val jvmMain by getting{
+            dependencies {
+                //网络请求引擎
+                api("io.ktor:ktor-client-okhttp:$ktorVersion")
+            }
+        }
         val jvmTest by getting
 
-        val iosMain by getting
+        val iosMain by getting{
+            dependencies {
+                //网络请求引擎
+                api("io.ktor:ktor-client-darwin:$ktorVersion")
+            }
+        }
         val iosTest by getting
         val iosSimulatorArm64Main by getting {
             dependsOn(iosMain)
@@ -78,7 +93,12 @@ kotlin {
             dependsOn(iosTest)
         }
 
-        val jsMain by getting
+        val jsMain by getting{
+            dependencies {
+                //网络请求引擎
+                api("io.ktor:ktor-client-js:$ktorVersion")
+            }
+        }
     }
 }
 

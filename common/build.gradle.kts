@@ -47,6 +47,8 @@ kotlin {
                 api("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationJsonVersion")
                 //跨平台网络请求-日志打印
                 api("io.ktor:ktor-client-logging:$ktorVersion")
+                //kotlin
+                api("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
             }
         }
         val commonTest by getting {
@@ -58,7 +60,7 @@ kotlin {
             dependencies {
                 api("androidx.appcompat:appcompat:1.5.1")
                 api("androidx.core:core-ktx:1.9.0")
-                api("io.ktor:ktor-client-cio:$ktorVersion")
+                api("io.ktor:ktor-client-okhttp:$ktorVersion")
             }
         }
         val androidUnitTest by getting {
@@ -69,13 +71,13 @@ kotlin {
         val desktopMain by getting {
             dependencies {
                 api(compose.preview)
-                api("io.ktor:ktor-client-cio:$ktorVersion")
+                api("io.ktor:ktor-client-okhttp:$ktorVersion")
             }
         }
         val desktopTest by getting
         val iosMain by getting {
             dependencies {
-                api("io.ktor:ktor-client-cio:$ktorVersion")
+                api("io.ktor:ktor-client-darwin:$ktorVersion")
             }
         }
         val iosTest by getting
@@ -97,7 +99,7 @@ android {
     compileSdkVersion(33)
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
-        minSdkVersion(24)
+        minSdkVersion(21)
         targetSdkVersion(33)
     }
     compileOptions {

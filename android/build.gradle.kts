@@ -14,13 +14,15 @@ repositories {
 dependencies {
     implementation(project(":common"))
     implementation("androidx.activity:activity-compose:1.5.0")
+    //kotlin
+    implementation("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
 }
 
 android {
     compileSdkVersion(33)
     defaultConfig {
         applicationId = "com.lt.lazy_people_http"
-        minSdkVersion(24)
+        minSdkVersion(21)
         targetSdkVersion(33)
         versionCode = 1
         versionName = "1.0-SNAPSHOT"
