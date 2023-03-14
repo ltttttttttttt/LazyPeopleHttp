@@ -21,7 +21,7 @@ import kotlinx.serialization.json.Json
 class LazyPeopleHttpConfig(
     val client: HttpClient,
     val json: Json,
-    val defaultRequestMethod: RequestMethod = RequestMethod.POST,
+    val defaultRequestMethod: RequestMethod = RequestMethod.POST_FIELD,
     val onSuspendError: suspend (e: Throwable) -> Nothing = { throw it },
     val onRequest: HttpRequestBuilder.(info: RequestInfo) -> Unit = {},
     val onResponse: suspend (response: HttpResponse, info: RequestInfo) -> String = { response, info -> response.bodyAsText() },

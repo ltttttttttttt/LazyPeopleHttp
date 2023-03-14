@@ -32,11 +32,11 @@ object CallAdapter {
                 url,
                 mergeMap(
                     parameters,
-                    if (config.defaultRequestMethod == RequestMethod.GET) runtimeParameters else null
+                    if (config.defaultRequestMethod == RequestMethod.GET_QUERY) runtimeParameters else null
                 ),
                 mergeMap(
                     formParameters,
-                    if (config.defaultRequestMethod == RequestMethod.POST) runtimeParameters else null
+                    if (config.defaultRequestMethod == RequestMethod.POST_FIELD) runtimeParameters else null
                 ),
                 returnType,
                 requestMethod,

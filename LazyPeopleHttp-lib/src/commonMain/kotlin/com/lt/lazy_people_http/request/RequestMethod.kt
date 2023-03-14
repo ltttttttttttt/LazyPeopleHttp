@@ -8,6 +8,13 @@ import io.ktor.http.*
  * warning:
  */
 enum class RequestMethod(val method: HttpMethod) {
-    GET(HttpMethod.Get),
-    POST(HttpMethod.Post),
+    /**
+     * get+query拼接url
+     */
+    GET_QUERY(HttpMethod.Get),
+
+    /**
+     * post+field组合form表单
+     */
+    POST_FIELD(HttpMethod.Post),
 }
