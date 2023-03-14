@@ -1,4 +1,4 @@
-package com.lt.lazy_people_http
+package com.lt.lazy_people_http.config
 
 import com.lt.lazy_people_http.request.RequestInfo
 import com.lt.lazy_people_http.request.RequestMethod

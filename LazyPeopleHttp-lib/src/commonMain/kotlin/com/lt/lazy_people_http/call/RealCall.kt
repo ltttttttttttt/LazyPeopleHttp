@@ -1,6 +1,7 @@
 package com.lt.lazy_people_http.call
 
-import com.lt.lazy_people_http.LazyPeopleHttpConfig
+import com.lt.lazy_people_http.config.CustomConfigsNode
+import com.lt.lazy_people_http.config.LazyPeopleHttpConfig
 import com.lt.lazy_people_http.request.RequestInfo
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
@@ -20,6 +21,8 @@ class RealCall<T>(
     val config: LazyPeopleHttpConfig,
     val info: RequestInfo,
 ) : Call<T> {
+    private var customConfigs: CustomConfigsNode? = null
+
     override fun enqueue(callback: Callback<T>, scope: CoroutineScope) = scope.launch {
         try {
             callback.onResponse(this@RealCall, getData())
@@ -36,6 +39,16 @@ class RealCall<T>(
         if (e is CancellationException)
             throw e
         config.onSuspendError(e)
+    }
+
+    override fun config(block: HttpRequestBuilder.() -> Unit): Call<T> {
+        val next = CustomConfigsNode(block)
+        val config = customConfigs
+        if (config == null)
+            customConfigs = next
+        else
+            config.next = next
+        return this
     }
 
     private suspend fun getData(): T {
@@ -60,7 +73,13 @@ class RealCall<T>(
             info.headers?.forEach {
                 headers.append(it.key, it.value)
             }
+            //处理全局和单独的自定义配置
             config.onRequest(this, info)
+            var config = customConfigs
+            while (config != null) {
+                config.block(this)
+                config = config.next
+            }
         }
         //接收返回值
         val json = config.onResponse(response, info)

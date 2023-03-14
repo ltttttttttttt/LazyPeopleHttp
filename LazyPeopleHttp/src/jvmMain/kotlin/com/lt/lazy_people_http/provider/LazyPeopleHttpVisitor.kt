@@ -52,7 +52,7 @@ internal class LazyPeopleHttpVisitor(
         file.appendText(
             "package $packageName\n" +
                     "\n" +
-                    "import com.lt.lazy_people_http.LazyPeopleHttpConfig\n" +
+                    "import com.lt.lazy_people_http.config.LazyPeopleHttpConfig\n" +
                     "import com.lt.lazy_people_http.call.CallAdapter\n" +
                     "import com.lt.lazy_people_http.request.RequestMethod\n" +
                     "import com.lt.lazy_people_http.service.HttpServiceImpl\n" +

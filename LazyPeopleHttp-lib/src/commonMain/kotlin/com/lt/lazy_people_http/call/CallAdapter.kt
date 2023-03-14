@@ -1,6 +1,6 @@
 package com.lt.lazy_people_http.call
 
-import com.lt.lazy_people_http.LazyPeopleHttpConfig
+import com.lt.lazy_people_http.config.LazyPeopleHttpConfig
 import com.lt.lazy_people_http.mergeMap
 import com.lt.lazy_people_http.request.RequestInfo
 import com.lt.lazy_people_http.request.RequestMethod

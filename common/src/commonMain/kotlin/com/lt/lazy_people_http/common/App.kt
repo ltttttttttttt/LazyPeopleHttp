@@ -7,9 +7,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import com.lt.lazy_people_http.LazyPeopleHttpConfig
 import com.lt.lazy_people_http.call.Call
 import com.lt.lazy_people_http.call.Callback
+import com.lt.lazy_people_http.config.LazyPeopleHttpConfig
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.*
@@ -26,7 +26,10 @@ private val client = HttpClient {
         //配置baseUrl
         url("http://127.0.0.1:666/")
     }
-    install(Logging)
+    install(Logging) {
+        logger = Logger.DEFAULT
+        level = LogLevel.ALL
+    }
 }
 private val json = Json { ignoreUnknownKeys = true }
 private val config = LazyPeopleHttpConfig(client, json)
@@ -107,16 +110,19 @@ suspend fun getData() {
 }
 
 fun getData2() {
-    hf.get("http://t.weather.sojson.com/api/weather/city/101030100")
-        .enqueue(object : Callback<MData> {
-            override fun onResponse(call: Call<MData>, response: MData) {
-                text2 = response.cityInfo?.city ?: "onResponse"
-            }
+    hf.get("http://t.weather.sojson.com/api/weather/city/101030100").config {
+        url.parameters.append("a", "b")
+    }.config {
+        url.parameters.remove("a")
+    }.enqueue(object : Callback<MData> {
+        override fun onResponse(call: Call<MData>, response: MData) {
+            text2 = response.cityInfo?.city ?: "onResponse"
+        }
 
-            override fun onFailure(call: Call<MData>, t: Throwable?) {
-                text2 = t?.message ?: "onFailure"
-            }
-        })
+        override fun onFailure(call: Call<MData>, t: Throwable?) {
+            text2 = t?.message ?: "onFailure"
+        }
+    })
 }
 
 fun postData() {

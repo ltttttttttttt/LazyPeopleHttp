@@ -1,5 +1,6 @@
 package com.lt.lazy_people_http.call
 
+import io.ktor.client.request.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -21,4 +22,9 @@ interface Call<T> {
      * 注意:协程的失败策略在[LazyPeopleHttpConfig]中配置
      */
     suspend fun await(): T
+
+    /**
+     * 自定义一些配置
+     */
+    fun config(block: HttpRequestBuilder.() -> Unit): Call<T>
 }
