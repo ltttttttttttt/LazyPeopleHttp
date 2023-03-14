@@ -118,3 +118,21 @@ private val hf = HttpFunctions::class.createService(config)
 hf.postB("123").enqueue()//callback asynchronous request
 hf.suspendGetB("111")//Coroutine asynchronous request
 ```
+
+Step 4.Custom configuration:
+
+```kotlin
+/*
+ * [client]Ktor request client
+ * [json]serialization
+ * [defaultRequestMethod]Default request method (without annotation)
+ * [onSuspendError]Called when the suspend function throws an exception
+ * [onRequest]Successfully constructed the request, but before sending the request
+ * [onResponse]The request has been constructed, but no request has been made. This function requests and returns json data
+ */
+class LazyPeopleHttpConfig(...)
+
+hf.postB("123").config {
+    //this is HttpRequestBuilder
+}.enqueue()
+```

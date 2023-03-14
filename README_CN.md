@@ -79,13 +79,13 @@ interface HttpFunctions {
     //标准get请求声明
     @GET("get/getA")
     fun getA(@Query("t") t2: String): Call<NetBean<String>>
-    
+
     //懒人get请求声明
     fun get_getB(name: String): Call<NetBean<UserBean>>
 
     //suspend get请求声明
     suspend fun suspendGetB(name: String): NetBean<UserBean>
-    
+
     //添加静态的请求头
     @Header("aaa", "bbb")
     fun post_checkHeader(): Call<NetBean<String?>>
@@ -117,4 +117,22 @@ private val hf = HttpFunctions::class.createService(config)
 //使用接口的实现类
 hf.postB("123").enqueue()//回调异步请求
 hf.suspendGetB("111")//协程异步请求
+```
+
+Step 4.自定义配置:
+
+```kotlin
+/*
+ * [client]ktor请求客户端
+ * [json]kotlin跨平台的json解析器
+ * [defaultRequestMethod]默认请求方式(不使用注解的方法)
+ * [onSuspendError]suspend函数抛出异常时调用
+ * [onRequest]成功构造了请求,但发送请求之前
+ * [onResponse]请求构造完毕,但未进行请求,在此函数内请求并返回json数据
+ */
+class LazyPeopleHttpConfig(...)
+
+hf.postB("123").config {
+    //this is HttpRequestBuilder
+}.enqueue()
 ```
