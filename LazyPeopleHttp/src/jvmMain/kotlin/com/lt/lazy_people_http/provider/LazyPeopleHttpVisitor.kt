@@ -10,6 +10,7 @@ import com.lt.lazy_people_http.appendText
 import com.lt.lazy_people_http.getKSTypeInfo
 import com.lt.lazy_people_http.options.MethodInfo
 import com.lt.lazy_people_http.options.ParameterInfo
+import com.lt.lazy_people_http.request.RequestMethod
 import java.io.OutputStream
 
 /**
@@ -95,7 +96,7 @@ internal class LazyPeopleHttpVisitor(
                         "        ${parameterInfo.fieldParameter},\n" +
                         "        ${parameterInfo.runtimeParameter},\n" +
                         "        typeOf<${if (isSuspendFun) returnType else typeOf}>(),\n" +
-                        "        ${methodInfo.method},\n" +
+                        "        ${if (methodInfo.method == null) "null" else "RequestMethod.${methodInfo.method}"},\n" +
                         "        $headers,\n" +
                         "    )${if (isSuspendFun) ".await()" else ""}\n\n"
             )
@@ -103,7 +104,7 @@ internal class LazyPeopleHttpVisitor(
     }
 
     //获取方法的参数和请求参数
-    private fun getParameters(it: KSFunctionDeclaration, method: String): ParameterInfo {
+    private fun getParameters(it: KSFunctionDeclaration, method: RequestMethod?): ParameterInfo {
         //如果没有参数
         if (it.parameters.isEmpty()) return ParameterInfo("", "null", "null", "null", "")
         //有参数的话就将参数拆为:方法参数,query参数,field参数,和只有运行时才能处理的参数
@@ -119,12 +120,16 @@ internal class LazyPeopleHttpVisitor(
             getParameterInfo(it, funPName, queryPList, fieldPList, runtimePList, replaceUrlFList)
         }
         //处理方法加了注解,但参数没加注解的情况
-        if (method == "RequestMethod.GET") {
-            queryPList.addAll(runtimePList)
-            runtimePList.clear()
-        } else if (method == "RequestMethod.POST") {
-            fieldPList.addAll(runtimePList)
-            runtimePList.clear()
+        when (method) {
+            RequestMethod.GET_QUERY -> {
+                queryPList.addAll(runtimePList)
+                runtimePList.clear()
+            }
+            RequestMethod.POST_FIELD -> {
+                fieldPList.addAll(runtimePList)
+                runtimePList.clear()
+            }
+            else -> {}
         }
         //将所有参数拼接成代码
         return ParameterInfo(
@@ -189,12 +194,12 @@ internal class LazyPeopleHttpVisitor(
         val list =
             (it.getAnnotationsByType(GET::class) + it.getAnnotationsByType(POST::class)).toList()
         if (list.isEmpty())
-            return MethodInfo("null", functionName.replace("_", "/"))
+            return MethodInfo(null, functionName.replace("_", "/"))
         if (list.size > 1)
             throw RuntimeException("Function $functionName there are multiple http method annotations")
         return when (val annotation = list.first()) {
-            is GET -> MethodInfo("RequestMethod.GET", annotation.url)
-            is POST -> MethodInfo("RequestMethod.POST", annotation.url)
+            is GET -> MethodInfo(RequestMethod.GET_QUERY, annotation.url)
+            is POST -> MethodInfo(RequestMethod.POST_FIELD, annotation.url)
             else -> throw RuntimeException("There is a problem with the getMethodInfo function")
         }
     }
