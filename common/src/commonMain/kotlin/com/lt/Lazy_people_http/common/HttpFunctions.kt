@@ -8,6 +8,12 @@ import com.lt.lazy_people_http.call.Call
  * effect : 网络请求接口
  * warning:
  */
+
+private typealias C<T> = Call<NetBean<T>>
+private typealias CL<T> = Call<NetBean<List<T>>>
+//测试用
+private typealias N<T> = NetBean<T>
+
 @LazyPeopleHttpService
 interface HttpFunctions {
     fun ccc(): Int {
@@ -21,6 +27,10 @@ interface HttpFunctions {
     fun postB(@Field("name") t: String): Call<NetBean<UserBean>>
 
     fun post_postC(name: String): Call<NetBean<String>>
+
+    fun post_postD(name: String): C<String>
+
+    suspend fun post_postE(name: String): N<String>
 
     fun post_setUserName(
         lastName: String,
@@ -40,6 +50,9 @@ interface HttpFunctions {
 
     @GET("get/getC")
     fun get_getC2(name: String): Call<NetBean<String>>
+
+    @GET("get/getC3")
+    fun get_getC3(name: String): CL<UserBean>
 
     @GET("get/getD/{type}")
     fun getD(@Url("type") url: String): Call<NetBean<String?>>

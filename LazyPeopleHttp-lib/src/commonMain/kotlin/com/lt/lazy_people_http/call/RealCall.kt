@@ -9,6 +9,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.serializer
 
@@ -23,15 +24,16 @@ class RealCall<T>(
 ) : Call<T> {
     private var customConfigs: CustomConfigsNode? = null
 
-    override fun enqueue(callback: Callback<T>, scope: CoroutineScope) = scope.launch {
-        try {
-            callback.onResponse(this@RealCall, getData())
-        } catch (e: Exception) {
-            if (e is CancellationException)
-                throw e
-            callback.onFailure(this@RealCall, e)
+    override fun enqueue(callback: Callback<T>, scope: CoroutineScope) =
+        scope.launch(Dispatchers.Main) {
+            try {
+                callback.onResponse(this@RealCall, getData())
+            } catch (e: Exception) {
+                if (e is CancellationException)
+                    throw e
+                callback.onFailure(this@RealCall, e)
+            }
         }
-    }
 
     override suspend fun await(): T = try {
         getData()

@@ -123,6 +123,7 @@ Step 4.Custom configuration:
 
 ```kotlin
 /*
+ * Current LazyPeopleHttpService Class Global Configuration
  * [client]Ktor request client
  * [json]serialization
  * [defaultRequestMethod]Default request method (without annotation)
@@ -132,6 +133,7 @@ Step 4.Custom configuration:
  */
 class LazyPeopleHttpConfig(...)
 
+//Modify the configuration of an interface separately
 hf.postB("123").config {
     //this is HttpRequestBuilder
 }.enqueue()
