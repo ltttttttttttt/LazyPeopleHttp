@@ -9,10 +9,10 @@ import com.lt.lazy_people_http.call.Call
  * warning:
  */
 
-private typealias C<T> = Call<NetBean<T>>
-private typealias CL<T> = Call<NetBean<List<T>>>
+typealias C<T> = Call<NetBean<T>>
+typealias CL<T> = Call<NetBean<List<T>>>
 //测试用
-private typealias N<T> = NetBean<T>
+typealias N<T> = NetBean<T>
 
 @LazyPeopleHttpService
 interface HttpFunctions {
