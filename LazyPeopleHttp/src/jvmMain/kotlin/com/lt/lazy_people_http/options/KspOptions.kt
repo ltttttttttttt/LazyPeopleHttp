@@ -1,7 +1,6 @@
 package com.lt.lazy_people_http.options
 
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
-import com.lt.lazy_people_http.ifNullOfEmpty
 
 /**
  * creator: lt  2022/10/23  lt.dygzs@qq.com
@@ -10,11 +9,11 @@ import com.lt.lazy_people_http.ifNullOfEmpty
  */
 internal class KspOptions(environment: SymbolProcessorEnvironment) {
     private val options = environment.options
-    private val packageList = "packageList"
+    private val isGetFunctionAnnotations = "lazyPeopleHttpGetFunctionAnnotations"
 
     /**
-     * 具体哪些包(完全相等)中的类需要虚拟反射功能,逗号隔开
+     * 是否需要在请求信息[RequestInfo]中附带"获取方法和其参数以及返回值上的注解(不包含Type的注解)"的方式
      */
-    fun getPackageList(): List<String> =
-        options[packageList].ifNullOfEmpty { return listOf() }.split(",")
+    fun isGetFunctionAnnotations(): Boolean =
+        options[isGetFunctionAnnotations] == "true"
 }

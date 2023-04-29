@@ -46,7 +46,7 @@ class RealCall<T>(
     } catch (e: Exception) {
         if (e is CancellationException)
             throw e
-        config.onSuspendError(e)
+        config.onSuspendError(e, info)
     }
 
     override fun config(block: HttpRequestBuilder.() -> Unit): Call<T> {
@@ -65,27 +65,32 @@ class RealCall<T>(
             //设置请求方法
             method = (info.requestMethod ?: config.defaultRequestMethod).method
             //设置请求地址
-            url(config.encryptJson(info.url, ParameterLocation.Url))
+            url(config.encryptJson(info.url, ParameterLocation.Url, info))
             //传递Query参数
             info.parameters?.forEach {
-                val key = config.encryptJson(it.key, ParameterLocation.ParameterKey)
-                val value = config.encryptJson(it.value ?: "", ParameterLocation.ParameterValue)
+                val key = config.encryptJson(it.key, ParameterLocation.ParameterKey, info)
+                val value =
+                    config.encryptJson(it.value ?: "", ParameterLocation.ParameterValue, info)
                 parameter(key, value)
             }
             //传递Field参数
             if (!info.formParameters.isNullOrEmpty())
                 setBody(FormDataContent(Parameters.build {
                     info.formParameters.forEach {
-                        val key = config.encryptJson(it.key, ParameterLocation.ParameterKey)
+                        val key = config.encryptJson(it.key, ParameterLocation.ParameterKey, info)
                         val value =
-                            config.encryptJson(it.value ?: "", ParameterLocation.ParameterValue)
+                            config.encryptJson(
+                                it.value ?: "",
+                                ParameterLocation.ParameterValue,
+                                info
+                            )
                         append(key, value)
                     }
                 }))
             //增加请求头
             info.headers?.forEach {
-                val key = config.encryptJson(it.key, ParameterLocation.HeaderKey)
-                val value = config.encryptJson(it.value, ParameterLocation.HeaderValue)
+                val key = config.encryptJson(it.key, ParameterLocation.HeaderKey, info)
+                val value = config.encryptJson(it.value, ParameterLocation.HeaderValue, info)
                 headers.append(key, value)
             }
             //处理全局和单独的自定义配置
@@ -98,7 +103,7 @@ class RealCall<T>(
         }
         //接收返回值
         val result = config.onResponse(response, info)
-        val json = config.decryptJson(result, ParameterLocation.Result)
+        val json = config.decryptJson(result, ParameterLocation.Result, info)
         //将返回的json序列化为指定对象
         config.json.decodeFromString(
             config.json.serializersModule.serializer(info.returnType),

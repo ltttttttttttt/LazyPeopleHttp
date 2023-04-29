@@ -20,4 +20,6 @@ class RequestInfo(
     val requestMethod: RequestMethod?,
     //设置的额外的请求头
     val headers: Map<String, String>?,
+    //方法和参数上附带的所有注解
+    val functionAnnotations: (() -> Array<Annotation>)?,
 )

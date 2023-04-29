@@ -25,9 +25,9 @@ class LazyPeopleHttpConfig(
     val client: HttpClient,
     val json: Json,
     val defaultRequestMethod: RequestMethod = RequestMethod.POST_FIELD,
-    val onSuspendError: suspend (e: Throwable) -> Nothing = { throw it },
+    val onSuspendError: suspend (e: Throwable, info: RequestInfo) -> Nothing = { e, _ -> throw e },
     val onRequest: HttpRequestBuilder.(info: RequestInfo) -> Unit = {},
     val onResponse: suspend (response: HttpResponse, info: RequestInfo) -> String = { response, info -> response.bodyAsText() },
-    val encryptJson: (value: String, location: ParameterLocation) -> String = { s, _ -> s },
-    val decryptJson: (value: String, location: ParameterLocation) -> String = { s, _ -> s },
+    val encryptJson: (value: String, location: ParameterLocation, info: RequestInfo) -> String = { s, _, _ -> s },
+    val decryptJson: (value: String, location: ParameterLocation, info: RequestInfo) -> String = { s, _, _ -> s },
 )

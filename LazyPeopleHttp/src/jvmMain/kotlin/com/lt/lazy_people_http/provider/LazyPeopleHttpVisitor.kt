@@ -8,6 +8,8 @@ import com.google.devtools.ksp.symbol.*
 import com.lt.lazy_people_http.annotations.*
 import com.lt.lazy_people_http.appendText
 import com.lt.lazy_people_http.getKSTypeInfo
+import com.lt.lazy_people_http.getNewAnnotationString
+import com.lt.lazy_people_http.options.KspOptions
 import com.lt.lazy_people_http.options.MethodInfo
 import com.lt.lazy_people_http.options.ParameterInfo
 import com.lt.lazy_people_http.request.RequestMethod
@@ -21,6 +23,9 @@ import java.io.OutputStream
 internal class LazyPeopleHttpVisitor(
     private val environment: SymbolProcessorEnvironment,
 ) : KSVisitorVoid() {
+
+    private val options = KspOptions(environment)
+    private val isGetFunctionAnnotations = options.isGetFunctionAnnotations()
 
     /**
      * 访问class的声明
@@ -85,24 +90,36 @@ internal class LazyPeopleHttpVisitor(
             val headers = getHeaders(it)
             val parameterInfo = getParameters(it, methodInfo.method)
             val isSuspendFun = Modifier.SUSPEND in it.modifiers
-            if (isSuspendFun)
-                file.appendText("    override suspend fun $functionName(${parameterInfo.funParameter}) = CallAdapter.createCall<$returnType>(\n")
-            else
-                file.appendText("    override fun $functionName(${parameterInfo.funParameter}): $returnType = CallAdapter.createCall(\n")
             var url = methodInfo.url
             parameterInfo.replaceUrlFunction?.forEach {
                 url = url.replace(it.key, "\$${it.value}")
             }
+            val functionAnnotations = getFunctionAnnotations(it)
+
+            file.appendText("    override ${if (isSuspendFun) "suspend " else ""}fun $functionName(${parameterInfo.funParameter}): $returnType {\n")
+            if (functionAnnotations.isNotEmpty())
+                file.appendText(
+                    "        var annotations: Array<Annotation>? = null\n" +
+                            "        val getAnnotations: () -> Array<Annotation> = get@{\n" +
+                            "            annotations?.let { return@get it }\n" +
+                            "            val array = arrayOf<Annotation>($functionAnnotations)\n" +
+                            "            annotations = array\n" +
+                            "            array\n" +
+                            "        }\n"
+                )
             file.appendText(
-                "        config,\n" +
-                        "        \"$url\",\n" +
-                        "        ${parameterInfo.queryParameter},\n" +
-                        "        ${parameterInfo.fieldParameter},\n" +
-                        "        ${parameterInfo.runtimeParameter},\n" +
-                        "        typeOf<${if (isSuspendFun) returnType else typeOf}>(),\n" +
-                        "        ${if (methodInfo.method == null) "null" else "RequestMethod.${methodInfo.method}"},\n" +
-                        "        $headers,\n" +
-                        "    )${if (isSuspendFun) ".await()" else ""}\n\n"
+                "        return CallAdapter.createCall${if (isSuspendFun) "<$returnType>" else ""}(\n" +
+                        "            config,\n" +
+                        "            \"$url\",\n" +
+                        "            ${parameterInfo.queryParameter},\n" +
+                        "            ${parameterInfo.fieldParameter},\n" +
+                        "            ${parameterInfo.runtimeParameter},\n" +
+                        "            typeOf<${if (isSuspendFun) returnType else typeOf}>(),\n" +
+                        "            ${if (methodInfo.method == null) "null" else "RequestMethod.${methodInfo.method}"},\n" +
+                        "            $headers,\n" +
+                        "            ${if (functionAnnotations.isEmpty()) "null" else "getAnnotations"},\n" +
+                        "        )${if (isSuspendFun) ".await()" else ""}\n" +
+                        "    }\n\n"
             )
         }
     }
@@ -208,5 +225,26 @@ internal class LazyPeopleHttpVisitor(
             is POST -> MethodInfo(RequestMethod.POST_FIELD, annotation.url)
             else -> throw RuntimeException("There is a problem with the getMethodInfo function")
         }
+    }
+
+    //获取方法和其参数以及返回值上的注解(不包含Type的注解)
+    private fun getFunctionAnnotations(it: KSFunctionDeclaration): String {
+        if (!isGetFunctionAnnotations) return ""
+        val annotations = StringBuilder()
+        it.annotations.forEach {
+            annotations.append(getNewAnnotationString(it))
+                .append(", ")
+        }
+        it.parameters.forEach {
+            it.annotations.forEach {
+                annotations.append(getNewAnnotationString(it))
+                    .append(", ")
+            }
+        }
+        it.returnType?.annotations?.forEach {
+            annotations.append(getNewAnnotationString(it))
+                .append(", ")
+        }
+        return annotations.toString()
     }
 }

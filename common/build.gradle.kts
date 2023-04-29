@@ -93,6 +93,9 @@ kotlin {
             }
         }
     }
+    ksp {
+        arg("lazyPeopleHttpGetFunctionAnnotations", "true")
+    }
 }
 
 android {

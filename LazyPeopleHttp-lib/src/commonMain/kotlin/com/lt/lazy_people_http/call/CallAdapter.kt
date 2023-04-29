@@ -26,6 +26,7 @@ object CallAdapter {
         returnType: KType,
         requestMethod: RequestMethod?,
         headers: Map<String, String>?,
+        functionAnnotations: (() -> Array<Annotation>)?,
     ): Call<T> {
         return RealCall(
             config, RequestInfo(
@@ -41,6 +42,7 @@ object CallAdapter {
                 returnType,
                 requestMethod,
                 headers,
+                functionAnnotations,
             )
         )
     }

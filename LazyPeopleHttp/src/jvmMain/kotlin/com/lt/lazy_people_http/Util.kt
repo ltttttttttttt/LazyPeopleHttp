@@ -1,6 +1,7 @@
 package com.lt.lazy_people_http
 
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
+import com.google.devtools.ksp.symbol.KSAnnotation
 import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.Nullability
 import com.lt.lazy_people_http.options.KSTypeInfo
@@ -56,4 +57,24 @@ internal fun getKSTypeInfo(ks: KSTypeReference): KSTypeInfo {
         nullable,
         typeString
     )
+}
+
+/**
+ * 通过[KSAnnotation]获取还原这个注解的String
+ */
+fun getNewAnnotationString(ksa: KSAnnotation): String {
+    val ksType = ksa.annotationType.resolve()
+    //完整type字符串
+    val typeName =
+        "${ksType.declaration.packageName.asString()}.${ksType.declaration.simpleName.asString()}"
+    val args = StringBuilder()
+    ksa.arguments.forEach {
+        val name = it.name
+        if (name != null)
+            args.append(name.asString())
+                .append(" = \"")
+        args.append(it.value)
+            .append("\", ")
+    }
+    return "$typeName($args)"
 }
