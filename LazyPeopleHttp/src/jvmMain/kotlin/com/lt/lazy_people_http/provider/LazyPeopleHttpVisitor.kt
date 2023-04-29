@@ -89,9 +89,13 @@ internal class LazyPeopleHttpVisitor(
                 file.appendText("    override suspend fun $functionName(${parameterInfo.funParameter}) = CallAdapter.createCall<$returnType>(\n")
             else
                 file.appendText("    override fun $functionName(${parameterInfo.funParameter}): $returnType = CallAdapter.createCall(\n")
+            var url = methodInfo.url
+            parameterInfo.replaceUrlFunction?.forEach {
+                url = url.replace(it.key, "\$${it.value}")
+            }
             file.appendText(
                 "        config,\n" +
-                        "        \"${methodInfo.url}\"${parameterInfo.replaceUrlFunction},\n" +
+                        "        \"$url\",\n" +
                         "        ${parameterInfo.queryParameter},\n" +
                         "        ${parameterInfo.fieldParameter},\n" +
                         "        ${parameterInfo.runtimeParameter},\n" +
@@ -106,18 +110,18 @@ internal class LazyPeopleHttpVisitor(
     //获取方法的参数和请求参数
     private fun getParameters(it: KSFunctionDeclaration, method: RequestMethod?): ParameterInfo {
         //如果没有参数
-        if (it.parameters.isEmpty()) return ParameterInfo("", "null", "null", "null", "")
+        if (it.parameters.isEmpty()) return ParameterInfo("", "null", "null", "null", null)
         //有参数的话就将参数拆为:方法参数,query参数,field参数,和只有运行时才能处理的参数
         val funPList = ArrayList<String>()
         val queryPList = ArrayList<String>()
         val fieldPList = ArrayList<String>()
         val runtimePList = ArrayList<String>()
-        val replaceUrlFList = ArrayList<String>()
+        val replaceUrlMap = HashMap<String, String>()
         it.parameters.forEach {
             val funPName = it.name!!.asString()
             val type = getKSTypeInfo(it.type).toString()
             funPList.add("$funPName: $type")
-            getParameterInfo(it, funPName, queryPList, fieldPList, runtimePList, replaceUrlFList)
+            getParameterInfo(it, funPName, queryPList, fieldPList, runtimePList, replaceUrlMap)
         }
         //处理方法加了注解,但参数没加注解的情况
         when (method) {
@@ -125,10 +129,12 @@ internal class LazyPeopleHttpVisitor(
                 queryPList.addAll(runtimePList)
                 runtimePList.clear()
             }
+
             RequestMethod.POST_FIELD -> {
                 fieldPList.addAll(runtimePList)
                 runtimePList.clear()
             }
+
             else -> {}
         }
         //将所有参数拼接成代码
@@ -146,7 +152,7 @@ internal class LazyPeopleHttpVisitor(
                 prefix = "mapOf(",
                 postfix = ")"
             ),
-            if (replaceUrlFList.isEmpty()) "" else replaceUrlFList.joinToString("")
+            replaceUrlMap,
         )
     }
 
@@ -158,7 +164,7 @@ internal class LazyPeopleHttpVisitor(
         queryPList: ArrayList<String>,
         fieldPList: ArrayList<String>,
         runtimePList: ArrayList<String>,
-        replaceUrlFList: ArrayList<String>
+        replaceUrlMap: HashMap<String, String>,
     ) {
         val list =
             (it.getAnnotationsByType(Query::class)
@@ -172,7 +178,7 @@ internal class LazyPeopleHttpVisitor(
         when (val annotation = list.first()) {
             is Query -> queryPList.add("\"${annotation.name}\" to $funPName.asString()")
             is Field -> fieldPList.add("\"${annotation.name}\" to $funPName.asString()")
-            is Url -> replaceUrlFList.add(".replace(\"{${annotation.replaceUrlName}}\", $funPName)")
+            is Url -> replaceUrlMap["{${annotation.replaceUrlName}}"] = funPName
             else -> throw RuntimeException("There is a problem with the getParameterInfo function")
         }
     }

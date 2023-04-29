@@ -15,6 +15,5 @@ internal class ParameterInfo(
     //运行时判断的参数
     val runtimeParameter: String,
     //替换url的方式
-    val replaceUrlFunction: String,
-) {
-}
+    val replaceUrlFunction: Map<String/*替换的字符串*/, String/*参数名*/>?,
+)
