@@ -130,6 +130,8 @@ Step 4.自定义配置:
  * [onSuspendError]suspend函数抛出异常时调用
  * [onRequest]成功构造了请求,但发送请求之前
  * [onResponse]请求构造完毕,但未进行请求,在此函数内请求并返回json数据
+ * [encryptJson]加密json
+ * [decryptJson]解密json
  */
 class LazyPeopleHttpConfig(...)
 
@@ -137,4 +139,9 @@ class LazyPeopleHttpConfig(...)
 hf.postB("123").config {
     //this is HttpRequestBuilder
 }.enqueue()
+
+ksp {
+    //开启运行时配置获取所有注解的功能,不开启时调用[RequestInfo#functionAnnotations]始终返回null
+    //arg("lazyPeopleHttpGetFunctionAnnotations", "true")
+}
 ```

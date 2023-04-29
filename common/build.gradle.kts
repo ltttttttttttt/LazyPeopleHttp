@@ -49,6 +49,8 @@ kotlin {
                 api("io.ktor:ktor-client-logging:$ktorVersion")
                 //kotlin
                 api("org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion")
+                //协程
+                api("org.jetbrains.kotlinx:kotlinx-coroutines-core:$coroutinesVersion")
             }
         }
         val commonTest by getting {
@@ -61,6 +63,8 @@ kotlin {
                 api("androidx.appcompat:appcompat:1.5.1")
                 api("androidx.core:core-ktx:1.9.0")
                 api("io.ktor:ktor-client-okhttp:$ktorVersion")
+                //协程
+                api("org.jetbrains.kotlinx:kotlinx-coroutines-android:$coroutinesVersion")
             }
         }
         val androidUnitTest by getting {
@@ -72,6 +76,8 @@ kotlin {
             dependencies {
                 api(compose.preview)
                 api("io.ktor:ktor-client-okhttp:$ktorVersion")
+                //协程
+                api("org.jetbrains.kotlinx:kotlinx-coroutines-swing:$coroutinesVersion")
             }
         }
         val desktopTest by getting
@@ -117,11 +123,6 @@ dependencies {
 
 tasks.register<Delete>("clearBuild") {
     doLast {
-        fun d(file: File) {
-            if (file.isDirectory)
-                file.listFiles()?.forEach(::d)
-            file.delete()
-        }
-        d(buildDir)
+        delete(buildDir)
     }
 }

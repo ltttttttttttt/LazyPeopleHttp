@@ -130,6 +130,8 @@ Step 4.Custom configuration:
  * [onSuspendError]Called when the suspend function throws an exception
  * [onRequest]Successfully constructed the request, but before sending the request
  * [onResponse]The request has been constructed, but no request has been made. This function requests and returns json data
+ * [encryptJson]Encrypt JSON
+ * [decryptJson]Decrypting JSON
  */
 class LazyPeopleHttpConfig(...)
 
@@ -137,4 +139,9 @@ class LazyPeopleHttpConfig(...)
 hf.postB("123").config {
     //this is HttpRequestBuilder
 }.enqueue()
+
+ksp {
+    //Enable runtime configuration to obtain all annotations, call [RequestInfo # functionAnnotations] when not enabled and always return null
+    //arg("lazyPeopleHttpGetFunctionAnnotations", "true")
+}
 ```
