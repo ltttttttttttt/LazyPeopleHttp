@@ -2,9 +2,10 @@ package com.lt.lazy_people_http.config
 
 import com.lt.lazy_people_http.request.RequestInfo
 import com.lt.lazy_people_http.request.RequestMethod
-import io.ktor.client.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
+import io.ktor.client.HttpClient
+import io.ktor.client.request.HttpRequestBuilder
+import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
 import kotlinx.serialization.json.Json
 
 /**
@@ -17,6 +18,8 @@ import kotlinx.serialization.json.Json
  * [onSuspendError]suspend函数抛出异常时调用
  * [onRequest]成功构造了请求,但发送请求之前
  * [onResponse]请求构造完毕,但未进行请求,在此函数内请求并返回json数据
+ * [encryptJson]加密json
+ * [decryptJson]解密json
  */
 class LazyPeopleHttpConfig(
     val client: HttpClient,
@@ -25,5 +28,6 @@ class LazyPeopleHttpConfig(
     val onSuspendError: suspend (e: Throwable) -> Nothing = { throw it },
     val onRequest: HttpRequestBuilder.(info: RequestInfo) -> Unit = {},
     val onResponse: suspend (response: HttpResponse, info: RequestInfo) -> String = { response, info -> response.bodyAsText() },
-) {
-}
+    val encryptJson: (value: String, location: ParameterLocation) -> String = { s, _ -> s },
+    val decryptJson: (value: String, location: ParameterLocation) -> String = { s, _ -> s },
+)

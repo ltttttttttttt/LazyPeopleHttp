@@ -20,5 +20,4 @@ class RequestInfo(
     val requestMethod: RequestMethod?,
     //设置的额外的请求头
     val headers: Map<String, String>?,
-) {
-}
+)
