@@ -1,6 +1,6 @@
 # LazyPeopleHttp
 
-Lazy people http, Retrofit of kmp all targets
+Lazy people http, A type-safe HTTP client for JVM(Android, Desktop), iOS, js web.
 
 Inspired by: https://github.com/ltttttttttttt/retrofit
 
