@@ -109,8 +109,7 @@ private val client = HttpClient {
         url("http://127.0.0.1:666/")
     }
 }
-private val json = Json { ignoreUnknownKeys = true }
-private val config = LazyPeopleHttpConfig(client, json)
+private val config = LazyPeopleHttpConfig(client)
 //创建请求接口的实现类
 private val hf = HttpFunctions::class.createService(config)
 
@@ -125,13 +124,12 @@ Step 4.自定义配置:
 /*
  * 当前LazyPeopleHttpService类全局配置
  * [client]ktor请求客户端
- * [json]kotlin跨平台的json解析器
+ * [serializer]序列化器
+ * [encryptor]加解密器
  * [defaultRequestMethod]默认请求方式(不使用注解的方法)
  * [onSuspendError]suspend函数抛出异常时调用
  * [onRequest]成功构造了请求,但发送请求之前
  * [onResponse]请求构造完毕,但未进行请求,在此函数内请求并返回json数据
- * [encryptJson]加密json
- * [decryptJson]解密json
  */
 class LazyPeopleHttpConfig(...)
 

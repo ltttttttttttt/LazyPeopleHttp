@@ -109,8 +109,7 @@ private val client = HttpClient {
         url("http://127.0.0.1:666/")
     }
 }
-private val json = Json { ignoreUnknownKeys = true }
-private val config = LazyPeopleHttpConfig(client, json)
+private val config = LazyPeopleHttpConfig(client)
 //Create an implementation class for the request interface
 private val hf = HttpFunctions::class.createService(config)
 
@@ -125,13 +124,12 @@ Step 4.Custom configuration:
 /*
  * Current LazyPeopleHttpService Class Global Configuration
  * [client]Ktor request client
- * [json]serialization
+ * [serializer]serializer
+ * [encryptor]encryptor
  * [defaultRequestMethod]Default request method (without annotation)
  * [onSuspendError]Called when the suspend function throws an exception
  * [onRequest]Successfully constructed the request, but before sending the request
  * [onResponse]The request has been constructed, but no request has been made. This function requests and returns json data
- * [encryptJson]Encrypt JSON
- * [decryptJson]Decrypting JSON
  */
 class LazyPeopleHttpConfig(...)
 
