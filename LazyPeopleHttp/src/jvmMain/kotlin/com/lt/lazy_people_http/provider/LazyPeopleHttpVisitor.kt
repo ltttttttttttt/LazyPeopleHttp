@@ -67,7 +67,7 @@ internal class LazyPeopleHttpVisitor(
                     "class $className(\n" +
                     "    val config: LazyPeopleHttpConfig,\n" +
                     ") : $originalClassName, HttpServiceImpl {\n" +
-                    "    inline fun <reified T> T?.asString() = CallAdapter.parameterToJson(config, this)\n\n"
+                    "    private inline fun <reified T> T?._toJson() = CallAdapter.parameterToJson(config, this)\n\n"
         )
         writeFunction(file, classDeclaration)
         file.appendText(
@@ -189,12 +189,12 @@ internal class LazyPeopleHttpVisitor(
                     + it.getAnnotationsByType(Url::class)
                     ).toList()
         if (list.isEmpty()) {
-            runtimePList.add("\"$funPName\" to $funPName.asString()")
+            runtimePList.add("\"$funPName\" to $funPName._toJson()")
             return
         }
         when (val annotation = list.first()) {
-            is Query -> queryPList.add("\"${annotation.name}\" to $funPName.asString()")
-            is Field -> fieldPList.add("\"${annotation.name}\" to $funPName.asString()")
+            is Query -> queryPList.add("\"${annotation.name}\" to $funPName._toJson()")
+            is Field -> fieldPList.add("\"${annotation.name}\" to $funPName._toJson()")
             is Url -> replaceUrlMap["{${annotation.replaceUrlName}}"] = funPName
             else -> throw RuntimeException("There is a problem with the getParameterInfo function")
         }
