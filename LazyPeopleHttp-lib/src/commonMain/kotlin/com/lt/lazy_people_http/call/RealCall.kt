@@ -66,32 +66,48 @@ class RealCall<T>(
             //设置请求地址
             url(config.encryptor.encrypt(info.url, ParameterLocation.Url, info))
             //传递Query参数
-            info.parameters?.forEach {
-                val key = config.encryptor.encrypt(it.key, ParameterLocation.ParameterKey, info)
-                val value =
-                    config.encryptor.encrypt(it.value ?: "", ParameterLocation.ParameterValue, info)
-                parameter(key, value)
+            info.parameters?.let { array ->
+                for (i in array.indices step 2) {
+                    val key = config.encryptor.encrypt(
+                        array[i] ?: throw RuntimeException("${info.url} parameters key is null"),
+                        ParameterLocation.ParameterKey,
+                        info
+                    )
+                    val value = config.encryptor.encrypt(
+                        array[i + 1] ?: "",
+                        ParameterLocation.ParameterValue,
+                        info
+                    )
+                    parameter(key, value)
+                }
             }
             //传递Field参数
-            if (!info.formParameters.isNullOrEmpty())
+            info.formParameters?.let { array ->
                 setBody(FormDataContent(Parameters.build {
-                    info.formParameters.forEach {
-                        val key =
-                            config.encryptor.encrypt(it.key, ParameterLocation.ParameterKey, info)
-                        val value =
-                            config.encryptor.encrypt(
-                                it.value ?: "",
-                                ParameterLocation.ParameterValue,
-                                info
-                            )
+                    for (i in array.indices step 2) {
+                        val key = config.encryptor.encrypt(
+                            array[i]
+                                ?: throw RuntimeException("${info.url} formParameters key is null"),
+                            ParameterLocation.ParameterKey,
+                            info
+                        )
+                        val value = config.encryptor.encrypt(
+                            array[i + 1] ?: "",
+                            ParameterLocation.ParameterValue,
+                            info
+                        )
                         append(key, value)
                     }
                 }))
+            }
             //增加请求头
-            info.headers?.forEach {
-                val key = config.encryptor.encrypt(it.key, ParameterLocation.HeaderKey, info)
-                val value = config.encryptor.encrypt(it.value, ParameterLocation.HeaderValue, info)
-                headers.append(key, value)
+            info.headers?.let { array ->
+                for (i in array.indices step 2) {
+                    val key = config.encryptor.encrypt(array[i], ParameterLocation.HeaderKey, info)
+                    val value =
+                        config.encryptor.encrypt(array[i + 1], ParameterLocation.HeaderValue, info)
+                    headers.append(key, value)
+                }
             }
             //处理全局和单独的自定义配置
             config.onRequest(this, info)

@@ -158,15 +158,15 @@ internal class LazyPeopleHttpVisitor(
         return ParameterInfo(
             if (funPList.isEmpty()) "" else funPList.joinToString(),
             if (queryPList.isEmpty()) "null" else queryPList.joinToString(
-                prefix = "mapOf(",
+                prefix = "arrayOf(",
                 postfix = ")"
             ),
             if (fieldPList.isEmpty()) "null" else fieldPList.joinToString(
-                prefix = "mapOf(",
+                prefix = "arrayOf(",
                 postfix = ")"
             ),
             if (runtimePList.isEmpty()) "null" else runtimePList.joinToString(
-                prefix = "mapOf(",
+                prefix = "arrayOf(",
                 postfix = ")"
             ),
             replaceUrlMap,
@@ -189,12 +189,12 @@ internal class LazyPeopleHttpVisitor(
                     + it.getAnnotationsByType(Url::class)
                     ).toList()
         if (list.isEmpty()) {
-            runtimePList.add("\"$funPName\" to $funPName._toJson()")
+            runtimePList.add("\"$funPName\", $funPName._toJson()")
             return
         }
         when (val annotation = list.first()) {
-            is Query -> queryPList.add("\"${annotation.name}\" to $funPName._toJson()")
-            is Field -> fieldPList.add("\"${annotation.name}\" to $funPName._toJson()")
+            is Query -> queryPList.add("\"${annotation.name}\", $funPName._toJson()")
+            is Field -> fieldPList.add("\"${annotation.name}\", $funPName._toJson()")
             is Url -> replaceUrlMap["{${annotation.replaceUrlName}}"] = funPName
             else -> throw RuntimeException("There is a problem with the getParameterInfo function")
         }
@@ -206,9 +206,9 @@ internal class LazyPeopleHttpVisitor(
         val list = it.getAnnotationsByType(Header::class).toList()
         if (list.isEmpty()) return "null"
         return list.joinToString(
-            prefix = "mapOf(",
+            prefix = "arrayOf(",
             postfix = ")"
-        ) { "\"${it.name}\" to \"${it.value}\"" }
+        ) { "\"${it.name}\", \"${it.value}\"" }
     }
 
     //获取函数的请求方法相关数据

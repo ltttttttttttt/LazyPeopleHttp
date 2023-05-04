@@ -1,11 +1,10 @@
 package com.lt.lazy_people_http.call
 
 import com.lt.lazy_people_http.config.LazyPeopleHttpConfig
-import com.lt.lazy_people_http.mergeMap
 import com.lt.lazy_people_http.request.RequestInfo
 import com.lt.lazy_people_http.request.RequestMethod
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json.Default.encodeToString
+import com.lt.lazy_people_http.request.RequestMethod.GET_QUERY
+import com.lt.lazy_people_http.request.RequestMethod.POST_FIELD
 import kotlin.reflect.KType
 import kotlin.reflect.typeOf
 
@@ -22,25 +21,40 @@ object CallAdapter {
     fun <T> createCall(
         config: LazyPeopleHttpConfig,
         url: String,
-        parameters: Map<String, String?>?,
-        formParameters: Map<String, String?>?,
-        runtimeParameters: Map<String, String?>?,
+        parameters: Array<String?>?,
+        formParameters: Array<String?>?,
+        runtimeParameters: Array<String?>?,
         returnType: KType,
         requestMethod: RequestMethod?,
-        headers: Map<String, String>?,
+        headers: Array<String>?,
         functionAnnotations: (() -> Array<Annotation>)?,
     ): Call<T> {
+        //合并参数
+        var parameterArray = parameters
+        var formParameterArray = formParameters
+        if (runtimeParameters != null) {
+            when (config.defaultRequestMethod) {
+                GET_QUERY -> {
+                    parameterArray = if (parameterArray == null)
+                        runtimeParameters
+                    else
+                        parameterArray + runtimeParameters
+                }
+
+                POST_FIELD -> {
+                    formParameterArray = if (formParameterArray == null)
+                        runtimeParameters
+                    else
+                        formParameterArray + runtimeParameters
+                }
+            }
+        }
+        //创建执行网络请求的Call
         return RealCall(
             config, RequestInfo(
                 url,
-                mergeMap(
-                    parameters,
-                    if (config.defaultRequestMethod == RequestMethod.GET_QUERY) runtimeParameters else null
-                ),
-                mergeMap(
-                    formParameters,
-                    if (config.defaultRequestMethod == RequestMethod.POST_FIELD) runtimeParameters else null
-                ),
+                parameterArray,
+                formParameterArray,
                 returnType,
                 requestMethod,
                 headers,
