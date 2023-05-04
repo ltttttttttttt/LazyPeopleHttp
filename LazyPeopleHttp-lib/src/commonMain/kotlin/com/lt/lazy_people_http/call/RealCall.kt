@@ -17,7 +17,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.serialization.serializer
 
 /**
  * creator: lt  2023/3/10  lt.dygzs@qq.com
@@ -65,21 +64,22 @@ class RealCall<T>(
             //设置请求方法
             method = (info.requestMethod ?: config.defaultRequestMethod).method
             //设置请求地址
-            url(config.encryptJson(info.url, ParameterLocation.Url, info))
+            url(config.encryptor.encrypt(info.url, ParameterLocation.Url, info))
             //传递Query参数
             info.parameters?.forEach {
-                val key = config.encryptJson(it.key, ParameterLocation.ParameterKey, info)
+                val key = config.encryptor.encrypt(it.key, ParameterLocation.ParameterKey, info)
                 val value =
-                    config.encryptJson(it.value ?: "", ParameterLocation.ParameterValue, info)
+                    config.encryptor.encrypt(it.value ?: "", ParameterLocation.ParameterValue, info)
                 parameter(key, value)
             }
             //传递Field参数
             if (!info.formParameters.isNullOrEmpty())
                 setBody(FormDataContent(Parameters.build {
                     info.formParameters.forEach {
-                        val key = config.encryptJson(it.key, ParameterLocation.ParameterKey, info)
+                        val key =
+                            config.encryptor.encrypt(it.key, ParameterLocation.ParameterKey, info)
                         val value =
-                            config.encryptJson(
+                            config.encryptor.encrypt(
                                 it.value ?: "",
                                 ParameterLocation.ParameterValue,
                                 info
@@ -89,8 +89,8 @@ class RealCall<T>(
                 }))
             //增加请求头
             info.headers?.forEach {
-                val key = config.encryptJson(it.key, ParameterLocation.HeaderKey, info)
-                val value = config.encryptJson(it.value, ParameterLocation.HeaderValue, info)
+                val key = config.encryptor.encrypt(it.key, ParameterLocation.HeaderKey, info)
+                val value = config.encryptor.encrypt(it.value, ParameterLocation.HeaderValue, info)
                 headers.append(key, value)
             }
             //处理全局和单独的自定义配置
@@ -103,11 +103,8 @@ class RealCall<T>(
         }
         //接收返回值
         val result = config.onResponse(response, info)
-        val json = config.decryptJson(result, ParameterLocation.Result, info)
+        val json = config.encryptor.decrypt(result, ParameterLocation.Result, info)
         //将返回的json序列化为指定对象
-        config.json.decodeFromString(
-            config.json.serializersModule.serializer(info.returnType),
-            json
-        ) as T
+        config.serializer.decodeFromString(json, info.returnType) as T
     }
 }

@@ -100,8 +100,8 @@ internal class LazyPeopleHttpVisitor(
             if (functionAnnotations.isNotEmpty())
                 file.appendText(
                     "        var annotations: Array<Annotation>? = null\n" +
-                            "        val getAnnotations: () -> Array<Annotation> = get@{\n" +
-                            "            annotations?.let { return@get it }\n" +
+                            "        val getAnnotations: () -> Array<Annotation> = _f@{\n" +
+                            "            annotations?.let { return@_f it }\n" +
                             "            val array = arrayOf<Annotation>($functionAnnotations)\n" +
                             "            annotations = array\n" +
                             "            array\n" +

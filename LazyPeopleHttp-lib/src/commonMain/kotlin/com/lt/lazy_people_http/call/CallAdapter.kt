@@ -5,7 +5,9 @@ import com.lt.lazy_people_http.mergeMap
 import com.lt.lazy_people_http.request.RequestInfo
 import com.lt.lazy_people_http.request.RequestMethod
 import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json.Default.encodeToString
 import kotlin.reflect.KType
+import kotlin.reflect.typeOf
 
 /**
  * creator: lt  2023/3/10  lt.dygzs@qq.com
@@ -60,7 +62,7 @@ object CallAdapter {
             is Char -> parameter.toString()
             is Number -> parameter.toString()
             is Boolean -> parameter.toString()
-            else -> config.json.encodeToString(parameter)
+            else -> config.serializer.encodeToString(parameter, typeOf<T>())
         }
     }
 }

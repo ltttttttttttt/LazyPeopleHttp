@@ -10,12 +10,15 @@ import androidx.compose.runtime.setValue
 import com.lt.lazy_people_http.call.Call
 import com.lt.lazy_people_http.call.Callback
 import com.lt.lazy_people_http.config.LazyPeopleHttpConfig
-import io.ktor.client.*
-import io.ktor.client.call.*
-import io.ktor.client.plugins.*
-import io.ktor.client.plugins.logging.*
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.plugins.logging.DEFAULT
+import io.ktor.client.plugins.logging.LogLevel
+import io.ktor.client.plugins.logging.Logger
+import io.ktor.client.plugins.logging.Logging
+import io.ktor.client.request.get
+import io.ktor.client.statement.HttpResponse
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
@@ -31,8 +34,7 @@ private val client = HttpClient {
         level = LogLevel.ALL
     }
 }
-private val json = Json { ignoreUnknownKeys = true }
-private val config = LazyPeopleHttpConfig(client, json)
+private val config = LazyPeopleHttpConfig(client)
 private val hf = HttpFunctions::class.createService(config)
 
 var text by mutableStateOf("普通请求")
@@ -105,7 +107,7 @@ fun testAll() {
 suspend fun getData() {
     val response: HttpResponse =
         client.get("http://t.weather.sojson.com/api/weather/city/101030100")
-    val data = json.decodeFromString<MData>(response.body())
+    val data = Json { ignoreUnknownKeys = true }.decodeFromString<MData>(response.body())
     text = data.cityInfo?.city ?: "..."
 }
 
