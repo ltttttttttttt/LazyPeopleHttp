@@ -128,8 +128,8 @@ Step 4.Custom configuration:
  * [encryptor]encryptor
  * [defaultRequestMethod]Default request method (without annotation)
  * [onSuspendError]Called when the suspend function throws an exception
- * [onRequest]Successfully constructed the request, but before sending the request
- * [onResponse]The request has been constructed, but no request has been made. This function requests and returns json data
+ * [onRequest]Successfully constructed the request, but called before sending the request
+ * [onResponse]Called after request
  */
 class LazyPeopleHttpConfig(...)
 

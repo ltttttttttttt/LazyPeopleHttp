@@ -11,6 +11,7 @@ import io.ktor.client.request.request
 import io.ktor.client.request.setBody
 import io.ktor.client.request.url
 import io.ktor.client.statement.HttpResponse
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.Parameters
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -60,7 +61,7 @@ class RealCall<T>(
 
     private suspend fun getData(): T = withContext(Dispatchers.Default) {
         //创建请求对象
-        val response: HttpResponse = config.client.request {
+        val builder: HttpRequestBuilder.() -> Unit = {
             //设置请求方法
             method = (info.requestMethod ?: config.defaultRequestMethod).method
             //设置请求地址
@@ -110,15 +111,17 @@ class RealCall<T>(
                 }
             }
             //处理全局和单独的自定义配置
-            config.onRequest(this, info)
+            config.onRequest?.invoke(this, info)
             var config = customConfigs
             while (config != null) {
                 config.block(this)
                 config = config.next
             }
         }
+        val response: HttpResponse = config.client.request(builder)
         //接收返回值
-        val result = config.onResponse(response, info)
+        val result = response.bodyAsText()
+        config.onResponse?.invoke(response, info, result)
         val json = config.encryptor.decrypt(result, ParameterLocation.Result, info)
         //将返回的json序列化为指定对象
         config.serializer.decodeFromString(json, info.returnType) as T

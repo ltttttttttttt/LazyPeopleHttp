@@ -128,8 +128,8 @@ Step 4.自定义配置:
  * [encryptor]加解密器
  * [defaultRequestMethod]默认请求方式(不使用注解的方法)
  * [onSuspendError]suspend函数抛出异常时调用
- * [onRequest]成功构造了请求,但发送请求之前
- * [onResponse]请求构造完毕,但未进行请求,在此函数内请求并返回json数据
+ * [onRequest]成功构造了请求,但发送请求之前调用
+ * [onResponse]请求之后调用
  */
 class LazyPeopleHttpConfig(...)
 
