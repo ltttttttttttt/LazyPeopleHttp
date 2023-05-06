@@ -100,7 +100,8 @@ kotlin {
         }
     }
     ksp {
-        arg("lazyPeopleHttpGetFunctionAnnotations", "true")
+        arg("getFunAnnotationsWithLazyPeopleHttp", "true")
+        //arg("createCallFunNameWithLazyPeopleHttp", "CallAdapter.createCall2")
     }
 }
 

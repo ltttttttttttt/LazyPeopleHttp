@@ -140,6 +140,8 @@ hf.postB("123").config {
 
 ksp {
     //Enable runtime configuration to obtain all annotations, call [RequestInfo # functionAnnotations] when not enabled and always return null
-    //arg("lazyPeopleHttpGetFunctionAnnotations", "true")
+    //arg("getFunAnnotationsWithLazyPeopleHttp", "true")
+    //You can even modify the method of creating a Call to return a custom Call
+    //arg("createCallFunNameWithLazyPeopleHttp", "CallAdapter.createCall2")
 }
 ```

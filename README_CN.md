@@ -140,6 +140,8 @@ hf.postB("123").config {
 
 ksp {
     //开启运行时配置获取所有注解的功能,不开启时调用[RequestInfo#functionAnnotations]始终返回null
-    //arg("lazyPeopleHttpGetFunctionAnnotations", "true")
+    //arg("getFunAnnotationsWithLazyPeopleHttp", "true")
+    //你甚至可以修改创建Call的方法,来返回自定义的Call
+    //arg("createCallFunNameWithLazyPeopleHttp", "CallAdapter.createCall2")
 }
 ```

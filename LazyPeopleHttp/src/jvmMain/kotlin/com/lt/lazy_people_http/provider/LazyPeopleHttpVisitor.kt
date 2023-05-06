@@ -25,7 +25,8 @@ internal class LazyPeopleHttpVisitor(
 ) : KSVisitorVoid() {
 
     private val options = KspOptions(environment)
-    private val isGetFunctionAnnotations = options.isGetFunctionAnnotations()
+    private val isGetFunAnnotations = options.isGetFunAnnotations()
+    private val createCallFunName = options.getCreateCallFunName()
 
     /**
      * 访问class的声明
@@ -108,7 +109,7 @@ internal class LazyPeopleHttpVisitor(
                             "        }\n"
                 )
             file.appendText(
-                "        return CallAdapter.createCall${if (isSuspendFun) "<$returnType>" else ""}(\n" +
+                "        return $createCallFunName${if (isSuspendFun) "<$returnType>" else ""}(\n" +
                         "            config,\n" +
                         "            \"$url\",\n" +
                         "            ${parameterInfo.queryParameter},\n" +
@@ -229,7 +230,7 @@ internal class LazyPeopleHttpVisitor(
 
     //获取方法和其参数以及返回值上的注解(不包含Type的注解)
     private fun getFunctionAnnotations(it: KSFunctionDeclaration): String {
-        if (!isGetFunctionAnnotations) return ""
+        if (!isGetFunAnnotations) return ""
         val annotations = StringBuilder()
         it.annotations.forEach {
             annotations.append(getNewAnnotationString(it))
