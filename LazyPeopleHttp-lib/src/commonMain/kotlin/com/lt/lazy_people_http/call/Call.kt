@@ -13,7 +13,6 @@ import kotlinx.coroutines.Job
 interface Call<T> {
     /**
      * 异步请求(使用协程)
-     * 注意:请求的回调不会转回主线程,需要用户根据平台自行操作
      */
     fun enqueue(callback: Callback<T>, scope: CoroutineScope = GlobalScope): Job
 
