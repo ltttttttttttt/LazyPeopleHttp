@@ -7,6 +7,7 @@
 如果你想使用更多功能的库,可以使用: https://github.com/Foso/Ktorfit
 
 <p align="center">
+<img src="https://img.shields.io/badge/Kotlin-Multiplatform-%237f52ff?logo=kotlin">
 <img src="https://img.shields.io/badge/license-Apache%202-blue.svg?maxAge=2592000">
 <img src="https://img.shields.io/maven-central/v/io.github.ltttttttttttt/LazyPeopleHttp"/>
 </p>
