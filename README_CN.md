@@ -103,7 +103,7 @@ interface HttpFunctions {
 Step 3.接口使用:
 
 ```kotlin
-//配置ktor的client,serialization的json
+//配置ktor的client
 private val client = HttpClient {
     defaultRequest {
         //配置baseUrl
