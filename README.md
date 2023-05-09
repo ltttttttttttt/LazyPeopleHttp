@@ -103,7 +103,7 @@ interface HttpFunctions {
 Step 3.interface use:
 
 ```kotlin
-//Configure the client of ktor, the json of serialization
+//Configure the client of ktor
 private val client = HttpClient {
     defaultRequest {
         //Configure baseUrl
