@@ -69,31 +69,31 @@ Step 2.interface declaration:
 interface HttpFunctions {
     //Standard post request statement
     @POST("post/postB")
-    fun postB(@Field("name") t: String): Call<NetBean<UserBean>>
+    fun postB(@Field("name") t: String): Call<UserBean>
 
     //The lazy people post request statement will treat the method name as a url, and its _ will be converted to /
-    fun post_postC(name: String): Call<NetBean<String>>
+    fun post_postC(name: String): Call<String>
 
     //suspend post request statement
-    suspend fun post_postA(t: String): NetBean<String>
+    suspend fun post_postA(t: String): String
 
     //Standard get request statement
     @GET("get/getA")
-    fun getA(@Query("t") t2: String): Call<NetBean<String>>
+    fun getA(@Query("t") t2: String): Call<String>
     
     //lazy people get request statement
-    fun get_getB(name: String): Call<NetBean<UserBean>>
+    fun get_getB(name: String): Call<UserBean>
     
     //suspend get request statement
-    suspend fun suspendGetB(name: String): NetBean<UserBean>
+    suspend fun suspendGetB(name: String): UserBean
     
     //Add static request headers
     @Header("aaa", "bbb")
-    fun post_checkHeader(): Call<NetBean<String?>>
+    fun post_checkHeader(): Call<String?>
 
     //Configure dynamic urls
     @GET("get/getD/{type}")
-    fun getD(@Url("type") url: String): Call<NetBean<String?>>
+    fun getD(@Url("type") url: String): Call<String?>
 
     //Specific functions can be declared, and no additional methods will be generated at this time
     fun ccc(): Int = 0
