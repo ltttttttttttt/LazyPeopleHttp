@@ -69,31 +69,31 @@ Step 2.接口声明:
 interface HttpFunctions {
     //标准post请求声明
     @POST("post/postB")
-    fun postB(@Field("name") t: String): Call<NetBean<UserBean>>
+    fun postB(@Field("name") t: String): Call<UserBean>
 
     //懒人post请求声明,会把方法名当做url,其下划线会转换为斜杠
-    fun post_postC(name: String): Call<NetBean<String>>
+    fun post_postC(name: String): Call<String>
 
     //suspend post请求声明
-    suspend fun post_postA(t: String): NetBean<String>
+    suspend fun post_postA(t: String): String
 
     //标准get请求声明
     @GET("get/getA")
-    fun getA(@Query("t") t2: String): Call<NetBean<String>>
+    fun getA(@Query("t") t2: String): Call<String>
 
     //懒人get请求声明
-    fun get_getB(name: String): Call<NetBean<UserBean>>
+    fun get_getB(name: String): Call<UserBean>
 
     //suspend get请求声明
-    suspend fun suspendGetB(name: String): NetBean<UserBean>
+    suspend fun suspendGetB(name: String): UserBean
 
     //添加静态的请求头
     @Header("aaa", "bbb")
-    fun post_checkHeader(): Call<NetBean<String?>>
+    fun post_checkHeader(): Call<String?>
 
     //配置动态的url
     @GET("get/getD/{type}")
-    fun getD(@Url("type") url: String): Call<NetBean<String?>>
+    fun getD(@Url("type") url: String): Call<String?>
 
     //可以声明具体函数,此时不会生成额外的方法
     fun ccc(): Int = 0
