@@ -7,6 +7,7 @@ import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.symbol.*
 import com.lt.lazy_people_http.annotations.*
 import com.lt.lazy_people_http.appendText
+import com.lt.lazy_people_http.getKSTypeArguments
 import com.lt.lazy_people_http.getKSTypeInfo
 import com.lt.lazy_people_http.getNewAnnotationString
 import com.lt.lazy_people_http.options.KspOptions
@@ -86,11 +87,11 @@ internal class LazyPeopleHttpVisitor(
             val functionName = it.simpleName.asString()
             val methodInfo = getMethodInfo(it, functionName)
             val returnType = getKSTypeInfo(it.returnType!!).toString()
+            val isSuspendFun = Modifier.SUSPEND in it.modifiers
             val typeOf =
-                getKSTypeInfo(it.returnType!!.element!!.typeArguments.first().type!!).toString()
+                if (isSuspendFun) returnType else getKSTypeArguments(it.returnType!!).first()
             val headers = getHeaders(it)
             val parameterInfo = getParameters(it, methodInfo.method)
-            val isSuspendFun = Modifier.SUSPEND in it.modifiers
             var url = methodInfo.url
             parameterInfo.replaceUrlFunction?.forEach {
                 url = url.replace(it.key, "\$${it.value}")
@@ -115,7 +116,7 @@ internal class LazyPeopleHttpVisitor(
                         "            ${parameterInfo.queryParameter},\n" +
                         "            ${parameterInfo.fieldParameter},\n" +
                         "            ${parameterInfo.runtimeParameter},\n" +
-                        "            typeOf<${if (isSuspendFun) returnType else typeOf}>(),\n" +
+                        "            typeOf<$typeOf>(),\n" +
                         "            ${if (methodInfo.method == null) "null" else "RequestMethod.${methodInfo.method}"},\n" +
                         "            $headers,\n" +
                         "            ${if (functionAnnotations.isEmpty()) "null" else "getAnnotations"},\n" +

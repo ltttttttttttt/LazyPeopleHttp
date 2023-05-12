@@ -2,6 +2,7 @@ package com.lt.lazy_people_http
 
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.symbol.KSAnnotation
+import com.google.devtools.ksp.symbol.KSTypeAlias
 import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.Nullability
 import com.lt.lazy_people_http.options.KSTypeInfo
@@ -57,6 +58,32 @@ internal fun getKSTypeInfo(ks: KSTypeReference): KSTypeInfo {
         nullable,
         typeString
     )
+}
+
+
+private val ksTypeImplClass = Class.forName("com.google.devtools.ksp.symbol.impl.kotlin.KSTypeImpl")
+private val kotlinTypeClass = Class.forName("org.jetbrains.kotlin.types.KotlinType")
+
+/**
+ * 获取ksType的完整子泛型信息列表,返回可直接使用的String
+ * 可以自动判断是否是typealias类型并获取其中的真实类型
+ * [ks] KSTypeReference信息
+ * 参考: https://github.com/google/ksp/issues/1371 方案C
+ */
+internal fun getKSTypeArguments(ks: KSTypeReference): List<String> {
+    //type对象
+    val ksType = ks.resolve()
+    //如果是typealias类型
+    return if (ksType.declaration is KSTypeAlias) {
+        val kotlinType = ksTypeImplClass.getMethod("getKotlinType").invoke(ksType)
+        (kotlinTypeClass.getMethod("getArguments").invoke(kotlinType) as List<*>).map {
+            it.toString()
+        }
+    } else {
+        ks.element!!.typeArguments.map {
+            getKSTypeInfo(it.type!!).toString()
+        }
+    }
 }
 
 /**
