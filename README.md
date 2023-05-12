@@ -26,15 +26,13 @@ version
 ```kotlin
 plugins {
     ...
-    id("com.google.devtools.ksp") version "1.7.10-1.0.6"//this,The left 1.7.10 corresponds to your the Kotlin version,more version: https://github.com/google/ksp/releases
+    id("com.google.devtools.ksp") version "1.8.20-1.0.10"//this,The left 1.8.20 corresponds to your the Kotlin version,more version: https://github.com/google/ksp/releases
 }
-
-//The fourth step of configuring ksp to generate directory reference links: https://github.com/ltttttttttttt/Buff/blob/main/README.md
 
 dependencies {
     ...
-    implementation("io.github.ltttttttttttt:LazyPeopleHttp-lib:$version")//this,such as 1.0.0
-    ksp("io.github.ltttttttttttt:LazyPeopleHttp:$version")//this,such as 1.0.0
+    implementation("io.github.ltttttttttttt:LazyPeopleHttp-lib:$version")//this,such as 1.0.6
+    ksp("io.github.ltttttttttttt:LazyPeopleHttp:$version")//this,such as 1.0.6
 }
 ```
 
@@ -43,16 +41,14 @@ dependencies {
 ```kotlin
 plugins {
     ...
-    id("com.google.devtools.ksp") version "1.7.10-1.0.6"
+    id("com.google.devtools.ksp") version "1.8.20-1.0.10"
 }
 
 ...
 val commonMain by getting {
-    //Configure the ksp generation directory
-    kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
     dependencies {
         ...
-        api("io.github.ltttttttttttt:LazyPeopleHttp-lib:$version")//this,such as 1.0.0
+        api("io.github.ltttttttttttt:LazyPeopleHttp-lib:$version")//this,such as 1.0.6
     }
 }
 
@@ -61,6 +57,10 @@ dependencies {
     add("kspCommonMainMetadata", "io.github.ltttttttttttt:LazyPeopleHttp:$version")
 }
 ```
+
+* If you are using a version of ksp less than 1.0.9, the following configuration is required:
+
+<a href="https://github.com/ltttttttttttt/Buff/blob/main/README_KSP_SRC.md">Ksp configuration</a>
 
 Step 2.interface declaration:
 

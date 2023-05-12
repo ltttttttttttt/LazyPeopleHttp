@@ -26,15 +26,13 @@ version
 ```kotlin
 plugins {
     ...
-    id("com.google.devtools.ksp") version "1.7.10-1.0.6"//this,前面的1.7.10对应你的kotlin版本,更多版本参考: https://github.com/google/ksp/releases
+    id("com.google.devtools.ksp") version "1.8.20-1.0.10"//this,前面的1.8.20对应你的kotlin版本,更多版本参考: https://github.com/google/ksp/releases
 }
-
-//配置ksp生成目录参考链接的第四步: https://github.com/ltttttttttttt/Buff/blob/main/README_CN.md?plain=1
 
 dependencies {
     ...
-    implementation("io.github.ltttttttttttt:LazyPeopleHttp-lib:$version")//this,比如1.0.0
-    ksp("io.github.ltttttttttttt:LazyPeopleHttp:$version")//this,比如1.0.0
+    implementation("io.github.ltttttttttttt:LazyPeopleHttp-lib:$version")//this,比如1.0.6
+    ksp("io.github.ltttttttttttt:LazyPeopleHttp:$version")//this,比如1.0.6
 }
 ```
 
@@ -43,16 +41,14 @@ dependencies {
 ```kotlin
 plugins {
     ...
-    id("com.google.devtools.ksp") version "1.7.10-1.0.6"//this,前面的1.7.10对应你的kotlin版本,更多版本参考: https://github.com/google/ksp/releases
+    id("com.google.devtools.ksp") version "1.8.20-1.0.10"//this,前面的1.8.20对应你的kotlin版本,更多版本参考: https://github.com/google/ksp/releases
 }
 
 ...
 val commonMain by getting {
-    //配置ksp生成目录
-    kotlin.srcDir("build/generated/ksp/metadata/commonMain/kotlin")
     dependencies {
         ...
-        api("io.github.ltttttttttttt:LazyPeopleHttp-lib:$version")//this,比如1.0.0
+        api("io.github.ltttttttttttt:LazyPeopleHttp-lib:$version")//this,比如1.0.6
     }
 }
 
@@ -61,6 +57,10 @@ dependencies {
     add("kspCommonMainMetadata", "io.github.ltttttttttttt:LazyPeopleHttp:$version")
 }
 ```
+
+* 如果你使用的ksp版本小于1.0.9则需要以下配置:
+
+<a href="https://github.com/ltttttttttttt/Buff/blob/main/README_KSP_SRC_CN.md">ksp配置</a>
 
 Step 2.接口声明:
 
