@@ -1,5 +1,10 @@
 # LazyPeopleHttp
 
+```kotlin
+// https://xxx/getName?userId=$userId
+suspend fun getUser(userId: Int): User
+```
+
 懒人http客户端, 类型安全的HTTP客户端, 适用于: JVM(Android, Desktop), iOS, js web.
 
 灵感来源于: https://github.com/ltttttttttttt/retrofit

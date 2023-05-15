@@ -1,5 +1,10 @@
 # LazyPeopleHttp
 
+```kotlin
+// https://xxx/getName?userId=$userId
+suspend fun getUser(userId: Int): User
+```
+
 Lazy people http, A type-safe HTTP client for JVM(Android, Desktop), iOS, js web.
 
 Inspired by: https://github.com/ltttttttttttt/retrofit
