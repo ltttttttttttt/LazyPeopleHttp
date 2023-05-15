@@ -6,6 +6,8 @@ import com.google.devtools.ksp.symbol.KSTypeAlias
 import com.google.devtools.ksp.symbol.KSTypeReference
 import com.google.devtools.ksp.symbol.Nullability
 import com.lt.lazy_people_http.options.KSTypeInfo
+import org.jetbrains.kotlin.js.descriptorUtils.getKotlinTypeFqName
+import org.jetbrains.kotlin.types.KotlinType
 import java.io.OutputStream
 
 /**
@@ -62,7 +64,6 @@ internal fun getKSTypeInfo(ks: KSTypeReference): KSTypeInfo {
 
 
 private val ksTypeImplClass = Class.forName("com.google.devtools.ksp.symbol.impl.kotlin.KSTypeImpl")
-private val kotlinTypeClass = Class.forName("org.jetbrains.kotlin.types.KotlinType")
 
 /**
  * 获取ksType的完整子泛型信息列表,返回可直接使用的String
@@ -75,9 +76,9 @@ internal fun getKSTypeArguments(ks: KSTypeReference): List<String> {
     val ksType = ks.resolve()
     //如果是typealias类型
     return if (ksType.declaration is KSTypeAlias) {
-        val kotlinType = ksTypeImplClass.getMethod("getKotlinType").invoke(ksType)
-        (kotlinTypeClass.getMethod("getArguments").invoke(kotlinType) as List<*>).map {
-            it.toString()
+        val kotlinType = ksTypeImplClass.getMethod("getKotlinType").invoke(ksType) as KotlinType
+        kotlinType.arguments.map {
+            getKotlinTypeInfo(it.type)
         }
     } else {
         ks.element!!.typeArguments.map {
@@ -87,9 +88,9 @@ internal fun getKSTypeArguments(ks: KSTypeReference): List<String> {
 }
 
 /**
- * 通过[KSAnnotation]获取还原这个注解的String
+ * 通过[KSAnnotation]获取还原(构造)这个注解的String
  */
-fun getNewAnnotationString(ksa: KSAnnotation): String {
+internal fun getNewAnnotationString(ksa: KSAnnotation): String {
     val ksType = ksa.annotationType.resolve()
     //完整type字符串
     val typeName =
@@ -104,4 +105,16 @@ fun getNewAnnotationString(ksa: KSAnnotation): String {
             .append("\", ")
     }
     return "$typeName($args)"
+}
+
+//通过[KotlinType]获取完整的泛型信息
+private fun getKotlinTypeInfo(type: KotlinType): String {
+    val typeString = type.getKotlinTypeFqName(false)
+    val arguments = type.arguments
+    if (arguments.isEmpty())
+        return typeString
+    val argTypeString = arguments.joinToString(prefix = "<", postfix = ">") {
+        getKotlinTypeInfo(it.type)
+    }
+    return typeString + argTypeString
 }

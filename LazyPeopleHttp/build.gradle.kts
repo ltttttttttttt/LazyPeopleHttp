@@ -24,6 +24,7 @@ kotlin {
             dependencies {
                 implementation("com.google.devtools.ksp:symbol-processing-api:$kspVersion")
                 implementation(project(":LazyPeopleHttp-lib"))
+                implementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlinVersion")
             }
         }
         val jvmTest by getting
