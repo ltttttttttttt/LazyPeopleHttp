@@ -1,8 +1,10 @@
 # LazyPeopleHttp
 
 ```kotlin
-// https://xxx/getName?userId=$userId
+//下面代码相当于: https://xxx/getUser?userId=$userId
 suspend fun getUser(userId: Int): User
+或
+fun getUser(userId: Int): Call<User>
 ```
 
 懒人http客户端, 类型安全的HTTP客户端, 适用于: JVM(Android, Desktop), iOS, js web.
