@@ -1,8 +1,10 @@
 # LazyPeopleHttp
 
 ```kotlin
-// https://xxx/getName?userId=$userId
+//The following code is equivalent to: https://xxx/getUser?userId=$userId
 suspend fun getUser(userId: Int): User
+or
+fun getUser(userId: Int): Call<User>
 ```
 
 Lazy people http, A type-safe HTTP client for JVM(Android, Desktop), iOS, js web.
