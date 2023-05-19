@@ -1,7 +1,7 @@
 # LazyPeopleHttp
 
 ```kotlin
-// https://xxx/getName?userId=$userId
+// https://xxx/getUser?userId=$userId
 suspend fun getUser(userId: Int): User
 ```
 
