@@ -55,6 +55,8 @@ kotlin {
                 api("io.ktor:ktor-client-core:$ktorVersion")
                 //kt的跨平台json解析
                 api("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationJsonVersion")
+                //compose runtime
+                compileOnly("org.jetbrains.compose.runtime:runtime:1.4.0")
             }
         }
         val commonTest by getting {

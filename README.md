@@ -5,6 +5,10 @@
 suspend fun getUser(userId: Int): User
 or
 fun getUser(userId: Int): Call<User>
+
+//In Compose used:
+val user by remember { hf.getUser(0).toState() }
+Text("UserName=${user?.name}")
 ```
 
 Lazy people http, A type-safe HTTP client for JVM(Android, Desktop), iOS, js web.
@@ -124,6 +128,7 @@ private val hf = HttpFunctions::class.createService(config)
 //Implementation class using the interface
 hf.postB("123").enqueue()//callback asynchronous request
 hf.suspendGetB("111")//Coroutine asynchronous request
+val data by remember { hf.get().toState() }//Return responsive State, suitable for Compose
 ```
 
 Step 4.Custom configuration:

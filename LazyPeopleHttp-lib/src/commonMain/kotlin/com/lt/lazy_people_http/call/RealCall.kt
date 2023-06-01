@@ -21,7 +21,7 @@ import kotlinx.coroutines.withContext
 
 /**
  * creator: lt  2023/3/10  lt.dygzs@qq.com
- * effect : 使用GlobalScope作用域的协程进行http请求
+ * effect : 进行http请求
  * warning:
  */
 class RealCall<T>(
