@@ -58,7 +58,7 @@ interface HttpFunctions {
     fun getD(@Url("type") url: String): Call<NetBean<String?>>
 
     @GET("{url}")
-    fun get(@Url("url") url: String): Call<MData>
+    fun get(@Url("url") url: String="http://t.weather.sojson.com/api/weather/city/101030100"): Call<MData>
 
     @GET("get/getB")
     suspend fun suspendGetB(name: String): NetBean<UserBean>

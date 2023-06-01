@@ -6,6 +6,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.lt.lazy_people_http.call.Call
 import com.lt.lazy_people_http.call.Callback
@@ -69,6 +70,9 @@ fun App() {
         }) {
             Text(text4)
         }
+
+        val data by remember { hf.get().toState() }
+        Text("Call#toState()=${data?.cityInfo?.city}")
     }
 }
 
@@ -95,8 +99,7 @@ fun testAll() {
         assert(hf.getD("success").await().code == 200)
         assert(hf.getD("fail").await().code == 400)
         assert(
-            hf.get("http://t.weather.sojson.com/api/weather/city/101030100")
-                .await().cityInfo?.city == "天津市"
+            hf.get().await().cityInfo?.city == "天津市"
         )
         assert(hf.suspendGetB("2").data.name == "2")
         assert(hf.post_postA("123").data == "123")

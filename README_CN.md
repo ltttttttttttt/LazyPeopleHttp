@@ -5,6 +5,10 @@
 suspend fun getUser(userId: Int): User
 或
 fun getUser(userId: Int): Call<User>
+
+//如果使用Compose可以这样用:
+val user by remember { hf.getUser(0).toState() }
+Text("UserName=${user?.name}")
 ```
 
 懒人http客户端, 类型安全的HTTP客户端, 适用于: JVM(Android, Desktop), iOS, js web.
@@ -124,6 +128,7 @@ private val hf = HttpFunctions::class.createService(config)
 //使用接口的实现类
 hf.postB("123").enqueue()//回调异步请求
 hf.suspendGetB("111")//协程异步请求
+val data by remember { hf.get().toState() }//返回响应式的State,适用于Compose
 ```
 
 Step 4.自定义配置:

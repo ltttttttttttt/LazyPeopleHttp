@@ -1,5 +1,7 @@
 package com.lt.lazy_people_http.call
 
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import io.ktor.client.request.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.GlobalScope
@@ -26,4 +28,21 @@ interface Call<T> {
      * 自定义一些配置
      */
     fun config(block: HttpRequestBuilder.() -> Unit): Call<T>
+
+    /**
+     * 将[Call]转化为[State]
+     */
+    fun toState(onFailure: ((call: Call<T>, t: Throwable?) -> Unit)? = null): State<T?> {
+        val state = mutableStateOf<T?>(null)
+        enqueue(object : Callback<T> {
+            override fun onResponse(call: Call<T>, response: T) {
+                state.value = response
+            }
+
+            override fun onFailure(call: Call<T>, t: Throwable?) {
+                onFailure?.invoke(call, t)
+            }
+        })
+        return state
+    }
 }
