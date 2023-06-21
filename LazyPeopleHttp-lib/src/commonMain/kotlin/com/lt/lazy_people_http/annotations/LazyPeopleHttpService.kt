@@ -6,4 +6,4 @@ package com.lt.lazy_people_http.annotations
  * warning:
  */
 @Target(AnnotationTarget.CLASS)
-annotation class LazyPeopleHttpService()
+annotation class LazyPeopleHttpService

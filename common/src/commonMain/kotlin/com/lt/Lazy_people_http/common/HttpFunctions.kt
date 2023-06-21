@@ -15,7 +15,7 @@ typealias CL<T> = Call<NetBean<List<T>>>
 typealias N<T> = NetBean<T>
 
 @LazyPeopleHttpService
-interface HttpFunctions {
+interface HttpFunctions : PostHf, GetHf {
     fun ccc(): Int {
         return 0
     }
@@ -58,10 +58,39 @@ interface HttpFunctions {
     fun getD(@Url("type") url: String): Call<NetBean<String?>>
 
     @GET("{url}")
-    fun get(@Url("url") url: String="http://t.weather.sojson.com/api/weather/city/101030100"): Call<MData>
+    fun get(@Url("url") url: String = "http://t.weather.sojson.com/api/weather/city/101030100"): Call<MData>
 
     @GET("get/getB")
     suspend fun suspendGetB(name: String): NetBean<UserBean>
+}
 
-    suspend fun post_postA(t: String): NetBean<String>
+@UrlMidSegment("post/")
+interface PostHf {
+    fun postC(name: String): Call<NetBean<String>>
+
+    fun postD(name: String): C<String>
+
+    suspend fun postE(name: String): N<String>
+
+    fun setUserName(
+        lastName: String,
+        @Field("firstName") newName: String
+    ): Call<NetBean<UserBean>>
+
+    fun postError(msg: String): Call<NetBean<String?>>
+
+    @Header("aaa", "bbb")
+    fun checkHeader(): Call<NetBean<String?>>
+
+    @POST("postA")
+    suspend fun suspendPostA(t: String): NetBean<String>
+}
+
+@UrlMidSegment("get/")
+interface GetHf {
+    @GET("getC")
+    fun getC2(name: String): Call<NetBean<String>>
+
+    @GET("getC3")
+    fun getC3(name: String): CL<UserBean>
 }

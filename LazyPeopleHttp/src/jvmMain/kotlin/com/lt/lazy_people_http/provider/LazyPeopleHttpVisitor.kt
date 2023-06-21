@@ -2,6 +2,7 @@ package com.lt.lazy_people_http.provider
 
 import com.google.devtools.ksp.KspExperimental
 import com.google.devtools.ksp.getAnnotationsByType
+import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.symbol.*
@@ -81,11 +82,16 @@ internal class LazyPeopleHttpVisitor(
 
     //向文件中写入变换后的函数
     private fun writeFunction(file: OutputStream, classDeclaration: KSClassDeclaration) {
-        classDeclaration.getAllFunctions().filter {
+        classDeclaration.superTypes.mapNotNull {
+            it.resolve().declaration as? KSClassDeclaration
+        }.forEach {
+            writeFunction(file, it)
+        }
+        classDeclaration.getDeclaredFunctions().filter {
             it.isAbstract
         }.forEach {
             val functionName = it.simpleName.asString()
-            val methodInfo = getMethodInfo(it, functionName)
+            val methodInfo = getMethodInfo(it, functionName, classDeclaration)
             val returnType = getKSTypeInfo(it.returnType!!).toString()
             val isSuspendFun = Modifier.SUSPEND in it.modifiers
             val typeOf =
@@ -215,16 +221,22 @@ internal class LazyPeopleHttpVisitor(
 
     //获取函数的请求方法相关数据
     @OptIn(KspExperimental::class)
-    private fun getMethodInfo(it: KSFunctionDeclaration, functionName: String): MethodInfo {
+    private fun getMethodInfo(
+        it: KSFunctionDeclaration,
+        functionName: String,
+        classDeclaration: KSClassDeclaration
+    ): MethodInfo {
+        val urlMidSegment =
+            classDeclaration.getAnnotationsByType(UrlMidSegment::class).firstOrNull()?.url ?: ""
         val list =
             (it.getAnnotationsByType(GET::class) + it.getAnnotationsByType(POST::class)).toList()
         if (list.isEmpty())
-            return MethodInfo(null, functionName.replace("_", "/"))
+            return MethodInfo(null, urlMidSegment + functionName.replace("_", "/"))
         if (list.size > 1)
             throw RuntimeException("Function $functionName there are multiple http method annotations")
         return when (val annotation = list.first()) {
-            is GET -> MethodInfo(RequestMethod.GET_QUERY, annotation.url)
-            is POST -> MethodInfo(RequestMethod.POST_FIELD, annotation.url)
+            is GET -> MethodInfo(RequestMethod.GET_QUERY, urlMidSegment + annotation.url)
+            is POST -> MethodInfo(RequestMethod.POST_FIELD, urlMidSegment + annotation.url)
             else -> throw RuntimeException("There is a problem with the getMethodInfo function")
         }
     }

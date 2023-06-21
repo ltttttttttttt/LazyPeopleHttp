@@ -20,4 +20,4 @@ const val ktorVersion = "2.3.1"//ktor版本
 const val serializationJsonVersion = "1.5.0"//json序列号版本
 const val kspVersion = "$kotlinVersion-1.0.10"//ksp版本
 
-const val mVersion = "1.0.9"//此库的版本
+const val mVersion = "1.1.1"//此库的版本

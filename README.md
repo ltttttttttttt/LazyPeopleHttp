@@ -42,8 +42,8 @@ plugins {
 
 dependencies {
     ...
-    implementation("io.github.ltttttttttttt:LazyPeopleHttp-lib:$version")//this,such as 1.0.6
-    ksp("io.github.ltttttttttttt:LazyPeopleHttp:$version")//this,such as 1.0.6
+    implementation("io.github.ltttttttttttt:LazyPeopleHttp-lib:$version")//this,such as 1.1.1
+    ksp("io.github.ltttttttttttt:LazyPeopleHttp:$version")//this,such as 1.1.1
 }
 ```
 
@@ -59,7 +59,7 @@ plugins {
 val commonMain by getting {
     dependencies {
         ...
-        api("io.github.ltttttttttttt:LazyPeopleHttp-lib:$version")//this,such as 1.0.6
+        api("io.github.ltttttttttttt:LazyPeopleHttp-lib:$version")//this,such as 1.1.1
     }
 }
 
@@ -77,7 +77,7 @@ Step 2.interface declaration:
 
 ```kotlin
 @LazyPeopleHttpService
-interface HttpFunctions {
+interface HttpFunctions : GetHf {
     //Standard post request statement
     @POST("post/postB")
     fun postB(@Field("name") t: String): Call<UserBean>
@@ -108,6 +108,12 @@ interface HttpFunctions {
 
     //Specific functions can be declared, and no additional methods will be generated at this time
     fun ccc(): Int = 0
+}
+
+@UrlMidSegment("get/")//All methods in this file will automatically add an infix
+interface GetHf {
+    @GET("getC")//The url equivalent to the method is: BaseUrl + UrlMidSegment url + method url
+    fun getC2(name: String): Call<NetBean<String>>
 }
 ```
 
