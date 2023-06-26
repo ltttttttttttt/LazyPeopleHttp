@@ -30,9 +30,13 @@ compose.desktop {
     application {
         mainClass = "MainKt"
         nativeDistributions {
-            targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
+            targetFormats(TargetFormat.Dmg, TargetFormat.Exe, TargetFormat.Deb)
             packageName = "LazyPeopleHttp"
             packageVersion = "1.0.0"
+        }
+        buildTypes.release.proguard {
+            obfuscate.set(true)//开启混淆
+            configurationFiles.from(project.file("proguard-rules.pro"))//配置混淆
         }
     }
 }

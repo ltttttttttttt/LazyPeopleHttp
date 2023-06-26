@@ -42,8 +42,8 @@ plugins {
 
 dependencies {
     ...
-    implementation("io.github.ltttttttttttt:LazyPeopleHttp-lib:$version")//this,比如1.0.6
-    ksp("io.github.ltttttttttttt:LazyPeopleHttp:$version")//this,比如1.0.6
+    implementation("io.github.ltttttttttttt:LazyPeopleHttp-lib:$version")//this,比如1.1.1
+    ksp("io.github.ltttttttttttt:LazyPeopleHttp:$version")//this,比如1.1.1
 }
 ```
 
@@ -59,7 +59,7 @@ plugins {
 val commonMain by getting {
     dependencies {
         ...
-        api("io.github.ltttttttttttt:LazyPeopleHttp-lib:$version")//this,比如1.0.6
+        api("io.github.ltttttttttttt:LazyPeopleHttp-lib:$version")//this,比如1.1.1
     }
 }
 
@@ -77,7 +77,7 @@ Step 2.接口声明:
 
 ```kotlin
 @LazyPeopleHttpService
-interface HttpFunctions {
+interface HttpFunctions : GetHf {
     //标准post请求声明
     @POST("post/postB")
     fun postB(@Field("name") t: String): Call<UserBean>
@@ -108,6 +108,12 @@ interface HttpFunctions {
 
     //可以声明具体函数,此时不会生成额外的方法
     fun ccc(): Int = 0
+}
+
+@UrlMidSegment("get/")//这个文件里的所有方法都会自动加一个中缀
+interface GetHf {
+    @GET("getC")//相当于方法的url是:  BaseUrl + UrlMidSegment的url + 方法的url
+    fun getC2(name: String): Call<NetBean<String>>
 }
 ```
 

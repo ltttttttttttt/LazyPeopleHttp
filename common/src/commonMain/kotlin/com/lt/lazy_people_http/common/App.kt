@@ -102,7 +102,12 @@ fun testAll() {
             hf.get().await().cityInfo?.city == "天津市"
         )
         assert(hf.suspendGetB("2").data.name == "2")
-        assert(hf.post_postA("123").data == "123")
+        assert(hf.suspendPostA("123").data == "123")
+        assert(hf.postC("1").awaitData() == "1")
+        assert(hf.setUserName("1", "4").awaitData().name == "4 1")
+        assert(hf.postError("error").await().msg == "error")
+        assert(hf.checkHeader().awaitData() == "bbb")
+        assert(hf.getC2("1").awaitData() == "1")
         text4 = "测试完成"
     }
 }
