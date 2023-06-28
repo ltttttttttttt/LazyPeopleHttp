@@ -178,3 +178,9 @@ ksp {
     //arg("createCallFunNameWithLazyPeopleHttp", "CallAdapter.createCall2")
 }
 ```
+
+Step 5.混淆配置:
+
+```kotlin
+-keep class com.lt.lazy_people_http.call.Call { *;}
+```

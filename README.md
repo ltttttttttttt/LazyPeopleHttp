@@ -178,3 +178,9 @@ ksp {
     //arg("createCallFunNameWithLazyPeopleHttp", "CallAdapter.createCall2")
 }
 ```
+
+Step 5.R8/Proguard:
+
+```kotlin
+-keep class com.lt.lazy_people_http.call.Call { *;}
+```
