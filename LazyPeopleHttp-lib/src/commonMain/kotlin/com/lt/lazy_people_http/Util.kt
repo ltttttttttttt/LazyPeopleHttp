@@ -26,3 +26,17 @@ internal fun mergeMap(
     else
         map1 + map2
 }
+
+/**
+ * 将map变平为array
+ */
+fun Map<String, String?>._lazyPeopleHttpFlatten(): Array<String?> {
+    val kvs = entries.toList()
+    return Array(size * 2) {
+        val entry = kvs[it / 2]
+        if (it % 2 == 0)
+            entry.key
+        else
+            entry.value
+    }
+}

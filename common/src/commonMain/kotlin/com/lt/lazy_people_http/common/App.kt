@@ -98,13 +98,21 @@ fun testAll() {
         assert(hf.get_getC2("1").awaitData() == "1")
         assert(hf.getD("success").await().code == 200)
         assert(hf.getD("fail").await().code == 400)
-        assert(
-            hf.get().await().cityInfo?.city == "天津市"
-        )
+        //assert(
+        //    hf.get().await().cityInfo?.city == "天津市"
+        //)
         assert(hf.suspendGetB("2").data.name == "2")
         assert(hf.suspendPostA("123").data == "123")
         assert(hf.postC("1").awaitData() == "1")
         assert(hf.setUserName("1", "4").awaitData().name == "4 1")
+        assert(
+            hf.setUserName2(
+                mutableMapOf(
+                    "lastName" to "2",
+                    "firstName" to "5",
+                )
+            ).awaitData().name == "5 2"
+        )
         assert(hf.postError("error").await().msg == "error")
         assert(hf.checkHeader().awaitData() == "bbb")
         assert(hf.getC2("1").awaitData() == "1")

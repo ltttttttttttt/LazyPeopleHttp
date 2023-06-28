@@ -77,6 +77,9 @@ interface PostHf {
         @Field("firstName") newName: String
     ): Call<NetBean<UserBean>>
 
+    @POST("setUserName")
+    fun setUserName2(@FieldMap map: Map<String, String?>): Call<NetBean<UserBean>>
+
     fun postError(msg: String): Call<NetBean<String?>>
 
     @Header("aaa", "bbb")

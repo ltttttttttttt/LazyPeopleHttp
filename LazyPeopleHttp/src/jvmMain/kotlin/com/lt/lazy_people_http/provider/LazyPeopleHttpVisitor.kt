@@ -61,6 +61,7 @@ internal class LazyPeopleHttpVisitor(
         file.appendText(
             "package $packageName\n" +
                     "\n" +
+                    "import com.lt.lazy_people_http._lazyPeopleHttpFlatten\n" +
                     "import com.lt.lazy_people_http.config.LazyPeopleHttpConfig\n" +
                     "import com.lt.lazy_people_http.call.CallAdapter\n" +
                     "import com.lt.lazy_people_http.request.RequestMethod\n" +
@@ -194,6 +195,7 @@ internal class LazyPeopleHttpVisitor(
         val list =
             (it.getAnnotationsByType(Query::class)
                     + it.getAnnotationsByType(Field::class)
+                    + it.getAnnotationsByType(FieldMap::class)
                     + it.getAnnotationsByType(Url::class)
                     ).toList()
         if (list.isEmpty()) {
@@ -203,6 +205,7 @@ internal class LazyPeopleHttpVisitor(
         when (val annotation = list.first()) {
             is Query -> queryPList.add("\"${annotation.name}\", $funPName._toJson()")
             is Field -> fieldPList.add("\"${annotation.name}\", $funPName._toJson()")
+            is FieldMap -> fieldPList.add("*$funPName._lazyPeopleHttpFlatten()")
             is Url -> replaceUrlMap["{${annotation.replaceUrlName}}"] = funPName
             else -> throw RuntimeException("There is a problem with the getParameterInfo function")
         }
