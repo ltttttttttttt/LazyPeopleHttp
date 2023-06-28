@@ -183,4 +183,5 @@ Step 5.R8/Proguard:
 
 ```kotlin
 -keep class com.lt.lazy_people_http.call.Call { *;}
+# And the name used in your customized [CallAdapter]
 ```

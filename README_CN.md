@@ -183,4 +183,5 @@ Step 5.混淆配置:
 
 ```kotlin
 -keep class com.lt.lazy_people_http.call.Call { *;}
+# 和你自定义的[CallAdapter]中使用到的名字
 ```
