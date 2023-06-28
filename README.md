@@ -158,7 +158,13 @@ Step 4.Custom configuration:
  * [onRequest]Successfully constructed the request, but called before sending the request
  * [onResponse]Called after request
  */
-class LazyPeopleHttpConfig(...)
+class LazyPeopleHttpConfig(...) {
+    /**
+     * Add an adapter for constructing the return value object of a network request
+     * After adding, you can declare it like this: fun getUser(): Flow<UserBean>
+     */
+    fun addCallAdapter()
+}
 
 //Modify the configuration of an interface separately
 hf.postB("123").config {

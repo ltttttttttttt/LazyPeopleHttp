@@ -2,6 +2,7 @@ package com.lt.lazy_people_http.common
 
 import com.lt.lazy_people_http.annotations.*
 import com.lt.lazy_people_http.call.Call
+import kotlinx.coroutines.flow.Flow
 
 /**
  * creator: lt  2023/3/8  lt.dygzs@qq.com
@@ -62,6 +63,9 @@ interface HttpFunctions : PostHf, GetHf {
 
     @GET("get/getB")
     suspend fun suspendGetB(name: String): NetBean<UserBean>
+
+    @GET("get/getB")
+    fun getBFlow(name: String): Flow<NetBean<UserBean>>
 }
 
 @UrlMidSegment("post/")

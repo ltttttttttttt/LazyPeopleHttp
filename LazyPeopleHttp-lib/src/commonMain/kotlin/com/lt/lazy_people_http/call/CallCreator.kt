@@ -13,12 +13,12 @@ import kotlin.reflect.typeOf
  * effect : 创建返回值对象的几种固定方式
  * warning:
  */
-object CallAdapter {
+object CallCreator {
 
     /**
-     * 根据参数创建具体的call对象
+     * 根据参数创建具体的response对象
      */
-    fun <T> createCall(
+    fun <T> createResponse(
         config: LazyPeopleHttpConfig,
         url: String,
         parameters: Array<String?>?,
@@ -28,7 +28,8 @@ object CallAdapter {
         requestMethod: RequestMethod?,
         headers: Array<String>?,
         functionAnnotations: (() -> Array<Annotation>)?,
-    ): Call<T> {
+        responseName: String?,
+    ): T {
         //合并参数
         var parameterArray = parameters
         var formParameterArray = formParameters
@@ -49,19 +50,30 @@ object CallAdapter {
                 }
             }
         }
+
         //创建执行网络请求的Call
-        return RealCall(
-            config, RequestInfo(
-                url,
-                parameterArray,
-                formParameterArray,
-                returnType,
-                requestMethod,
-                headers,
-                functionAnnotations,
-            )
+        val requestInfo = RequestInfo(
+            url,
+            parameterArray,
+            formParameterArray,
+            returnType,
+            requestMethod,
+            headers,
+            functionAnnotations,
         )
+        if (responseName == null)
+            return createCall<Any?>(config, requestInfo) as T
+        val callAdapter = config.callAdapters.find {
+            responseName in it.responseNames
+        } ?: throw RuntimeException("CallAdapter not find: $responseName")
+        return callAdapter.adapt(config, requestInfo) as T
     }
+
+    /**
+     * 根据参数创建具体的call对象
+     */
+    fun <T> createCall(config: LazyPeopleHttpConfig, requestInfo: RequestInfo): Call<T> =
+        RealCall(config, requestInfo)
 
     /**
      * 将对象转为json

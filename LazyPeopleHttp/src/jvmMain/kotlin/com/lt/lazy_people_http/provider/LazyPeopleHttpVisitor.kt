@@ -62,8 +62,9 @@ internal class LazyPeopleHttpVisitor(
             "package $packageName\n" +
                     "\n" +
                     "import com.lt.lazy_people_http._lazyPeopleHttpFlatten\n" +
+                    "import com.lt.lazy_people_http.call.Call\n" +
+                    "import com.lt.lazy_people_http.call.CallCreator\n" +
                     "import com.lt.lazy_people_http.config.LazyPeopleHttpConfig\n" +
-                    "import com.lt.lazy_people_http.call.CallAdapter\n" +
                     "import com.lt.lazy_people_http.request.RequestMethod\n" +
                     "import com.lt.lazy_people_http.service.HttpServiceImpl\n" +
                     "import kotlin.reflect.typeOf\n" +
@@ -71,7 +72,7 @@ internal class LazyPeopleHttpVisitor(
                     "class $className(\n" +
                     "    val config: LazyPeopleHttpConfig,\n" +
                     ") : $originalClassName, HttpServiceImpl {\n" +
-                    "    private inline fun <reified T> T?._toJson() = CallAdapter.parameterToJson(config, this)\n\n"
+                    "    private inline fun <reified T> T?._toJson() = CallCreator.parameterToJson(config, this)\n\n"
         )
         writeFunction(file, classDeclaration)
         file.appendText(
@@ -93,8 +94,17 @@ internal class LazyPeopleHttpVisitor(
         }.forEach {
             val functionName = it.simpleName.asString()
             val methodInfo = getMethodInfo(it, functionName, classDeclaration)
+            //返回的全类型
             val returnType = getKSTypeInfo(it.returnType!!).toString()
             val isSuspendFun = Modifier.SUSPEND in it.modifiers
+            //返回的最外层的类型
+            val responseType = it.returnType!!.resolve().declaration.let {
+                it.qualifiedName?.asString()
+                    ?: "${it.packageName.asString()}.${it.simpleName.asString()}"
+            }
+            val responseName =
+                if (isSuspendFun || responseType == "com.lt.lazy_people_http.call.Call") null
+                else "\"$responseType\""
             val typeOf =
                 if (isSuspendFun) returnType else getKSTypeArguments(it.returnType!!).first()
             val headers = getHeaders(it)
@@ -117,7 +127,7 @@ internal class LazyPeopleHttpVisitor(
                             "        }\n"
                 )
             file.appendText(
-                "        return $createCallFunName${if (isSuspendFun) "<$returnType>" else ""}(\n" +
+                "        return $createCallFunName${if (isSuspendFun) "<Call<$returnType>>" else ""}(\n" +
                         "            config,\n" +
                         "            \"$url\",\n" +
                         "            ${parameterInfo.queryParameter},\n" +
@@ -127,6 +137,7 @@ internal class LazyPeopleHttpVisitor(
                         "            ${if (methodInfo.method == null) "null" else "RequestMethod.${methodInfo.method}"},\n" +
                         "            $headers,\n" +
                         "            ${if (functionAnnotations.isEmpty()) "null" else "getAnnotations"},\n" +
+                        "            $responseName,\n" +
                         "        )${if (isSuspendFun) ".await()" else ""}\n" +
                         "    }\n\n"
             )

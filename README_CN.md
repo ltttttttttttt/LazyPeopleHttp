@@ -158,7 +158,13 @@ Step 4.自定义配置:
  * [onRequest]成功构造了请求,但发送请求之前调用
  * [onResponse]请求之后调用
  */
-class LazyPeopleHttpConfig(...)
+class LazyPeopleHttpConfig(...) {
+    /**
+     * 添加用于构造网络请求的返回值对象的适配器
+     * 添加完可以这样声明: fun getUser(): Flow<UserBean>
+     */
+    fun addCallAdapter()
+}
 
 //单独修改一个接口的配置
 hf.postB("123").config {
