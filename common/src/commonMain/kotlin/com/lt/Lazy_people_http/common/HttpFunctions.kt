@@ -2,6 +2,7 @@ package com.lt.lazy_people_http.common
 
 import com.lt.lazy_people_http.annotations.*
 import com.lt.lazy_people_http.call.Call
+import kotlinx.coroutines.flow.Flow
 
 /**
  * creator: lt  2023/3/8  lt.dygzs@qq.com
@@ -28,7 +29,8 @@ interface HttpFunctions : PostHf, GetHf {
 
     fun post_postC(name: String): Call<NetBean<String>>
 
-    fun post_postD(name: String): C<String>
+    @POST("post/postC")
+    fun postC2(name: String): C<String>
 
     suspend fun post_postE(name: String): N<String>
 
@@ -62,6 +64,9 @@ interface HttpFunctions : PostHf, GetHf {
 
     @GET("get/getB")
     suspend fun suspendGetB(name: String): NetBean<UserBean>
+
+    @GET("get/getB")
+    fun getBFlow(name: String): Flow<NetBean<UserBean>>
 }
 
 @UrlMidSegment("post/")
@@ -76,6 +81,9 @@ interface PostHf {
         lastName: String,
         @Field("firstName") newName: String
     ): Call<NetBean<UserBean>>
+
+    @POST("setUserName")
+    fun setUserName2(@FieldMap map: Map<String, String?>): Call<NetBean<UserBean>>
 
     fun postError(msg: String): Call<NetBean<String?>>
 
@@ -93,4 +101,7 @@ interface GetHf {
 
     @GET("getC3")
     fun getC3(name: String): CL<UserBean>
+
+    @GET("getC")
+    fun getC4(@QueryMap map: Map<String, String?>): Call<NetBean<String>>
 }

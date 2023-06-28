@@ -114,6 +114,14 @@ interface HttpFunctions : GetHf {
 interface GetHf {
     @GET("getC")//The url equivalent to the method is: BaseUrl + UrlMidSegment url + method url
     fun getC2(name: String): Call<NetBean<String>>
+
+    //Using Query's key value map can be more flexible
+    @GET("getC")
+    fun getC4(@QueryMap map: Map<String, String?>): Call<NetBean<String>>
+
+    //Using Field's key value map can be more flexible
+    @POST("setUserName")
+    fun setUserName2(@FieldMap map: Map<String, String?>): Call<NetBean<UserBean>>
 }
 ```
 
@@ -150,7 +158,13 @@ Step 4.Custom configuration:
  * [onRequest]Successfully constructed the request, but called before sending the request
  * [onResponse]Called after request
  */
-class LazyPeopleHttpConfig(...)
+class LazyPeopleHttpConfig(...) {
+    /**
+     * Add an adapter for constructing the return value object of a network request
+     * After adding, you can declare it like this: fun getUser(): Flow<UserBean>
+     */
+    fun addCallAdapter()
+}
 
 //Modify the configuration of an interface separately
 hf.postB("123").config {
@@ -163,4 +177,11 @@ ksp {
     //You can even modify the method of creating a Call to return a custom Call
     //arg("createCallFunNameWithLazyPeopleHttp", "CallAdapter.createCall2")
 }
+```
+
+Step 5.R8/Proguard:
+
+```kotlin
+-keep class com.lt.lazy_people_http.call.Call { *;}
+# And the name used in your customized [CallAdapter]
 ```

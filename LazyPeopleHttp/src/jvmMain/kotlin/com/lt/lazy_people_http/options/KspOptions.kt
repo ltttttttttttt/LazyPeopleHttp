@@ -24,5 +24,5 @@ internal class KspOptions(environment: SymbolProcessorEnvironment) {
      * 获取创建Call的方法名,可以自定义创建Call的子类
      */
     fun getCreateCallFunName(): String =
-        options[createCallFunName].ifNullOfEmpty { "CallAdapter.createCall" }
+        options[createCallFunName].ifNullOfEmpty { "CallCreator.createResponse" }
 }

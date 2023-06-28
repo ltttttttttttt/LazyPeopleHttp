@@ -14,9 +14,9 @@ class RequestInfo(
     val parameters: Array<String?>?,
     //表单请求参数
     val formParameters: Array<String?>?,
-    //请求返回的类型,[requestMethod]如果为null,就使用默认指定的请求方式
+    //请求返回的类型
     val returnType: KType,
-    //请求方式
+    //请求方式,[requestMethod]如果为null,就使用默认指定的请求方式
     val requestMethod: RequestMethod?,
     //设置的额外的请求头
     val headers: Array<String>?,

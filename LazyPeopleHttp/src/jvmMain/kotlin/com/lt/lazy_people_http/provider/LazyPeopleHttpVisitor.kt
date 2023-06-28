@@ -10,6 +10,7 @@ import com.lt.lazy_people_http.annotations.*
 import com.lt.lazy_people_http.appendText
 import com.lt.lazy_people_http.getKSTypeArguments
 import com.lt.lazy_people_http.getKSTypeInfo
+import com.lt.lazy_people_http.getKSTypeOutermostName
 import com.lt.lazy_people_http.getNewAnnotationString
 import com.lt.lazy_people_http.options.KspOptions
 import com.lt.lazy_people_http.options.MethodInfo
@@ -61,8 +62,10 @@ internal class LazyPeopleHttpVisitor(
         file.appendText(
             "package $packageName\n" +
                     "\n" +
+                    "import com.lt.lazy_people_http._lazyPeopleHttpFlatten\n" +
+                    "import com.lt.lazy_people_http.call.Call\n" +
+                    "import com.lt.lazy_people_http.call.CallCreator\n" +
                     "import com.lt.lazy_people_http.config.LazyPeopleHttpConfig\n" +
-                    "import com.lt.lazy_people_http.call.CallAdapter\n" +
                     "import com.lt.lazy_people_http.request.RequestMethod\n" +
                     "import com.lt.lazy_people_http.service.HttpServiceImpl\n" +
                     "import kotlin.reflect.typeOf\n" +
@@ -70,7 +73,7 @@ internal class LazyPeopleHttpVisitor(
                     "class $className(\n" +
                     "    val config: LazyPeopleHttpConfig,\n" +
                     ") : $originalClassName, HttpServiceImpl {\n" +
-                    "    private inline fun <reified T> T?._toJson() = CallAdapter.parameterToJson(config, this)\n\n"
+                    "    private inline fun <reified T> T?._toJson() = CallCreator.parameterToJson(config, this)\n\n"
         )
         writeFunction(file, classDeclaration)
         file.appendText(
@@ -92,8 +95,17 @@ internal class LazyPeopleHttpVisitor(
         }.forEach {
             val functionName = it.simpleName.asString()
             val methodInfo = getMethodInfo(it, functionName, classDeclaration)
+            //返回的全类型
             val returnType = getKSTypeInfo(it.returnType!!).toString()
             val isSuspendFun = Modifier.SUSPEND in it.modifiers
+            //返回的最外层的类型
+            val responseName = if (isSuspendFun)
+                null
+            else {
+                val responseType = getKSTypeOutermostName(it.returnType!!)
+                if (responseType == "com.lt.lazy_people_http.call.Call") null
+                else "\"$responseType\""
+            }
             val typeOf =
                 if (isSuspendFun) returnType else getKSTypeArguments(it.returnType!!).first()
             val headers = getHeaders(it)
@@ -116,7 +128,7 @@ internal class LazyPeopleHttpVisitor(
                             "        }\n"
                 )
             file.appendText(
-                "        return $createCallFunName${if (isSuspendFun) "<$returnType>" else ""}(\n" +
+                "        return $createCallFunName${if (isSuspendFun) "<Call<$returnType>>" else ""}(\n" +
                         "            config,\n" +
                         "            \"$url\",\n" +
                         "            ${parameterInfo.queryParameter},\n" +
@@ -126,6 +138,7 @@ internal class LazyPeopleHttpVisitor(
                         "            ${if (methodInfo.method == null) "null" else "RequestMethod.${methodInfo.method}"},\n" +
                         "            $headers,\n" +
                         "            ${if (functionAnnotations.isEmpty()) "null" else "getAnnotations"},\n" +
+                        "            $responseName,\n" +
                         "        )${if (isSuspendFun) ".await()" else ""}\n" +
                         "    }\n\n"
             )
@@ -193,7 +206,9 @@ internal class LazyPeopleHttpVisitor(
     ) {
         val list =
             (it.getAnnotationsByType(Query::class)
+                    + it.getAnnotationsByType(QueryMap::class)
                     + it.getAnnotationsByType(Field::class)
+                    + it.getAnnotationsByType(FieldMap::class)
                     + it.getAnnotationsByType(Url::class)
                     ).toList()
         if (list.isEmpty()) {
@@ -202,9 +217,65 @@ internal class LazyPeopleHttpVisitor(
         }
         when (val annotation = list.first()) {
             is Query -> queryPList.add("\"${annotation.name}\", $funPName._toJson()")
+            is QueryMap -> {
+                checkMapType(it, funPName)
+                queryPList.add("*$funPName._lazyPeopleHttpFlatten()")
+            }
+
             is Field -> fieldPList.add("\"${annotation.name}\", $funPName._toJson()")
+            is FieldMap -> {
+                checkMapType(it, funPName)
+                fieldPList.add("*$funPName._lazyPeopleHttpFlatten()")
+            }
+
             is Url -> replaceUrlMap["{${annotation.replaceUrlName}}"] = funPName
             else -> throw RuntimeException("There is a problem with the getParameterInfo function")
+        }
+    }
+
+    //校验map的类型和泛型
+    private fun checkMapType(
+        it: KSValueParameter,
+        funPName: String
+    ) {
+        val ksType = it.type.resolve()
+        //如果类型不是Map则报错
+        if (ksType.nullability == Nullability.NULLABLE)
+            environment.logger.error(
+                "FieldMap annotation only supports Map type: $funPName",
+                it
+            )
+        val ksTypeName = ksType.declaration.qualifiedName?.asString()
+            ?: "${ksType.declaration.packageName.asString()}.${ksType.declaration.simpleName.asString()}"
+        when (ksTypeName) {
+            "kotlin.collections.Map", "kotlin.collections.MutableMap", "kotlin.collections.HashMap", "kotlin.collections.LinkedHashMap" -> {}
+            else -> {
+                if (!Map::class.java.isAssignableFrom(Class.forName(ksTypeName)))
+                    environment.logger.error(
+                        "FieldMap annotation only supports Map type: $funPName",
+                        it
+                    )
+            }
+        }
+        //如果泛型不是String和String(?)则报错
+        ksType.arguments[0].type?.resolve()!!.let { type ->
+            if (type.nullability == Nullability.NULLABLE)
+                environment.logger.error(
+                    "The generic type of the Map key annotated by FieldMap only supports String: $funPName",
+                    it
+                )
+            if (type.declaration.simpleName.asString() != "String")
+                environment.logger.error(
+                    "The generic type of the Map key annotated by FieldMap only supports String: $funPName",
+                    it
+                )
+        }
+        ksType.arguments[1].type?.resolve()!!.let { type ->
+            if (type.declaration.simpleName.asString() != "String")
+                environment.logger.error(
+                    "The generic type of the Map value annotated by FieldMap only supports String: $funPName",
+                    it
+                )
         }
     }
 

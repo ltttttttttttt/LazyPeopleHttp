@@ -114,6 +114,14 @@ interface HttpFunctions : GetHf {
 interface GetHf {
     @GET("getC")//相当于方法的url是:  BaseUrl + UrlMidSegment的url + 方法的url
     fun getC2(name: String): Call<NetBean<String>>
+
+    //使用Query的key value map,可以更灵活
+    @GET("getC")
+    fun getC4(@QueryMap map: Map<String, String?>): Call<NetBean<String>>
+
+    //使用Field的key value map,可以更灵活
+    @POST("setUserName")
+    fun setUserName2(@FieldMap map: Map<String, String?>): Call<NetBean<UserBean>>
 }
 ```
 
@@ -150,7 +158,13 @@ Step 4.自定义配置:
  * [onRequest]成功构造了请求,但发送请求之前调用
  * [onResponse]请求之后调用
  */
-class LazyPeopleHttpConfig(...)
+class LazyPeopleHttpConfig(...) {
+    /**
+     * 添加用于构造网络请求的返回值对象的适配器
+     * 添加完可以这样声明: fun getUser(): Flow<UserBean>
+     */
+    fun addCallAdapter()
+}
 
 //单独修改一个接口的配置
 hf.postB("123").config {
@@ -163,4 +177,11 @@ ksp {
     //你甚至可以修改创建Call的方法,来返回自定义的Call
     //arg("createCallFunNameWithLazyPeopleHttp", "CallAdapter.createCall2")
 }
+```
+
+Step 5.混淆配置:
+
+```kotlin
+-keep class com.lt.lazy_people_http.call.Call { *;}
+# 和你自定义的[CallAdapter]中使用到的名字
 ```

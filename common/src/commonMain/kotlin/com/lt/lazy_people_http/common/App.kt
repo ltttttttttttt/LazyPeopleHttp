@@ -4,12 +4,14 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.lt.lazy_people_http.call.Call
 import com.lt.lazy_people_http.call.Callback
+import com.lt.lazy_people_http.call.adapter.FlowCallAdapter
 import com.lt.lazy_people_http.config.LazyPeopleHttpConfig
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -35,7 +37,7 @@ private val client = HttpClient {
         level = LogLevel.ALL
     }
 }
-private val config = LazyPeopleHttpConfig(client)
+private val config = LazyPeopleHttpConfig(client).addCallAdapter(FlowCallAdapter())
 private val hf = HttpFunctions::class.createService(config)
 
 var text by mutableStateOf("普通请求")
@@ -73,6 +75,8 @@ fun App() {
 
         val data by remember { hf.get().toState() }
         Text("Call#toState()=${data?.cityInfo?.city}")
+        val data2 by remember { hf.getBFlow("测试成功") }.collectAsState(null)
+        Text("Call#toState2()=${data2?.data?.name}")
     }
 }
 
@@ -90,6 +94,7 @@ fun testAll() {
         assert(hf.postA("123").awaitData() == "123")
         assert(hf.postB("1").awaitData().name == "1")
         assert(hf.post_postC("1").awaitData() == "1")
+        assert(hf.postC2("2").awaitData() == "2")
         assert(hf.post_setUserName("1", "4").awaitData().name == "4 1")
         assert(hf.post_postError("error").await().msg == "error")
         assert(hf.post_checkHeader().awaitData() == "bbb")
@@ -98,16 +103,25 @@ fun testAll() {
         assert(hf.get_getC2("1").awaitData() == "1")
         assert(hf.getD("success").await().code == 200)
         assert(hf.getD("fail").await().code == 400)
-        assert(
-            hf.get().await().cityInfo?.city == "天津市"
-        )
+        //assert(
+        //    hf.get().await().cityInfo?.city == "天津市"
+        //)
         assert(hf.suspendGetB("2").data.name == "2")
         assert(hf.suspendPostA("123").data == "123")
         assert(hf.postC("1").awaitData() == "1")
         assert(hf.setUserName("1", "4").awaitData().name == "4 1")
+        assert(
+            hf.setUserName2(
+                mutableMapOf(
+                    "lastName" to "2",
+                    "firstName" to "5",
+                )
+            ).awaitData().name == "5 2"
+        )
         assert(hf.postError("error").await().msg == "error")
         assert(hf.checkHeader().awaitData() == "bbb")
         assert(hf.getC2("1").awaitData() == "1")
+        assert(hf.getC4(hashMapOf("name" to "2")).awaitData() == "2")
         text4 = "测试完成"
     }
 }

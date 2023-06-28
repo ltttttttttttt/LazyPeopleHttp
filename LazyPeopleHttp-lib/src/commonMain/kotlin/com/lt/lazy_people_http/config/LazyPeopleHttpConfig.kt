@@ -1,5 +1,6 @@
 package com.lt.lazy_people_http.config
 
+import com.lt.lazy_people_http.call.adapter.CallAdapter
 import com.lt.lazy_people_http.config.encryptor.Encryptor
 import com.lt.lazy_people_http.config.encryptor.NotEncryptor
 import com.lt.lazy_people_http.config.serializer.KotlinxSerializationJsonSerializer
@@ -30,4 +31,13 @@ class LazyPeopleHttpConfig(
     val onSuspendError: suspend (e: Throwable, info: RequestInfo) -> Nothing = { e, _ -> throw e },
     val onRequest: (HttpRequestBuilder.(info: RequestInfo) -> Unit)? = null,
     val onResponse: ((response: HttpResponse, info: RequestInfo, result: String) -> Unit)? = null,
-)
+    val callAdapters: ArrayList<CallAdapter<*>> = arrayListOf(),
+) {
+    /**
+     * 添加用于构造网络请求的返回值对象的适配器
+     */
+    fun addCallAdapter(callAdapter: CallAdapter<*>): LazyPeopleHttpConfig {
+        callAdapters.add(callAdapter)
+        return this
+    }
+}
