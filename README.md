@@ -114,6 +114,14 @@ interface HttpFunctions : GetHf {
 interface GetHf {
     @GET("getC")//The url equivalent to the method is: BaseUrl + UrlMidSegment url + method url
     fun getC2(name: String): Call<NetBean<String>>
+
+    //Using Query's key value map can be more flexible
+    @GET("getC")
+    fun getC4(@QueryMap map: Map<String, String?>): Call<NetBean<String>>
+
+    //Using Field's key value map can be more flexible
+    @POST("setUserName")
+    fun setUserName2(@FieldMap map: Map<String, String?>): Call<NetBean<UserBean>>
 }
 ```
 

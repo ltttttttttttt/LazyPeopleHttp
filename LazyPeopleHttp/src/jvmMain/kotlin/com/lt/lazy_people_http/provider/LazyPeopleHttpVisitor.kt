@@ -194,6 +194,7 @@ internal class LazyPeopleHttpVisitor(
     ) {
         val list =
             (it.getAnnotationsByType(Query::class)
+                    + it.getAnnotationsByType(QueryMap::class)
                     + it.getAnnotationsByType(Field::class)
                     + it.getAnnotationsByType(FieldMap::class)
                     + it.getAnnotationsByType(Url::class)
@@ -204,6 +205,11 @@ internal class LazyPeopleHttpVisitor(
         }
         when (val annotation = list.first()) {
             is Query -> queryPList.add("\"${annotation.name}\", $funPName._toJson()")
+            is QueryMap -> {
+                checkMapType(it, funPName)
+                queryPList.add("*$funPName._lazyPeopleHttpFlatten()")
+            }
+
             is Field -> fieldPList.add("\"${annotation.name}\", $funPName._toJson()")
             is FieldMap -> {
                 checkMapType(it, funPName)

@@ -96,4 +96,7 @@ interface GetHf {
 
     @GET("getC3")
     fun getC3(name: String): CL<UserBean>
+
+    @GET("getC")
+    fun getC4(@QueryMap map: Map<String, String?>): Call<NetBean<String>>
 }

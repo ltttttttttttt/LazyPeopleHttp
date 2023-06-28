@@ -114,6 +114,14 @@ interface HttpFunctions : GetHf {
 interface GetHf {
     @GET("getC")//相当于方法的url是:  BaseUrl + UrlMidSegment的url + 方法的url
     fun getC2(name: String): Call<NetBean<String>>
+
+    //使用Query的key value map,可以更灵活
+    @GET("getC")
+    fun getC4(@QueryMap map: Map<String, String?>): Call<NetBean<String>>
+
+    //使用Field的key value map,可以更灵活
+    @POST("setUserName")
+    fun setUserName2(@FieldMap map: Map<String, String?>): Call<NetBean<UserBean>>
 }
 ```
 

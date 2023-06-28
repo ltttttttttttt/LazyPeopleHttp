@@ -116,6 +116,7 @@ fun testAll() {
         assert(hf.postError("error").await().msg == "error")
         assert(hf.checkHeader().awaitData() == "bbb")
         assert(hf.getC2("1").awaitData() == "1")
+        assert(hf.getC4(hashMapOf("name" to "2")).awaitData() == "2")
         text4 = "测试完成"
     }
 }
