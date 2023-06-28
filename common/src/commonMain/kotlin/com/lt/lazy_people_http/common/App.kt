@@ -75,7 +75,7 @@ fun App() {
 
         val data by remember { hf.get().toState() }
         Text("Call#toState()=${data?.cityInfo?.city}")
-        val data2 by hf.getBFlow("测试成功").collectAsState(null)
+        val data2 by remember { hf.getBFlow("测试成功") }.collectAsState(null)
         Text("Call#toState2()=${data2?.data?.name}")
     }
 }
@@ -94,6 +94,7 @@ fun testAll() {
         assert(hf.postA("123").awaitData() == "123")
         assert(hf.postB("1").awaitData().name == "1")
         assert(hf.post_postC("1").awaitData() == "1")
+        assert(hf.postC2("2").awaitData() == "2")
         assert(hf.post_setUserName("1", "4").awaitData().name == "4 1")
         assert(hf.post_postError("error").await().msg == "error")
         assert(hf.post_checkHeader().awaitData() == "bbb")

@@ -29,7 +29,8 @@ interface HttpFunctions : PostHf, GetHf {
 
     fun post_postC(name: String): Call<NetBean<String>>
 
-    fun post_postD(name: String): C<String>
+    @POST("post/postC")
+    fun postC2(name: String): C<String>
 
     suspend fun post_postE(name: String): N<String>
 

@@ -88,6 +88,25 @@ internal fun getKSTypeArguments(ks: KSTypeReference): List<String> {
 }
 
 /**
+ * 获取传入的type的最外层类的全类名
+ * 比如Call<String>,获取到Call的全类名
+ */
+internal fun getKSTypeOutermostName(ks: KSTypeReference): String {
+    //type对象
+    val ksType = ks.resolve()
+    //如果是typealias类型
+    return if (ksType.declaration is KSTypeAlias) {
+        val kotlinType = ksTypeImplClass.getMethod("getKotlinType").invoke(ksType) as KotlinType
+        kotlinType.getKotlinTypeFqName(false)
+    } else {
+        ksType.declaration.let {
+            it.qualifiedName?.asString()
+                ?: "${it.packageName.asString()}.${it.simpleName.asString()}"
+        }
+    }
+}
+
+/**
  * 通过[KSAnnotation]获取还原(构造)这个注解的String
  */
 internal fun getNewAnnotationString(ksa: KSAnnotation): String {

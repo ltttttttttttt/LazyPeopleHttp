@@ -10,6 +10,7 @@ import com.lt.lazy_people_http.annotations.*
 import com.lt.lazy_people_http.appendText
 import com.lt.lazy_people_http.getKSTypeArguments
 import com.lt.lazy_people_http.getKSTypeInfo
+import com.lt.lazy_people_http.getKSTypeOutermostName
 import com.lt.lazy_people_http.getNewAnnotationString
 import com.lt.lazy_people_http.options.KspOptions
 import com.lt.lazy_people_http.options.MethodInfo
@@ -98,13 +99,13 @@ internal class LazyPeopleHttpVisitor(
             val returnType = getKSTypeInfo(it.returnType!!).toString()
             val isSuspendFun = Modifier.SUSPEND in it.modifiers
             //返回的最外层的类型
-            val responseType = it.returnType!!.resolve().declaration.let {
-                it.qualifiedName?.asString()
-                    ?: "${it.packageName.asString()}.${it.simpleName.asString()}"
-            }
-            val responseName =
-                if (isSuspendFun || responseType == "com.lt.lazy_people_http.call.Call") null
+            val responseName = if (isSuspendFun)
+                null
+            else {
+                val responseType = getKSTypeOutermostName(it.returnType!!)
+                if (responseType == "com.lt.lazy_people_http.call.Call") null
                 else "\"$responseType\""
+            }
             val typeOf =
                 if (isSuspendFun) returnType else getKSTypeArguments(it.returnType!!).first()
             val headers = getHeaders(it)
