@@ -12,8 +12,13 @@ import kotlinx.coroutines.flow.flow
  * warning:
  */
 class FlowCallAdapter : CallAdapter<Flow<*>> {
-    override val responseNames: Array<String> =
-        arrayOf("kotlinx.coroutines.flow.Flow")
+    override fun canItAdapt(
+        config: LazyPeopleHttpConfig,
+        info: RequestInfo,
+        returnTypeName: String
+    ): Boolean {
+        return "kotlinx.coroutines.flow.Flow" == returnTypeName
+    }
 
     override fun adapt(config: LazyPeopleHttpConfig, info: RequestInfo): Flow<*> {
         return flow {

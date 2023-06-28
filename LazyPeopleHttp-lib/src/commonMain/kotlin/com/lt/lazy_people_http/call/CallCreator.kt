@@ -64,7 +64,7 @@ object CallCreator {
         if (responseName == null)
             return createCall<Any?>(config, requestInfo) as T
         val callAdapter = config.callAdapters.find {
-            responseName in it.responseNames
+            it.canItAdapt(config, requestInfo, responseName)
         } ?: throw RuntimeException("CallAdapter not find: $responseName")
         return callAdapter.adapt(config, requestInfo) as T
     }
