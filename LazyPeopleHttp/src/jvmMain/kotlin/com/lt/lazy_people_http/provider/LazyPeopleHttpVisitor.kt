@@ -205,9 +205,59 @@ internal class LazyPeopleHttpVisitor(
         when (val annotation = list.first()) {
             is Query -> queryPList.add("\"${annotation.name}\", $funPName._toJson()")
             is Field -> fieldPList.add("\"${annotation.name}\", $funPName._toJson()")
-            is FieldMap -> fieldPList.add("*$funPName._lazyPeopleHttpFlatten()")
+            is FieldMap -> {
+                checkMapType(it, funPName)
+                fieldPList.add("*$funPName._lazyPeopleHttpFlatten()")
+            }
+
             is Url -> replaceUrlMap["{${annotation.replaceUrlName}}"] = funPName
             else -> throw RuntimeException("There is a problem with the getParameterInfo function")
+        }
+    }
+
+    //校验map的类型和泛型
+    private fun checkMapType(
+        it: KSValueParameter,
+        funPName: String
+    ) {
+        val ksType = it.type.resolve()
+        //如果类型不是Map则报错
+        if (ksType.nullability == Nullability.NULLABLE)
+            environment.logger.error(
+                "FieldMap annotation only supports Map type: $funPName",
+                it
+            )
+        val ksTypeName = ksType.declaration.qualifiedName?.asString()
+            ?: "${ksType.declaration.packageName.asString()}.${ksType.declaration.simpleName.asString()}"
+        when (ksTypeName) {
+            "kotlin.collections.Map", "kotlin.collections.MutableMap", "kotlin.collections.HashMap", "kotlin.collections.LinkedHashMap" -> {}
+            else -> {
+                if (!Map::class.java.isAssignableFrom(Class.forName(ksTypeName)))
+                    environment.logger.error(
+                        "FieldMap annotation only supports Map type: $funPName",
+                        it
+                    )
+            }
+        }
+        //如果泛型不是String和String(?)则报错
+        ksType.arguments[0].type?.resolve()!!.let { type ->
+            if (type.nullability == Nullability.NULLABLE)
+                environment.logger.error(
+                    "The generic type of the Map key annotated by FieldMap only supports String: $funPName",
+                    it
+                )
+            if (type.declaration.simpleName.asString() != "String")
+                environment.logger.error(
+                    "The generic type of the Map key annotated by FieldMap only supports String: $funPName",
+                    it
+                )
+        }
+        ksType.arguments[1].type?.resolve()!!.let { type ->
+            if (type.declaration.simpleName.asString() != "String")
+                environment.logger.error(
+                    "The generic type of the Map value annotated by FieldMap only supports String: $funPName",
+                    it
+                )
         }
     }
 

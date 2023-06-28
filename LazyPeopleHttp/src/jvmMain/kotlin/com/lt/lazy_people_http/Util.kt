@@ -93,8 +93,8 @@ internal fun getKSTypeArguments(ks: KSTypeReference): List<String> {
 internal fun getNewAnnotationString(ksa: KSAnnotation): String {
     val ksType = ksa.annotationType.resolve()
     //完整type字符串
-    val typeName =
-        "${ksType.declaration.packageName.asString()}.${ksType.declaration.simpleName.asString()}"
+    val typeName = ksType.declaration.qualifiedName?.asString()
+        ?: "${ksType.declaration.packageName.asString()}.${ksType.declaration.simpleName.asString()}"
     val args = StringBuilder()
     ksa.arguments.forEach {
         val name = it.name
