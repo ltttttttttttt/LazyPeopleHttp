@@ -39,7 +39,7 @@ class PostInterface {
         val request = (RequestContextHolder.getRequestAttributes() as ServletRequestAttributes?)!!.request
         val aaa = request.getHeader("aaa")
         return if (aaa != "bbb")
-            apiFail(aaa)
+            apiFail("请求失败")
         else
             apiSuccess(aaa)
     }

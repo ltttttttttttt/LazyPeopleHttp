@@ -1,6 +1,7 @@
 package com.lt.lazy_people_http.config
 
 import com.lt.lazy_people_http.call.adapter.CallAdapter
+import com.lt.lazy_people_http.call.adapter.SuspendHook
 import com.lt.lazy_people_http.config.encryptor.Encryptor
 import com.lt.lazy_people_http.config.encryptor.NotEncryptor
 import com.lt.lazy_people_http.config.serializer.KotlinxSerializationJsonSerializer
@@ -23,7 +24,7 @@ import io.ktor.client.statement.HttpResponse
  * [onRequest]成功构造了请求,但发送请求之前调用
  * [onResponse]请求之后调用
  */
-class LazyPeopleHttpConfig(
+data class LazyPeopleHttpConfig(
     val client: HttpClient,
     val serializer: Serializer = KotlinxSerializationJsonSerializer(),
     val encryptor: Encryptor = NotEncryptor(),
@@ -32,12 +33,21 @@ class LazyPeopleHttpConfig(
     val onRequest: (HttpRequestBuilder.(info: RequestInfo) -> Unit)? = null,
     val onResponse: ((response: HttpResponse, info: RequestInfo, result: String) -> Unit)? = null,
     val callAdapters: ArrayList<CallAdapter<*>> = arrayListOf(),
+    val suspendHooks: ArrayList<SuspendHook<*>> = arrayListOf(),
 ) {
     /**
      * 添加用于构造网络请求的返回值对象的适配器
      */
     fun addCallAdapter(callAdapter: CallAdapter<*>): LazyPeopleHttpConfig {
         callAdapters.add(callAdapter)
+        return this
+    }
+
+    /**
+     * 添加用于hook suspend过程的对象
+     */
+    fun addSuspendHook(suspendHook: SuspendHook<*>): LazyPeopleHttpConfig {
+        suspendHooks.add(suspendHook)
         return this
     }
 }

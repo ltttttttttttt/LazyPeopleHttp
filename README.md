@@ -164,6 +164,11 @@ class LazyPeopleHttpConfig(...) {
      * After adding, you can declare it like this: fun getUser(): Flow<UserBean>
      */
     fun addCallAdapter()
+
+    /**
+     * Hook suspend response
+     */
+    fun addSuspendHook()
 }
 
 //Modify the configuration of an interface separately
