@@ -43,15 +43,18 @@ internal fun String?.w(environment: SymbolProcessorEnvironment) {
 internal fun getKSTypeInfo(ks: KSTypeReference): KSTypeInfo {
     //type对象
     val ksType = ks.resolve()
-    val typeString = if (ksType.arguments.isEmpty()) "" else {
+    val arguments = ksType.arguments
+    val typeString = if (arguments.isEmpty()) "" else {
         //有泛型
-        ksType.arguments.filter { it.type != null }.joinToString(prefix = "<", postfix = ">") {
+        arguments.filter { it.type != null }.joinToString(prefix = "<", postfix = ">") {
             getKSTypeInfo(it.type!!).toString()
         }
     }
     //完整type字符串
-    val typeName =
-        "${ksType.declaration.packageName.asString()}.${ksType.declaration.simpleName.asString()}"
+    val typeName = ksType.declaration.let {
+        it.qualifiedName?.asString()
+            ?: "${it.packageName.asString()}.${it.simpleName.asString()}"
+    }
     //是否可空
     val nullable = if (ksType.nullability == Nullability.NULLABLE) "?" else ""
     return KSTypeInfo(
@@ -63,7 +66,9 @@ internal fun getKSTypeInfo(ks: KSTypeReference): KSTypeInfo {
 }
 
 
-private val ksTypeImplClass = Class.forName("com.google.devtools.ksp.symbol.impl.kotlin.KSTypeImpl")
+private val getKotlinTypeMethod =
+    Class.forName("com.google.devtools.ksp.symbol.impl.kotlin.KSTypeImpl")
+        .getMethod("getKotlinType")
 
 /**
  * 获取ksType的完整子泛型信息列表,返回可直接使用的String
@@ -76,7 +81,7 @@ internal fun getKSTypeArguments(ks: KSTypeReference): List<String> {
     val ksType = ks.resolve()
     //如果是typealias类型
     return if (ksType.declaration is KSTypeAlias) {
-        val kotlinType = ksTypeImplClass.getMethod("getKotlinType").invoke(ksType) as KotlinType
+        val kotlinType = getKotlinTypeMethod.invoke(ksType) as KotlinType
         kotlinType.arguments.map {
             getKotlinTypeInfo(it.type)
         }
@@ -96,7 +101,7 @@ internal fun getKSTypeOutermostName(ks: KSTypeReference): String {
     val ksType = ks.resolve()
     //如果是typealias类型
     return if (ksType.declaration is KSTypeAlias) {
-        val kotlinType = ksTypeImplClass.getMethod("getKotlinType").invoke(ksType) as KotlinType
+        val kotlinType = getKotlinTypeMethod.invoke(ksType) as KotlinType
         kotlinType.getKotlinTypeFqName(false)
     } else {
         ksType.declaration.let {
@@ -112,8 +117,10 @@ internal fun getKSTypeOutermostName(ks: KSTypeReference): String {
 internal fun getNewAnnotationString(ksa: KSAnnotation): String {
     val ksType = ksa.annotationType.resolve()
     //完整type字符串
-    val typeName = ksType.declaration.qualifiedName?.asString()
-        ?: "${ksType.declaration.packageName.asString()}.${ksType.declaration.simpleName.asString()}"
+    val typeName = ksType.declaration.let {
+        it.qualifiedName?.asString()
+            ?: "${it.packageName.asString()}.${it.simpleName.asString()}"
+    }
     val args = StringBuilder()
     ksa.arguments.forEach {
         val name = it.name
