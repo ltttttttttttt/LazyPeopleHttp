@@ -1,5 +1,6 @@
 package com.lt.lazy_people_http.call
 
+import com.lt.lazy_people_http.call.adapter.SuspendHook
 import com.lt.lazy_people_http.config.CustomConfigsNode
 import com.lt.lazy_people_http.config.LazyPeopleHttpConfig
 import com.lt.lazy_people_http.config.ParameterLocation
@@ -42,7 +43,11 @@ class RealCall<T>(
         }
 
     override suspend fun await(): T = try {
-        getData()
+        val hook = config.suspendHooks.find { it.whetherToHook(config, info) } as? SuspendHook<T>
+        if (hook == null)
+            getData()
+        else
+            hook.hook(config, info, this, ::getData)
     } catch (e: Exception) {
         if (e is CancellationException)
             throw e
@@ -59,7 +64,10 @@ class RealCall<T>(
         return this
     }
 
-    private suspend fun getData(): T = withContext(Dispatchers.Default) {
+    private suspend fun getData(
+        config: LazyPeopleHttpConfig = this.config,
+        info: RequestInfo = this.info,
+    ): T = withContext(Dispatchers.Default) {
         //创建请求对象
         val builder: HttpRequestBuilder.() -> Unit = {
             //设置请求方法

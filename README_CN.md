@@ -164,6 +164,11 @@ class LazyPeopleHttpConfig(...) {
      * 添加完可以这样声明: fun getUser(): Flow<UserBean>
      */
     fun addCallAdapter()
+    
+    /**
+     * 添加用于hook suspend过程的对象
+     */
+    fun addSuspendHook()
 }
 
 //单独修改一个接口的配置

@@ -23,6 +23,7 @@ import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.request.get
 import io.ktor.client.statement.HttpResponse
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
@@ -39,6 +40,8 @@ private val client = HttpClient {
 }
 private val config = LazyPeopleHttpConfig(client).addCallAdapter(FlowCallAdapter())
 private val hf = HttpFunctions::class.createService(config)
+private val config2 = LazyPeopleHttpConfig(client).addSuspendHook(MySuspendHook())
+private val hf2 = HttpFunctions2::class.createService(config2)
 
 var text by mutableStateOf("普通请求")
 var text2 by mutableStateOf("封装后的get请求")
@@ -103,9 +106,9 @@ fun testAll() {
         assert(hf.get_getC2("1").awaitData() == "1")
         assert(hf.getD("success").await().code == 200)
         assert(hf.getD("fail").await().code == 400)
-        //assert(
-        //    hf.get().await().cityInfo?.city == "天津市"
-        //)
+        assert(
+            hf.get().await().cityInfo?.city == "天津市"
+        )
         assert(hf.suspendGetB("2").data.name == "2")
         assert(hf.suspendPostA("123").data == "123")
         assert(hf.postC("1").awaitData() == "1")
@@ -122,7 +125,14 @@ fun testAll() {
         assert(hf.checkHeader().awaitData() == "bbb")
         assert(hf.getC2("1").awaitData() == "1")
         assert(hf.getC4(hashMapOf("name" to "2")).awaitData() == "2")
-        text4 = "测试完成"
+
+        assert(hf2.success("345") == "345")
+        try {
+            hf2.error()
+        } finally {
+            assert(!coroutineContext.isActive)
+            text4 = "测试完成"
+        }
     }
 }
 

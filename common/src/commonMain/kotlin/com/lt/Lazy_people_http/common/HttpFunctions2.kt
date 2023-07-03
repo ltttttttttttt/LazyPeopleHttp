@@ -8,4 +8,10 @@ import com.lt.lazy_people_http.call.Call
 interface HttpFunctions2 {
     @POST("post/postA")
     fun postA(t: String): Call<NetBean<String>>
+
+    @POST("post/postA")
+    suspend fun success(t: String): String
+
+    @POST("post/checkHeader")
+    suspend fun error(): String?
 }
