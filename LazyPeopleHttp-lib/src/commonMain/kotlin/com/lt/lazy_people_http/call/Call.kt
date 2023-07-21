@@ -45,4 +45,21 @@ interface Call<T> {
         })
         return state
     }
+
+    fun toState(
+        defaultValue: T,
+        onFailure: ((call: Call<T>, t: Throwable?) -> Unit)? = null
+    ): State<T> {
+        val state = mutableStateOf(defaultValue)
+        enqueue(object : Callback<T> {
+            override fun onResponse(call: Call<T>, response: T) {
+                state.value = response
+            }
+
+            override fun onFailure(call: Call<T>, t: Throwable?) {
+                onFailure?.invoke(call, t)
+            }
+        })
+        return state
+    }
 }
