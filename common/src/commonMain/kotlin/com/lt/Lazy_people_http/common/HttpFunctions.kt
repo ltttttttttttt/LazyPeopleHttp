@@ -2,6 +2,7 @@ package com.lt.lazy_people_http.common
 
 import com.lt.lazy_people_http.annotations.*
 import com.lt.lazy_people_http.call.Call
+import com.lt.lazy_people_http.type.JsonString
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -67,6 +68,9 @@ interface HttpFunctions : PostHf, GetHf {
 
     @GET("get/getB")
     fun getBFlow(name: String): Flow<NetBean<UserBean>>
+
+    @GET("get/getB")
+    fun getBJson(name: String): Call<JsonString>
 }
 
 @UrlMidSegment("post/")

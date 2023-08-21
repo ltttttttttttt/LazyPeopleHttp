@@ -5,6 +5,7 @@ import com.lt.lazy_people_http.config.CustomConfigsNode
 import com.lt.lazy_people_http.config.LazyPeopleHttpConfig
 import com.lt.lazy_people_http.config.ParameterLocation
 import com.lt.lazy_people_http.request.RequestInfo
+import com.lt.lazy_people_http.type.JsonString
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.forms.FormDataContent
 import io.ktor.client.request.parameter
@@ -132,6 +133,9 @@ class RealCall<T>(
         config.onResponse?.invoke(response, info, result)
         val json = config.encryptor.decrypt(result, ParameterLocation.Result, info)
         //将返回的json序列化为指定对象
-        config.serializer.decodeFromString(json, info.returnType) as T
+        return@withContext if (info.returnType.classifier == JsonString::class)
+            JsonString(json) as T
+        else
+            config.serializer.decodeFromString(json, info.returnType) as T
     }
 }

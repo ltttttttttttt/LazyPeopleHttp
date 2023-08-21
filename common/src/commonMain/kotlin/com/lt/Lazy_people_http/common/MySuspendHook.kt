@@ -4,11 +4,10 @@ import com.lt.lazy_people_http.call.Call
 import com.lt.lazy_people_http.call.adapter.SuspendHook
 import com.lt.lazy_people_http.config.LazyPeopleHttpConfig
 import com.lt.lazy_people_http.request.RequestInfo
+import com.lt.lazy_people_http.type.MyKType
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.cancel
 import kotlin.coroutines.coroutineContext
-import kotlin.reflect.KClass
-import kotlin.reflect.KType
 
 /**
  * creator: lt  2023/6/29  lt.dygzs@qq.com
@@ -27,7 +26,7 @@ class MySuspendHook : SuspendHook<Any?> {
         callFunction: suspend (LazyPeopleHttpConfig, RequestInfo) -> Any?
     ): Any? {
         try {
-            val newReturnType = MyKType(info.returnType, NetBean::class)
+            val newReturnType = MyKType(NetBean::class, info.returnType)
             val newInfo = info.copy(returnType = newReturnType)
             val netBean = callFunction(config, newInfo) as NetBean<Any?>
             if (netBean.code == 200) {
@@ -48,5 +47,3 @@ class MySuspendHook : SuspendHook<Any?> {
 }
 
 fun String?.showToast() = println(this)
-
-expect class MyKType(argKType: KType, clazz: KClass<*>) : KType
