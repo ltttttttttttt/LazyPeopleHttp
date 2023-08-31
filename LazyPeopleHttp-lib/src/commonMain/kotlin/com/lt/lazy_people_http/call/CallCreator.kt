@@ -61,7 +61,7 @@ object CallCreator {
             headers,
             functionAnnotations,
         )
-        if (responseName == null)
+        if (responseName == null)//为null表示是Call或suspend
             return createCall<Any?>(config, requestInfo) as T
         val callAdapter = config.callAdapters.find {
             it.canItAdapt(config, requestInfo, responseName)

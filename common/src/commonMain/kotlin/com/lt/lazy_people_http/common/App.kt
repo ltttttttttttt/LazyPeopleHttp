@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -13,6 +14,7 @@ import com.lt.lazy_people_http.call.Call
 import com.lt.lazy_people_http.call.Callback
 import com.lt.lazy_people_http.call.adapter.FlowCallAdapter
 import com.lt.lazy_people_http.config.LazyPeopleHttpConfig
+import com.lt.lazy_people_http.type.JsonString
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.defaultRequest
@@ -79,7 +81,19 @@ fun App() {
         val data by remember { hf.get().toState() }
         Text("Call#toState()=${data?.cityInfo?.city}")
         val data2 by remember { hf.getBFlow("测试成功") }.collectAsState(null)
-        Text("Call#toState2()=${data2?.data?.name}")
+        val dataJson = remember { mutableStateOf("") }
+        LaunchedEffect(Unit) {
+            hf.getBJson("666").enqueue(object : Callback<JsonString> {
+                override fun onResponse(call: Call<JsonString>, response: JsonString) {
+                    dataJson.value = response.json
+                }
+
+                override fun onFailure(call: Call<JsonString>, t: Throwable?) {
+                    dataJson.value = t?.message ?: "error"
+                }
+            })
+        }
+        Text("Call#toState2()=${data2?.data?.name} ${dataJson.value}")
     }
 }
 
