@@ -11,11 +11,7 @@ val user by remember { hf.getUser(0).toState() }
 Text("UserName=${user?.name}")
 ```
 
-懒人http客户端, 类型安全的HTTP客户端, 适用于: JVM(Android, Desktop), iOS, js web.
-
-灵感来源于: https://github.com/ltttttttttttt/retrofit
-
-如果你想使用更多功能的库,可以使用: https://github.com/Foso/Ktorfit
+类型安全的HTTP客户端, 适用于Kotlin Multiplatform.
 
 <p align="center">
 <img src="https://img.shields.io/badge/Kotlin-Multiplatform-%237f52ff?logo=kotlin">
