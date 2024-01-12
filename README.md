@@ -11,11 +11,7 @@ val user by remember { hf.getUser(0).toState() }
 Text("UserName=${user?.name}")
 ```
 
-Lazy people http, A type-safe HTTP client for JVM(Android, Desktop), iOS, js web.
-
-Inspired by: https://github.com/ltttttttttttt/retrofit
-
-If you want to use a more functional library, you can use: https://github.com/Foso/Ktorfit
+A type-safe HTTP client for Kotlin Multiplatform.
 
 <p align="center">
 <img src="https://img.shields.io/badge/Kotlin-Multiplatform-%237f52ff?logo=kotlin">
