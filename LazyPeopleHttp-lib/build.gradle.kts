@@ -111,6 +111,7 @@ android {
         targetSdk = 31
         sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
         sourceSets["main"].res.srcDir("resources")
+        consumerProguardFiles("consumer-rules.pro")//配置库的混淆文件,会带到app中
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8

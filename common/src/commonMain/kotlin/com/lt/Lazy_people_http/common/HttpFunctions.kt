@@ -60,8 +60,8 @@ interface HttpFunctions : PostHf, GetHf {
     @GET("get/getD/{type}")
     fun getD(@Url("type") url: String): Call<NetBean<String?>>
 
-    @GET("{url}")
-    fun get(@Url("url") url: String = "http://t.weather.sojson.com/api/weather/city/101030100"): Call<MData>
+    @GET("http://t.weather.sojson.com/api/weather/city/101030100")
+    fun get(): Call<MData>
 
     @GET("get/getB")
     suspend fun suspendGetB(name: String): NetBean<UserBean>
@@ -73,7 +73,7 @@ interface HttpFunctions : PostHf, GetHf {
     fun getBJson(name: String): Call<JsonString>
 }
 
-@UrlMidSegment("post/")
+@UrlMidSegment("post")
 interface PostHf {
     fun postC(name: String): Call<NetBean<String>>
 
@@ -98,7 +98,7 @@ interface PostHf {
     suspend fun suspendPostA(t: String): NetBean<String>
 }
 
-@UrlMidSegment("get/")
+@UrlMidSegment("get")
 interface GetHf {
     @GET("getC")
     fun getC2(name: String): Call<NetBean<String>>

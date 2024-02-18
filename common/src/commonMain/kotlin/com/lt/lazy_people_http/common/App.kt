@@ -158,7 +158,7 @@ suspend fun getData() {
 }
 
 fun getData2() {
-    hf.get("http://t.weather.sojson.com/api/weather/city/101030100").config {
+    hf.get().config {
         url.parameters.append("a", "b")
     }.config {
         url.parameters.remove("a")

@@ -144,3 +144,24 @@ private fun getKotlinTypeInfo(type: KotlinType): String {
     }
     return typeString + argTypeString
 }
+
+/**
+ * 拼接url,自动处理中间的'/'
+ */
+internal fun montageUrl(url1: String, url2: String): String {
+    if (url1.isEmpty())
+        return url2
+    if (url2.isEmpty())
+        return url1
+    val sb = StringBuilder()
+    if (url1.endsWith("/"))
+        sb.append(url1.substring(0, url1.length - 1))
+    else
+        sb.append(url1)
+    sb.append("/")
+    if (url2.startsWith("/"))
+        sb.append(url2.substring(1, url2.length))
+    else
+        sb.append(url2)
+    return sb.toString()
+}

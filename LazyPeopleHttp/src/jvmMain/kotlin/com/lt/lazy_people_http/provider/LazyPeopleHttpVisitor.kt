@@ -5,13 +5,28 @@ import com.google.devtools.ksp.getAnnotationsByType
 import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
-import com.google.devtools.ksp.symbol.*
-import com.lt.lazy_people_http.annotations.*
+import com.google.devtools.ksp.symbol.ClassKind
+import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSValueParameter
+import com.google.devtools.ksp.symbol.KSVisitorVoid
+import com.google.devtools.ksp.symbol.Modifier
+import com.google.devtools.ksp.symbol.Nullability
+import com.lt.lazy_people_http.annotations.Field
+import com.lt.lazy_people_http.annotations.FieldMap
+import com.lt.lazy_people_http.annotations.GET
+import com.lt.lazy_people_http.annotations.Header
+import com.lt.lazy_people_http.annotations.POST
+import com.lt.lazy_people_http.annotations.Query
+import com.lt.lazy_people_http.annotations.QueryMap
+import com.lt.lazy_people_http.annotations.Url
+import com.lt.lazy_people_http.annotations.UrlMidSegment
 import com.lt.lazy_people_http.appendText
 import com.lt.lazy_people_http.getKSTypeArguments
 import com.lt.lazy_people_http.getKSTypeInfo
 import com.lt.lazy_people_http.getKSTypeOutermostName
 import com.lt.lazy_people_http.getNewAnnotationString
+import com.lt.lazy_people_http.montageUrl
 import com.lt.lazy_people_http.options.KspOptions
 import com.lt.lazy_people_http.options.MethodInfo
 import com.lt.lazy_people_http.options.ParameterInfo
@@ -30,6 +45,10 @@ internal class LazyPeopleHttpVisitor(
     private val options = KspOptions(environment)
     private val isGetFunAnnotations = options.isGetFunAnnotations()
     private val createCallFunName = options.getCreateCallFunName()
+    private val functionReplaceFrom = options.getFunctionReplaceFrom()
+    private val functionReplaceTo = options.getFunctionReplaceTo()
+    private val isFunctionNameReplace =//是否对方法名进行替换
+        functionReplaceFrom.isNotEmpty() && functionReplaceTo.isNotEmpty()
 
     /**
      * 访问class的声明
@@ -302,12 +321,17 @@ internal class LazyPeopleHttpVisitor(
         val list =
             (it.getAnnotationsByType(GET::class) + it.getAnnotationsByType(POST::class)).toList()
         if (list.isEmpty())
-            return MethodInfo(null, urlMidSegment + functionName.replace("_", "/"))
+            return MethodInfo(null, montageUrl(urlMidSegment, functionName.let {
+                if (isFunctionNameReplace)
+                    it.replace(functionReplaceFrom, functionReplaceTo)
+                else
+                    it
+            }))
         if (list.size > 1)
             throw RuntimeException("Function $functionName there are multiple http method annotations")
         return when (val annotation = list.first()) {
-            is GET -> MethodInfo(RequestMethod.GET_QUERY, urlMidSegment + annotation.url)
-            is POST -> MethodInfo(RequestMethod.POST_FIELD, urlMidSegment + annotation.url)
+            is GET -> MethodInfo(RequestMethod.GET_QUERY, montageUrl(urlMidSegment, annotation.url))
+            is POST -> MethodInfo(RequestMethod.POST_FIELD, montageUrl(urlMidSegment, annotation.url))
             else -> throw RuntimeException("There is a problem with the getMethodInfo function")
         }
     }

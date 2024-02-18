@@ -73,51 +73,33 @@ Step 2.接口声明:
 
 ```kotlin
 @LazyPeopleHttpService
-interface HttpFunctions : GetHf {
-    //标准post请求声明
+interface HttpFunctions : GetFuns {
+    //标准post请求声明,url=post/postB
     @POST("post/postB")
     fun postB(@Field("name") t: String): Call<UserBean>
 
-    //懒人post请求声明,会把方法名当做url,其下划线会转换为斜杠
-    fun post_postC(name: String): Call<String>
+    //懒人post请求声明,会把方法名当做url,url=postC
+    fun postC(name: String): Call<String>
 
-    //suspend post请求声明
-    suspend fun post_postA(t: String): String
-
-    //标准get请求声明
-    @GET("get/getA")
-    fun getA(@Query("t") t2: String): Call<String>
-
-    //懒人get请求声明
-    fun get_getB(name: String): Call<UserBean>
-
-    //suspend get请求声明
-    suspend fun suspendGetB(name: String): UserBean
-
-    //添加静态的请求头
-    @Header("aaa", "bbb")
-    fun post_checkHeader(): Call<String?>
+    //suspend post请求声明,url=postA
+    suspend fun postA(t: String): String
 
     //配置动态的url
     @GET("get/getD/{type}")
-    fun getD(@Url("type") url: String): Call<String?>
-
-    //可以声明具体函数,此时不会生成额外的方法
-    fun ccc(): Int = 0
+    @Header("aaa", "bbb")//添加静态的请求头
+    fun getD(
+        @Url("type") url: String,
+        @QueryMap map: Map<String, String?>//可以更灵活,post则使用@FieldMap,
+    ): Call<String?>
 }
 
-@UrlMidSegment("get/")//这个文件里的所有方法都会自动加一个中缀
-interface GetHf {
-    @GET("getC")//相当于方法的url是:  BaseUrl + UrlMidSegment的url + 方法的url
-    fun getC2(name: String): Call<NetBean<String>>
-
-    //使用Query的key value map,可以更灵活
-    @GET("getC")
-    fun getC4(@QueryMap map: Map<String, String?>): Call<NetBean<String>>
-
-    //使用Field的key value map,可以更灵活
-    @POST("setUserName")
-    fun setUserName2(@FieldMap map: Map<String, String?>): Call<NetBean<UserBean>>
+@UrlMidSegment("get")//这个文件里的所有方法都会自动加一个中缀
+interface GetFuns {
+    @GET("getC")//url=get/getC
+    fun getC2(name: String): Call<String>
+    
+    //url=get/getB
+    fun getB(name: String): Call<String>
 }
 ```
 
@@ -175,14 +157,17 @@ hf.postB("123").config {
 ksp {
     //开启运行时配置获取所有注解的功能,不开启时调用[RequestInfo#functionAnnotations]始终返回null
     //arg("getFunAnnotationsWithLazyPeopleHttp", "true")
-    //你甚至可以修改创建Call的方法,来返回自定义的Call
+    //修改创建Call的方法,来返回自定义的Call
     //arg("createCallFunNameWithLazyPeopleHttp", "CallAdapter.createCall2")
+    //要将方法名的名称当做url时将某值替换为[functionReplaceTo]
+    //arg("functionReplaceFromWithLazyPeopleHttp", "_")
+    //要将方法名的名称当做url时将[functionReplaceFrom]替换为设置的值
+    //arg("functionReplaceToWithLazyPeopleHttp", "/")
 }
 ```
 
 Step 5.混淆配置:
 
 ```kotlin
--keep class com.lt.lazy_people_http.call.Call { *;}
-# 和你自定义的[CallAdapter]中使用到的名字
+# 你自定义的[CallAdapter]中使用到的名字
 ```

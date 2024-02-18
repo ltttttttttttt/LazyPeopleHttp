@@ -73,51 +73,33 @@ Step 2.interface declaration:
 
 ```kotlin
 @LazyPeopleHttpService
-interface HttpFunctions : GetHf {
-    //Standard post request statement
+interface HttpFunctions : GetFuns {
+    //Standard post request statement,url=post/postB
     @POST("post/postB")
     fun postB(@Field("name") t: String): Call<UserBean>
 
-    //The lazy people post request statement will treat the method name as a url, and its _ will be converted to /
+    //The lazy people post request statement will treat the method name as a url,url=postC
     fun post_postC(name: String): Call<String>
 
-    //suspend post request statement
+    //suspend post request statement,url=postA
     suspend fun post_postA(t: String): String
-
-    //Standard get request statement
-    @GET("get/getA")
-    fun getA(@Query("t") t2: String): Call<String>
-    
-    //lazy people get request statement
-    fun get_getB(name: String): Call<UserBean>
-    
-    //suspend get request statement
-    suspend fun suspendGetB(name: String): UserBean
-    
-    //Add static request headers
-    @Header("aaa", "bbb")
-    fun post_checkHeader(): Call<String?>
 
     //Configure dynamic urls
     @GET("get/getD/{type}")
-    fun getD(@Url("type") url: String): Call<String?>
-
-    //Specific functions can be declared, and no additional methods will be generated at this time
-    fun ccc(): Int = 0
+    @Header("aaa", "bbb")//Add static request headers
+    fun getD(
+        @Url("type") url: String,
+        @QueryMap map: Map<String, String?>//can be more flexible, post use @FieldMap,
+    ): Call<String?>
 }
 
-@UrlMidSegment("get/")//All methods in this file will automatically add an infix
+@UrlMidSegment("get")//All methods in this file will automatically add an infix
 interface GetHf {
-    @GET("getC")//The url equivalent to the method is: BaseUrl + UrlMidSegment url + method url
-    fun getC2(name: String): Call<NetBean<String>>
+    @GET("getC")//url=get/getC
+    fun getC2(name: String): Call<String>
 
-    //Using Query's key value map can be more flexible
-    @GET("getC")
-    fun getC4(@QueryMap map: Map<String, String?>): Call<NetBean<String>>
-
-    //Using Field's key value map can be more flexible
-    @POST("setUserName")
-    fun setUserName2(@FieldMap map: Map<String, String?>): Call<NetBean<UserBean>>
+    //url=get/getB
+    fun getB(name: String): Call<String>
 }
 ```
 
@@ -175,14 +157,17 @@ hf.postB("123").config {
 ksp {
     //Enable runtime configuration to obtain all annotations, call [RequestInfo # functionAnnotations] when not enabled and always return null
     //arg("getFunAnnotationsWithLazyPeopleHttp", "true")
-    //You can even modify the method of creating a Call to return a custom Call
+    //Modify the method of creating a Call to return a custom Call
     //arg("createCallFunNameWithLazyPeopleHttp", "CallAdapter.createCall2")
+    //When using the name of a method as a URL, replace a value with [functionReplaceTo]
+    //arg("functionReplaceFromWithLazyPeopleHttp", "_")
+    //When using the method name as a URL, replace [functionReplaceFrom] with the set value
+    //arg("functionReplaceToWithLazyPeopleHttp", "/")
 }
 ```
 
 Step 5.R8/Proguard:
 
 ```kotlin
--keep class com.lt.lazy_people_http.call.Call { *;}
-# And the name used in your customized [CallAdapter]
+# The name used in your customized [CallAdapter]
 ```
