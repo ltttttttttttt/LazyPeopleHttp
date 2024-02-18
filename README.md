@@ -123,7 +123,7 @@ hf.suspendGetB("111")//Coroutine asynchronous request
 val data by remember { hf.get().toState() }//Return responsive State, suitable for Compose
 ```
 
-Step 4.Custom configuration:
+Step 4.Custom configuration(Optional):
 
 ```kotlin
 /*
@@ -166,7 +166,7 @@ ksp {
 }
 ```
 
-Step 5.R8/Proguard:
+Step 5.R8/Proguard(Optional):
 
 ```kotlin
 # The name used in your customized [CallAdapter]

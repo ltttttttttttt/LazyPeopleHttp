@@ -123,7 +123,7 @@ hf.suspendGetB("111")//协程异步请求
 val data by remember { hf.get().toState() }//返回响应式的State,适用于Compose
 ```
 
-Step 4.自定义配置:
+Step 4.自定义配置(可选):
 
 ```kotlin
 /*
@@ -166,7 +166,7 @@ ksp {
 }
 ```
 
-Step 5.混淆配置:
+Step 5.混淆配置(可选):
 
 ```kotlin
 # 你自定义的[CallAdapter]中使用到的名字
