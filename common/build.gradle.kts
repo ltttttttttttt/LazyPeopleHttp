@@ -102,6 +102,8 @@ kotlin {
     ksp {
         arg("getFunAnnotationsWithLazyPeopleHttp", "true")
         //arg("createCallFunNameWithLazyPeopleHttp", "CallAdapter.createCall2")
+        arg("functionReplaceFromWithLazyPeopleHttp", "_")
+        arg("functionReplaceToWithLazyPeopleHttp", "/")
     }
 }
 

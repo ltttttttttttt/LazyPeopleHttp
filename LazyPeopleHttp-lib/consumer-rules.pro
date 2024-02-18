@@ -1,0 +1,2 @@
+-keep class com.lt.lazy_people_http.call.Call
+-keep class kotlinx.coroutines.flow.Flow
