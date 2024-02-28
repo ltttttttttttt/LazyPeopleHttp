@@ -136,16 +136,6 @@ internal class LazyPeopleHttpVisitor(
             val functionAnnotations = getFunctionAnnotations(it)
 
             file.appendText("    override ${if (isSuspendFun) "suspend " else ""}fun $functionName(${parameterInfo.funParameter}): $returnType {\n")
-            if (functionAnnotations.isNotEmpty())
-                file.appendText(
-                    "        var annotations: Array<Annotation>? = null\n" +
-                            "        val getAnnotations: () -> Array<Annotation> = _f@{\n" +
-                            "            annotations?.let { return@_f it }\n" +
-                            "            val array = arrayOf<Annotation>($functionAnnotations)\n" +
-                            "            annotations = array\n" +
-                            "            array\n" +
-                            "        }\n"
-                )
             file.appendText(
                 "        return $createCallFunName${if (isSuspendFun) "<Call<$returnType>>" else ""}(\n" +
                         "            config,\n" +
@@ -156,7 +146,7 @@ internal class LazyPeopleHttpVisitor(
                         "            typeOf<$typeOf>(),\n" +
                         "            ${if (methodInfo.method == null) "null" else "RequestMethod.${methodInfo.method}"},\n" +
                         "            $headers,\n" +
-                        "            ${if (functionAnnotations.isEmpty()) "null" else "getAnnotations"},\n" +
+                        "            ${if (functionAnnotations.isEmpty()) "null" else "arrayOf($functionAnnotations)"},\n" +
                         "            $responseName,\n" +
                         "        )${if (isSuspendFun) ".await()" else ""}\n" +
                         "    }\n\n"

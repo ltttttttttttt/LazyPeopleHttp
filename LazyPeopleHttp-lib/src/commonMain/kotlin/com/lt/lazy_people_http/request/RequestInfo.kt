@@ -20,8 +20,8 @@ data class RequestInfo(
     val requestMethod: RequestMethod?,
     //设置的额外的请求头
     val headers: Array<String>?,
-    //方法和参数上附带的所有注解
-    val functionAnnotations: (() -> Array<Annotation>)?,
+    //方法,返回值和参数上附带的所有注解
+    val functionAnnotations: Array<Annotation>?,
 ) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

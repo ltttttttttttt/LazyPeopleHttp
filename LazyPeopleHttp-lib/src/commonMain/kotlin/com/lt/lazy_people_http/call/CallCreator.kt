@@ -27,7 +27,7 @@ object CallCreator {
         returnType: KType,
         requestMethod: RequestMethod?,
         headers: Array<String>?,
-        functionAnnotations: (() -> Array<Annotation>)?,
+        functionAnnotations: Array<Annotation>?,
         responseName: String?,
     ): T {
         //合并参数
