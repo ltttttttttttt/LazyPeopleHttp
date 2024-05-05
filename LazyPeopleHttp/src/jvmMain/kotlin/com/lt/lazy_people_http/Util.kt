@@ -118,8 +118,14 @@ internal fun getNewAnnotationString(ksa: KSAnnotation): String {
     val ksType = ksa.annotationType.resolve()
     //完整type字符串
     val typeName = ksType.declaration.let {
-        it.qualifiedName?.asString()
-            ?: "${it.packageName.asString()}.${it.simpleName.asString()}"
+        val name = it.qualifiedName?.asString()
+        if (name != null)
+            return@let name
+        val packageName = it.packageName.asString()
+        return@let if (packageName.isEmpty())
+            ksa.shortName.asString()
+        else
+            "$packageName.${it.simpleName.asString()}"
     }
     val args = StringBuilder()
     ksa.arguments.forEach {
