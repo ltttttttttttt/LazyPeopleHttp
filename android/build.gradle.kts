@@ -2,13 +2,14 @@ plugins {
     id("org.jetbrains.compose")
     id("com.android.application")
     kotlin("android")
+    kotlin("plugin.compose")
 }
 
 group "com.lt"
 version "1.0-SNAPSHOT"
 
 repositories {
-    jcenter()
+    maven("https://mirrors.tencent.com/nexus/repository/maven-public/")
 }
 
 dependencies {

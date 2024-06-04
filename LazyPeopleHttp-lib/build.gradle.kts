@@ -1,3 +1,6 @@
+import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
+import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
+
 plugins {
     kotlin("multiplatform")
     kotlin("native.cocoapods")
@@ -31,6 +34,23 @@ kotlin {
         compilations.all {
             defaultSourceSet.resources.srcDir("/resources")
         }
+    }
+
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        moduleName = "common_app"
+        browser {
+            commonWebpackConfig {
+                outputFileName = "common_app.js"
+                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
+                    static = (static ?: mutableListOf()).apply {
+                        // Serve sources to debug inside browser
+                        add(project.projectDir.path)
+                    }
+                }
+            }
+        }
+        binaries.executable()
     }
 
     cocoapods {
@@ -98,6 +118,13 @@ kotlin {
         val jsMain by getting{
             dependencies {
                 //网络请求引擎
+                api("io.ktor:ktor-client-js:$ktorVersion")
+            }
+        }
+
+        val wasmJsMain by getting {
+            dependencies {
+                //网络请求引擎 todo 暂不支持wasm
                 api("io.ktor:ktor-client-js:$ktorVersion")
             }
         }

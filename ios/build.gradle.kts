@@ -22,6 +22,7 @@ plugins {
     id("org.jetbrains.compose")
     id("com.android.library")
     kotlin("native.cocoapods")
+    kotlin("plugin.compose")
 }
 
 group = "com.lt.ltttttttttttt"

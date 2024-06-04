@@ -5,6 +5,7 @@ plugins {
     kotlin("native.cocoapods")
     kotlin("plugin.serialization") version kotlinVersion
     id("com.google.devtools.ksp") version kspVersion
+    kotlin("plugin.compose")
 }
 
 group = "com.lt"
@@ -13,7 +14,6 @@ version = "1.0-SNAPSHOT"
 kotlin {
     android()
     jvm("desktop") {
-        jvmToolchain(17)
     }
     ios()
     iosSimulatorArm64()
