@@ -12,6 +12,11 @@ interface HttpFunctions2 {
     @POST("post/postA")
     suspend fun success(t: String): String
 
+    @Deprecated("Do not use (test)")
+    @Throws(RuntimeException::class,NullPointerException::class)
+    @TestNumber(0,"1","2")
     @POST("post/checkHeader")
     suspend fun error(): String?
 }
+
+annotation class TestNumber(val num: Int, vararg val canBeNullStrings: String)

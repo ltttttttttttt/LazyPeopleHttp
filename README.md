@@ -6,6 +6,8 @@ suspend fun getUser(userId: Int): User
 or
 fun getUser(userId: Int): Call<User>
 
+//In Coroutine
+val user = hf.getUser(0).await()
 //In Compose used:
 val user by remember { hf.getUser(0).toState() }
 Text("UserName=${user?.name}")
@@ -119,7 +121,7 @@ private val hf = HttpFunctions::class.createService(config)
 
 //Implementation class using the interface
 hf.postB("123").enqueue()//callback asynchronous request
-hf.suspendGetB("111")//Coroutine asynchronous request
+hf.suspendGetB("111") or hf.postB("123").await()//Coroutine asynchronous request
 val data by remember { hf.get().toState() }//Return responsive State, suitable for Compose
 ```
 

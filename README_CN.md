@@ -6,6 +6,8 @@ suspend fun getUser(userId: Int): User
 或
 fun getUser(userId: Int): Call<User>
 
+//如果在协程中可以这样用:
+hf.getUser(0).await()
 //如果使用Compose可以这样用:
 val user by remember { hf.getUser(0).toState() }
 Text("UserName=${user?.name}")
@@ -119,7 +121,7 @@ private val hf = HttpFunctions::class.createService(config)
 
 //使用接口的实现类
 hf.postB("123").enqueue()//回调异步请求
-hf.suspendGetB("111")//协程异步请求
+hf.suspendGetB("111") 或 hf.postB("123").await()//协程异步请求
 val data by remember { hf.get().toState() }//返回响应式的State,适用于Compose
 ```
 
