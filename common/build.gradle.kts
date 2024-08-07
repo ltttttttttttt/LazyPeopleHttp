@@ -14,6 +14,11 @@ version = "1.0-SNAPSHOT"
 kotlin {
     android()
     jvm("desktop") {
+        compilations.all {
+            kotlinOptions {
+                jvmTarget = "17"
+            }
+        }
     }
     ios()
     iosSimulatorArm64()
@@ -29,8 +34,8 @@ kotlin {
             baseName = "common"
             isStatic = true
         }
-        extraSpecAttributes["resources"] =
-            "['resources/**']"
+        //extraSpecAttributes["resources"] =
+        //    "['resources/**']"
     }
     sourceSets {
         val commonMain by getting {

@@ -78,8 +78,8 @@ kotlin {
             baseName = "ios_shared"
             isStatic = true
         }
-        extraSpecAttributes["resources"] =
-            "['../ComposeViews/resources/**', '../desktop_app/src/desktopMain/resources/**', 'src/iosMain/resources/**']"
+        //extraSpecAttributes["resources"] =
+        //    "['../ComposeViews/resources/**', '../desktop_app/src/desktopMain/resources/**', 'src/iosMain/resources/**']"
     }
     sourceSets {
         val commonMain by getting {

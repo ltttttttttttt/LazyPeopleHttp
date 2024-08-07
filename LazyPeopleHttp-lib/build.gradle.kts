@@ -36,22 +36,23 @@ kotlin {
         }
     }
 
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmJs {
-        moduleName = "common_app"
-        browser {
-            commonWebpackConfig {
-                outputFileName = "common_app.js"
-                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
-                    static = (static ?: mutableListOf()).apply {
-                        // Serve sources to debug inside browser
-                        add(project.projectDir.path)
-                    }
-                }
-            }
-        }
-        binaries.executable()
-    }
+    // TODO by lt ktor暂不支持wasm
+    //@OptIn(ExperimentalWasmDsl::class)
+    //wasmJs {
+    //    moduleName = "common_app"
+    //    browser {
+    //        commonWebpackConfig {
+    //            outputFileName = "common_app.js"
+    //            devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
+    //                static = (static ?: mutableListOf()).apply {
+    //                    // Serve sources to debug inside browser
+    //                    add(project.projectDir.path)
+    //                }
+    //            }
+    //        }
+    //    }
+    //    binaries.executable()
+    //}
 
     cocoapods {
         summary = "LazyPeopleHttp"
@@ -62,8 +63,8 @@ kotlin {
             baseName = "LazyPeopleHttp"
             isStatic = true
         }
-        extraSpecAttributes["resources"] =
-            "['resources/**']"
+        //extraSpecAttributes["resources"] =
+        //    "['resources/**']"
     }
 
     sourceSets {
@@ -122,12 +123,13 @@ kotlin {
             }
         }
 
-        val wasmJsMain by getting {
-            dependencies {
-                //网络请求引擎 todo 暂不支持wasm
-                api("io.ktor:ktor-client-js:$ktorVersion")
-            }
-        }
+        // TODO by lt ktor暂不支持wasm
+        //val wasmJsMain by getting {
+        //    dependencies {
+        //        //网络请求引擎 todo 暂不支持wasm
+        //        api("io.ktor:ktor-client-js:$ktorVersion")
+        //    }
+        //}
     }
 }
 

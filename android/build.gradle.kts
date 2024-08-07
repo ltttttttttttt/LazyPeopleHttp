@@ -20,7 +20,7 @@ dependencies {
 }
 
 android {
-    compileSdkVersion(33)
+    compileSdkVersion(34)
     defaultConfig {
         applicationId = "com.lt.lazy_people_http"
         minSdkVersion(21)
