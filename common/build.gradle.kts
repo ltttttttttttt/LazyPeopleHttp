@@ -113,6 +113,7 @@ kotlin {
 }
 
 android {
+    namespace = "com.lt.lazy_people_http.common"
     compileSdkVersion(33)
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {

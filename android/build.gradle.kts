@@ -21,8 +21,9 @@ dependencies {
 
 android {
     compileSdkVersion(34)
+    namespace = "com.lt.android"
     defaultConfig {
-        applicationId = "com.lt.lazy_people_http"
+        applicationId = "com.lt.android"
         minSdkVersion(21)
         targetSdkVersion(33)
         versionCode = 1

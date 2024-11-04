@@ -1,6 +1,3 @@
-import org.jetbrains.kotlin.gradle.targets.js.dsl.ExperimentalWasmDsl
-import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
-
 plugins {
     kotlin("multiplatform")
     kotlin("native.cocoapods")
@@ -134,6 +131,7 @@ kotlin {
 }
 
 android {
+    namespace = "com.lt.lazy_people_http"
     compileSdk = 33
     defaultConfig {
         minSdk = 21

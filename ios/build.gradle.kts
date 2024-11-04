@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-
 /*
  * Copyright lt 2023
  *
@@ -28,6 +26,7 @@ plugins {
 group = "com.lt.ltttttttttttt"
 
 android {
+    namespace = "com.lt.common_app"
     compileSdk = 33
     defaultConfig {
         minSdk = 21
