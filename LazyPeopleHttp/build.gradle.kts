@@ -30,3 +30,6 @@ kotlin {
         val jvmTest by getting
     }
 }
+
+tasks.findByName("signKotlinMultiplatformPublication")!!
+    .dependsOn(tasks.findByName("publishJvmPublicationToSonatypeRepository"))

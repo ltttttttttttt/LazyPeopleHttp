@@ -5,6 +5,7 @@ plugins {
     kotlin("native.cocoapods")
     kotlin("plugin.serialization") version kotlinVersion
     id("com.google.devtools.ksp") version kspVersion
+    kotlin("plugin.compose")
 }
 
 group = "com.lt"
@@ -13,7 +14,11 @@ version = "1.0-SNAPSHOT"
 kotlin {
     android()
     jvm("desktop") {
-        jvmToolchain(17)
+        compilations.all {
+            kotlinOptions {
+                jvmTarget = "17"
+            }
+        }
     }
     ios()
     iosSimulatorArm64()
@@ -29,8 +34,8 @@ kotlin {
             baseName = "common"
             isStatic = true
         }
-        extraSpecAttributes["resources"] =
-            "['resources/**']"
+        //extraSpecAttributes["resources"] =
+        //    "['resources/**']"
     }
     sourceSets {
         val commonMain by getting {
@@ -108,6 +113,7 @@ kotlin {
 }
 
 android {
+    namespace = "com.lt.lazy_people_http.common"
     compileSdkVersion(33)
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {

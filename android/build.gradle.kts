@@ -2,13 +2,14 @@ plugins {
     id("org.jetbrains.compose")
     id("com.android.application")
     kotlin("android")
+    kotlin("plugin.compose")
 }
 
 group "com.lt"
 version "1.0-SNAPSHOT"
 
 repositories {
-    jcenter()
+    maven("https://mirrors.tencent.com/nexus/repository/maven-public/")
 }
 
 dependencies {
@@ -19,9 +20,10 @@ dependencies {
 }
 
 android {
-    compileSdkVersion(33)
+    compileSdkVersion(34)
+    namespace = "com.lt.android"
     defaultConfig {
-        applicationId = "com.lt.lazy_people_http"
+        applicationId = "com.lt.android"
         minSdkVersion(21)
         targetSdkVersion(33)
         versionCode = 1

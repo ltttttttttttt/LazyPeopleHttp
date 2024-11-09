@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
+
 plugins {
     kotlin("multiplatform")
     kotlin("native.cocoapods")
@@ -33,6 +35,22 @@ kotlin {
         }
     }
 
+    wasmJs {
+        moduleName = "common_app"
+        browser {
+            commonWebpackConfig {
+                outputFileName = "common_app.js"
+                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
+                    static = (static ?: mutableListOf()).apply {
+                        // Serve sources to debug inside browser
+                        add(project.projectDir.path)
+                    }
+                }
+            }
+        }
+        binaries.executable()
+    }
+
     cocoapods {
         summary = "LazyPeopleHttp"
         homepage = "https://github.com/ltttttttttttt/LazyPeopleHttp"
@@ -42,8 +60,8 @@ kotlin {
             baseName = "LazyPeopleHttp"
             isStatic = true
         }
-        extraSpecAttributes["resources"] =
-            "['resources/**']"
+        //extraSpecAttributes["resources"] =
+        //    "['resources/**']"
     }
 
     sourceSets {
@@ -56,7 +74,7 @@ kotlin {
                 //kt的跨平台json解析
                 api("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationJsonVersion")
                 //compose runtime
-                compileOnly("org.jetbrains.compose.runtime:runtime:1.4.0")
+                compileOnly("org.jetbrains.compose.runtime:runtime:1.7.0")
             }
         }
         val commonTest by getting {
@@ -65,7 +83,7 @@ kotlin {
             }
         }
 
-        val androidMain by getting{
+        val androidMain by getting {
             dependencies {
                 //网络请求引擎
                 api("io.ktor:ktor-client-okhttp:$ktorVersion")
@@ -73,7 +91,7 @@ kotlin {
         }
         val androidUnitTest by getting
 
-        val jvmMain by getting{
+        val jvmMain by getting {
             dependencies {
                 //网络请求引擎
                 api("io.ktor:ktor-client-okhttp:$ktorVersion")
@@ -81,7 +99,7 @@ kotlin {
         }
         val jvmTest by getting
 
-        val iosMain by getting{
+        val iosMain by getting {
             dependencies {
                 //网络请求引擎
                 api("io.ktor:ktor-client-darwin:$ktorVersion")
@@ -95,7 +113,14 @@ kotlin {
             dependsOn(iosTest)
         }
 
-        val jsMain by getting{
+        val jsMain by getting {
+            dependencies {
+                //网络请求引擎
+                api("io.ktor:ktor-client-js:$ktorVersion")
+            }
+        }
+
+        val wasmJsMain by getting {
             dependencies {
                 //网络请求引擎
                 api("io.ktor:ktor-client-js:$ktorVersion")
@@ -105,10 +130,10 @@ kotlin {
 }
 
 android {
-    compileSdk = 33
+    namespace = "com.lt.lazy_people_http"
+    compileSdk = 35
     defaultConfig {
         minSdk = 21
-        targetSdk = 31
         sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
         sourceSets["main"].res.srcDir("resources")
         consumerProguardFiles("consumer-rules.pro")//配置库的混淆文件,会带到app中
@@ -117,4 +142,76 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
+    lint {
+        targetSdk = 35
+    }
+}
+
+afterEvaluate {
+    tasks.findByName("signAndroidReleasePublication")!!
+        .mustRunAfter(tasks.findByName("publishAndroidDebugPublicationToSonatypeRepository"))
+    tasks.findByName("signIosArm64Publication")!!
+        .mustRunAfter(tasks.findByName("publishAndroidDebugPublicationToSonatypeRepository"))
+    tasks.findByName("signIosSimulatorArm64Publication")!!
+        .mustRunAfter(tasks.findByName("publishAndroidDebugPublicationToSonatypeRepository"))
+    tasks.findByName("signIosX64Publication")!!
+        .mustRunAfter(tasks.findByName("publishAndroidDebugPublicationToSonatypeRepository"))
+    tasks.findByName("signJsPublication")!!
+        .mustRunAfter(tasks.findByName("publishAndroidDebugPublicationToSonatypeRepository"))
+    tasks.findByName("signJvmPublication")!!
+        .mustRunAfter(tasks.findByName("publishAndroidDebugPublicationToSonatypeRepository"))
+    tasks.findByName("signKotlinMultiplatformPublication")!!
+        .mustRunAfter(tasks.findByName("publishAndroidDebugPublicationToSonatypeRepository"))
+    tasks.findByName("signIosArm64Publication")!!
+        .mustRunAfter(tasks.findByName("publishAndroidReleasePublicationToSonatypeRepository"))
+    tasks.findByName("signIosSimulatorArm64Publication")!!
+        .mustRunAfter(tasks.findByName("publishIosArm64PublicationToSonatypeRepository"))
+    tasks.findByName("signIosSimulatorArm64Publication")!!
+        .mustRunAfter(tasks.findByName("publishAndroidReleasePublicationToSonatypeRepository"))
+    tasks.findByName("signIosX64Publication")!!
+        .mustRunAfter(tasks.findByName("publishIosArm64PublicationToSonatypeRepository"))
+    tasks.findByName("signIosX64Publication")!!
+        .mustRunAfter(tasks.findByName("publishAndroidReleasePublicationToSonatypeRepository"))
+    tasks.findByName("signJsPublication")!!
+        .mustRunAfter(tasks.findByName("publishIosArm64PublicationToSonatypeRepository"))
+    tasks.findByName("signJsPublication")!!
+        .mustRunAfter(tasks.findByName("publishAndroidReleasePublicationToSonatypeRepository"))
+    tasks.findByName("signJvmPublication")!!
+        .mustRunAfter(tasks.findByName("publishIosArm64PublicationToSonatypeRepository"))
+    tasks.findByName("signJvmPublication")!!
+        .mustRunAfter(tasks.findByName("publishAndroidReleasePublicationToSonatypeRepository"))
+    tasks.findByName("signKotlinMultiplatformPublication")!!
+        .mustRunAfter(tasks.findByName("publishIosArm64PublicationToSonatypeRepository"))
+    tasks.findByName("signKotlinMultiplatformPublication")!!
+        .mustRunAfter(tasks.findByName("publishAndroidReleasePublicationToSonatypeRepository"))
+    tasks.findByName("signIosX64Publication")!!
+        .mustRunAfter(tasks.findByName("publishIosSimulatorArm64PublicationToSonatypeRepository"))
+    tasks.findByName("signJsPublication")!!
+        .mustRunAfter(tasks.findByName("publishIosSimulatorArm64PublicationToSonatypeRepository"))
+    tasks.findByName("signJvmPublication")!!
+        .mustRunAfter(tasks.findByName("publishIosSimulatorArm64PublicationToSonatypeRepository"))
+    tasks.findByName("signKotlinMultiplatformPublication")!!
+        .mustRunAfter(tasks.findByName("publishIosSimulatorArm64PublicationToSonatypeRepository"))
+    tasks.findByName("signJsPublication")!!
+        .mustRunAfter(tasks.findByName("publishIosX64PublicationToSonatypeRepository"))
+    tasks.findByName("signJvmPublication")!!
+        .mustRunAfter(tasks.findByName("publishIosX64PublicationToSonatypeRepository"))
+    tasks.findByName("signKotlinMultiplatformPublication")!!
+        .mustRunAfter(tasks.findByName("publishIosX64PublicationToSonatypeRepository"))
+    tasks.findByName("signJvmPublication")!!
+        .mustRunAfter(tasks.findByName("publishJsPublicationToSonatypeRepository"))
+    tasks.findByName("signKotlinMultiplatformPublication")!!
+        .mustRunAfter(tasks.findByName("publishJsPublicationToSonatypeRepository"))
+    tasks.findByName("signKotlinMultiplatformPublication")!!
+        .mustRunAfter(tasks.findByName("publishJvmPublicationToSonatypeRepository"))
+    tasks.findByName("signWasmJsPublication")!!
+        .mustRunAfter(tasks.findByName("publishKotlinMultiplatformPublicationToSonatypeRepository"))
+    tasks.findByName("signWasmJsPublication")!!
+        .mustRunAfter(tasks.findByName("publishJvmPublicationToSonatypeRepository"))
+    tasks.findByName("signWasmJsPublication")!!
+        .mustRunAfter(tasks.findByName("publishJsPublicationToSonatypeRepository"))
+    tasks.findByName("signWasmJsPublication")!!
+        .mustRunAfter(tasks.findByName("publishIosX64PublicationToSonatypeRepository"))
+    tasks.findByName("signWasmJsPublication")!!
+        .mustRunAfter(tasks.findByName("publishIosSimulatorArm64PublicationToSonatypeRepository"))
 }

@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-
 /*
  * Copyright lt 2023
  *
@@ -22,11 +20,13 @@ plugins {
     id("org.jetbrains.compose")
     id("com.android.library")
     kotlin("native.cocoapods")
+    kotlin("plugin.compose")
 }
 
 group = "com.lt.ltttttttttttt"
 
 android {
+    namespace = "com.lt.common_app"
     compileSdk = 33
     defaultConfig {
         minSdk = 21
@@ -77,8 +77,8 @@ kotlin {
             baseName = "ios_shared"
             isStatic = true
         }
-        extraSpecAttributes["resources"] =
-            "['../ComposeViews/resources/**', '../desktop_app/src/desktopMain/resources/**', 'src/iosMain/resources/**']"
+        //extraSpecAttributes["resources"] =
+        //    "['../ComposeViews/resources/**', '../desktop_app/src/desktopMain/resources/**', 'src/iosMain/resources/**']"
     }
     sourceSets {
         val commonMain by getting {

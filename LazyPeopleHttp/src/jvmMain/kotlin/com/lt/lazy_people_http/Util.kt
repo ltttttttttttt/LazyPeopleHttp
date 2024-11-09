@@ -1,10 +1,7 @@
 package com.lt.lazy_people_http
 
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
-import com.google.devtools.ksp.symbol.KSAnnotation
-import com.google.devtools.ksp.symbol.KSTypeAlias
-import com.google.devtools.ksp.symbol.KSTypeReference
-import com.google.devtools.ksp.symbol.Nullability
+import com.google.devtools.ksp.symbol.*
 import com.lt.lazy_people_http.options.KSTypeInfo
 import org.jetbrains.kotlin.js.descriptorUtils.getKotlinTypeFqName
 import org.jetbrains.kotlin.types.KotlinType
@@ -129,12 +126,34 @@ internal fun getNewAnnotationString(ksa: KSAnnotation): String {
     }
     val args = StringBuilder()
     ksa.arguments.forEach {
-        val name = it.name
-        if (name != null)
-            args.append(name.asString())
-                .append(" = \"")
-        args.append(it.value)
-            .append("\", ")
+        val value = it.value
+        if (value != null) {
+            val name = it.name
+            if (name != null)
+                args.append(name.asString())
+                    .append(" = ")
+            fun appendValue(value: Any?) {
+                when (value) {
+                    is String -> {
+                        args.append("\"")
+                            .append(value)
+                            .append("\"")
+                    }
+
+                    is List<*> -> {
+                        args.append("arrayOf(")
+                        value.forEach(::appendValue)
+                        args.append(")")
+                    }
+
+                    is KSType -> args.append(value).append("::class")
+                    null -> args.append("null")
+                    else -> args.append(value)
+                }
+                args.append(", ")
+            }
+            appendValue(value)
+        }
     }
     return "$typeName($args)"
 }
