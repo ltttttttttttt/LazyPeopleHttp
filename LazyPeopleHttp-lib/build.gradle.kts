@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
+
 plugins {
     kotlin("multiplatform")
     kotlin("native.cocoapods")
@@ -33,23 +35,21 @@ kotlin {
         }
     }
 
-    // TODO by lt ktor暂不支持wasm
-    //@OptIn(ExperimentalWasmDsl::class)
-    //wasmJs {
-    //    moduleName = "common_app"
-    //    browser {
-    //        commonWebpackConfig {
-    //            outputFileName = "common_app.js"
-    //            devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
-    //                static = (static ?: mutableListOf()).apply {
-    //                    // Serve sources to debug inside browser
-    //                    add(project.projectDir.path)
-    //                }
-    //            }
-    //        }
-    //    }
-    //    binaries.executable()
-    //}
+    wasmJs {
+        moduleName = "common_app"
+        browser {
+            commonWebpackConfig {
+                outputFileName = "common_app.js"
+                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
+                    static = (static ?: mutableListOf()).apply {
+                        // Serve sources to debug inside browser
+                        add(project.projectDir.path)
+                    }
+                }
+            }
+        }
+        binaries.executable()
+    }
 
     cocoapods {
         summary = "LazyPeopleHttp"
@@ -74,7 +74,7 @@ kotlin {
                 //kt的跨平台json解析
                 api("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationJsonVersion")
                 //compose runtime
-                compileOnly("org.jetbrains.compose.runtime:runtime:1.4.0")
+                compileOnly("org.jetbrains.compose.runtime:runtime:1.7.0")
             }
         }
         val commonTest by getting {
@@ -120,22 +120,20 @@ kotlin {
             }
         }
 
-        // TODO by lt ktor暂不支持wasm
-        //val wasmJsMain by getting {
-        //    dependencies {
-        //        //网络请求引擎 todo 暂不支持wasm
-        //        api("io.ktor:ktor-client-js:$ktorVersion")
-        //    }
-        //}
+        val wasmJsMain by getting {
+            dependencies {
+                //网络请求引擎
+                api("io.ktor:ktor-client-js:$ktorVersion")
+            }
+        }
     }
 }
 
 android {
     namespace = "com.lt.lazy_people_http"
-    compileSdk = 33
+    compileSdk = 35
     defaultConfig {
         minSdk = 21
-        targetSdk = 31
         sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
         sourceSets["main"].res.srcDir("resources")
         consumerProguardFiles("consumer-rules.pro")//配置库的混淆文件,会带到app中
@@ -143,6 +141,9 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+    }
+    lint {
+        targetSdk = 35
     }
 }
 
@@ -203,4 +204,14 @@ afterEvaluate {
         .mustRunAfter(tasks.findByName("publishJsPublicationToSonatypeRepository"))
     tasks.findByName("signKotlinMultiplatformPublication")!!
         .mustRunAfter(tasks.findByName("publishJvmPublicationToSonatypeRepository"))
+    tasks.findByName("signWasmJsPublication")!!
+        .mustRunAfter(tasks.findByName("publishKotlinMultiplatformPublicationToSonatypeRepository"))
+    tasks.findByName("signWasmJsPublication")!!
+        .mustRunAfter(tasks.findByName("publishJvmPublicationToSonatypeRepository"))
+    tasks.findByName("signWasmJsPublication")!!
+        .mustRunAfter(tasks.findByName("publishJsPublicationToSonatypeRepository"))
+    tasks.findByName("signWasmJsPublication")!!
+        .mustRunAfter(tasks.findByName("publishIosX64PublicationToSonatypeRepository"))
+    tasks.findByName("signWasmJsPublication")!!
+        .mustRunAfter(tasks.findByName("publishIosSimulatorArm64PublicationToSonatypeRepository"))
 }
