@@ -118,9 +118,10 @@ internal class LazyPeopleHttpVisitor(
             }
             val typeOf =
                 if (isSuspendFun) returnType else getKSTypeArguments(it.returnType!!).first()
-            val headers = getHeaders(it)
+            val funBean = if (isSuspendFun) bean.suspendFunContent else bean.funContent
+            val headers = getHeaders(it, funBean.header)
             val parameterInfo =
-                getParameters(it, methodInfo.method, if (isSuspendFun) bean.suspendFunContent else bean.funContent)
+                getParameters(it, methodInfo.method, funBean)
             var url = methodInfo.url
             parameterInfo.replaceUrlFunction?.forEach {
                 url = url.replace(it.key, "\$${it.value}")
@@ -180,17 +181,17 @@ internal class LazyPeopleHttpVisitor(
         //将所有参数拼接成代码
         return ParameterInfo(
             if (funPList.isEmpty()) "" else funPList.joinToString(),
-            if (queryPList.isEmpty()) "null" else queryPList.joinToString(
-                prefix = "arrayOf(",
-                postfix = ")"
+            if (queryPList.isEmpty()) funBean.queryParameter.emptyValue else queryPList.joinToString(
+                prefix = funBean.queryParameter.arrayStart,
+                postfix = funBean.queryParameter.arrayEnd
             ),
-            if (fieldPList.isEmpty()) "null" else fieldPList.joinToString(
-                prefix = "arrayOf(",
-                postfix = ")"
+            if (fieldPList.isEmpty()) funBean.fieldParameter.emptyValue else fieldPList.joinToString(
+                prefix = funBean.fieldParameter.arrayStart,
+                postfix = funBean.fieldParameter.arrayEnd
             ),
-            if (runtimePList.isEmpty()) "null" else runtimePList.joinToString(
-                prefix = "arrayOf(",
-                postfix = ")"
+            if (runtimePList.isEmpty()) funBean.runtimeParameter.emptyValue else runtimePList.joinToString(
+                prefix = funBean.runtimeParameter.arrayStart,
+                postfix = funBean.runtimeParameter.arrayEnd
             ),
             replaceUrlMap,
         )
@@ -283,12 +284,12 @@ internal class LazyPeopleHttpVisitor(
 
     //获取请求头的内容
     @OptIn(KspExperimental::class)
-    private fun getHeaders(it: KSFunctionDeclaration): String {
+    private fun getHeaders(it: KSFunctionDeclaration, header: ParameterBean): String {
         val list = it.getAnnotationsByType(Header::class).toList()
-        if (list.isEmpty()) return "null"
+        if (list.isEmpty()) return header.emptyValue
         return list.joinToString(
-            prefix = "arrayOf(",
-            postfix = ")"
+            prefix = header.arrayStart,
+            postfix = header.arrayEnd
         ) { "\"${it.name}\", \"${it.value}\"" }
     }
 

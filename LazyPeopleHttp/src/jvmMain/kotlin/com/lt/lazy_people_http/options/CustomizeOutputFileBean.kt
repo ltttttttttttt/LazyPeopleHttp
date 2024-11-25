@@ -124,4 +124,22 @@ class FunctionBean(
     val content: String,
     //方法参数及类型
     val funParameterKT: String = "##key##: ##type##",
+    //query参数
+    val queryParameter: ParameterBean = ParameterBean(),
+    //field参数
+    val fieldParameter: ParameterBean = ParameterBean(),
+    //运行时参数
+    val runtimeParameter: ParameterBean = ParameterBean(),
+    //请求头
+    val header: ParameterBean = ParameterBean(),
+)
+
+/**
+ * 参数内容
+ */
+@Serializable
+class ParameterBean(
+    val emptyValue: String = "null",
+    val arrayStart: String = "arrayOf(",
+    val arrayEnd: String = ")",
 )

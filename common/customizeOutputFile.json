@@ -3,15 +3,55 @@
   },
   {
     "extensionName": "js",
-    "fileTopContent": "import { HttpRequest } from \"../util/HttpUtil\";\n\nclass ##className## {\n\n",
+    "fileTopContent": "import { HttpRequest } from \"../util/HttpUtil\";\n\nclass ##className## {\n\tfunction _toJson(value) {\n\t\tif (value == undefined || value == null)\n\t\t\treturn value\n\t\tswitch (typeof(value)) {\n\t\t\tcase \"number\":\n\t\t\tcase \"string\":\n\t\t\tcase \"boolean\":\n\t\t\t\treturn value.toString()\n\t\t\tdefault:\n\t\t\t\treturn JSON.stringify(value)\n\t\t}\n\t}\n\n",
     "fileBottomContent": "}",
     "suspendFunContent": {
-      "content": "\tfunction ##functionName##(##funParameter##) {\n\t\treturn HttpRequest({\n\t\t\turl: \"##url##\",\n\t\t\tdata: {\n                ##queryParameter##\n                ##fieldParameter##\n                ##runtimeParameter##\n\t\t\t},\n            method: ##requestMethod##,\n            Headers:{\n                ##headers##\n            }\n\t\t\tannotations: '##functionAnnotations##',\n\t\t})\n\t}\n\n",
-      "funParameterKT": "##key##"
+      "content": "\tfunction ##functionName##(##funParameter##) {\n\t\treturn HttpRequest({\n\t\t\turl: \"##url##\",\n\t\t\tdataArray: [...##queryParameter##, ...##fieldParameter##, ...##runtimeParameter##],\n            method: ##requestMethod##,\n            headerArray:##headers##,\n\t\t\tannotations: '##functionAnnotations##',\n\t\t})\n\t}\n\n",
+      "funParameterKT": "##key##",
+      "queryParameter": {
+        "emptyValue": "[]",
+        "arrayStart": "[",
+        "arrayEnd": "]"
+      },
+      "fieldParameter": {
+        "emptyValue": "[]",
+        "arrayStart": "[",
+        "arrayEnd": "]"
+      },
+      "runtimeParameter": {
+        "emptyValue": "[]",
+        "arrayStart": "[",
+        "arrayEnd": "]"
+      },
+      "header": {
+        "emptyValue": "[]",
+        "arrayStart": "[",
+        "arrayEnd": "]"
+      }
     },
     "funContent": {
-      "content": "\tfunction ##functionName##(##funParameter##) {\n\t\treturn HttpRequest({\n\t\t\turl: \"##url##\",\n\t\t\tdata: {\n                ##queryParameter##\n                ##fieldParameter##\n                ##runtimeParameter##\n\t\t\t},\n            method: ##requestMethod##,\n            Headers:{\n                ##headers##\n            }\n\t\t\tannotations: '##functionAnnotations##',\n\t\t})\n\t}\n\n",
-      "funParameterKT": "##key##"
+      "content": "\tfunction ##functionName##(##funParameter##) {\n\t\treturn HttpRequest({\n\t\t\turl: \"##url##\",\n\t\t\tdataArray: [...##queryParameter##, ...##fieldParameter##, ...##runtimeParameter##],\n            method: ##requestMethod##,\n            headerArray:##headers##,\n\t\t\tannotations: '##functionAnnotations##',\n\t\t})\n\t}\n\n",
+      "funParameterKT": "##key##",
+      "queryParameter": {
+        "emptyValue": "[]",
+        "arrayStart": "[",
+        "arrayEnd": "]"
+      },
+      "fieldParameter": {
+        "emptyValue": "[]",
+        "arrayStart": "[",
+        "arrayEnd": "]"
+      },
+      "runtimeParameter": {
+        "emptyValue": "[]",
+        "arrayStart": "[",
+        "arrayEnd": "]"
+      },
+      "header": {
+        "emptyValue": "[]",
+        "arrayStart": "[",
+        "arrayEnd": "]"
+      }
     }
   }
 ]
