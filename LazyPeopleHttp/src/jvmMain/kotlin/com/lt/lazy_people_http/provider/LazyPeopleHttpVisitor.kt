@@ -1,37 +1,30 @@
 package com.lt.lazy_people_http.provider
 
-import com.google.devtools.ksp.KspExperimental
-import com.google.devtools.ksp.getAnnotationsByType
-import com.google.devtools.ksp.getDeclaredFunctions
-import com.google.devtools.ksp.processing.Dependencies
-import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
-import com.google.devtools.ksp.symbol.ClassKind
-import com.google.devtools.ksp.symbol.KSClassDeclaration
-import com.google.devtools.ksp.symbol.KSFunctionDeclaration
-import com.google.devtools.ksp.symbol.KSValueParameter
-import com.google.devtools.ksp.symbol.KSVisitorVoid
-import com.google.devtools.ksp.symbol.Modifier
-import com.google.devtools.ksp.symbol.Nullability
-import com.lt.lazy_people_http.annotations.Field
-import com.lt.lazy_people_http.annotations.FieldMap
-import com.lt.lazy_people_http.annotations.GET
-import com.lt.lazy_people_http.annotations.Header
-import com.lt.lazy_people_http.annotations.POST
-import com.lt.lazy_people_http.annotations.Query
-import com.lt.lazy_people_http.annotations.QueryMap
-import com.lt.lazy_people_http.annotations.Url
-import com.lt.lazy_people_http.annotations.UrlMidSegment
-import com.lt.lazy_people_http.appendText
-import com.lt.lazy_people_http.getKSTypeArguments
-import com.lt.lazy_people_http.getKSTypeInfo
-import com.lt.lazy_people_http.getKSTypeOutermostName
-import com.lt.lazy_people_http.getNewAnnotationString
-import com.lt.lazy_people_http.montageUrl
-import com.lt.lazy_people_http.options.KspOptions
-import com.lt.lazy_people_http.options.MethodInfo
-import com.lt.lazy_people_http.options.ParameterInfo
-import com.lt.lazy_people_http.request.RequestMethod
-import java.io.OutputStream
+import com.google.devtools.ksp.*
+import com.google.devtools.ksp.processing.*
+import com.google.devtools.ksp.symbol.*
+import com.lt.lazy_people_http.*
+import com.lt.lazy_people_http.annotations.*
+import com.lt.lazy_people_http.options.*
+import com.lt.lazy_people_http.options.ReplaceRule._className
+import com.lt.lazy_people_http.options.ReplaceRule._fieldParameter
+import com.lt.lazy_people_http.options.ReplaceRule._funParameter
+import com.lt.lazy_people_http.options.ReplaceRule._functionAnnotations
+import com.lt.lazy_people_http.options.ReplaceRule._functionName
+import com.lt.lazy_people_http.options.ReplaceRule._headers
+import com.lt.lazy_people_http.options.ReplaceRule._kt
+import com.lt.lazy_people_http.options.ReplaceRule._originalClassName
+import com.lt.lazy_people_http.options.ReplaceRule._packageName
+import com.lt.lazy_people_http.options.ReplaceRule._queryParameter
+import com.lt.lazy_people_http.options.ReplaceRule._requestMethod
+import com.lt.lazy_people_http.options.ReplaceRule._responseName
+import com.lt.lazy_people_http.options.ReplaceRule._returnType
+import com.lt.lazy_people_http.options.ReplaceRule._runtimeParameter
+import com.lt.lazy_people_http.options.ReplaceRule._type
+import com.lt.lazy_people_http.options.ReplaceRule._url
+import com.lt.lazy_people_http.request.*
+import kotlinx.serialization.json.*
+import java.io.*
 
 /**
  * creator: lt  2022/10/20  lt.dygzs@qq.com
@@ -44,11 +37,11 @@ internal class LazyPeopleHttpVisitor(
 
     private val options = KspOptions(environment)
     private val isGetFunAnnotations = options.isGetFunAnnotations()
-    private val createCallFunName = options.getCreateCallFunName()
     private val functionReplaceFrom = options.getFunctionReplaceFrom()
     private val functionReplaceTo = options.getFunctionReplaceTo()
     private val isFunctionNameReplace =//是否对方法名进行替换
         functionReplaceFrom.isNotEmpty() && functionReplaceTo.isNotEmpty()
+    private val json = Json { ignoreUnknownKeys = true }
 
     /**
      * 访问class的声明
@@ -60,14 +53,26 @@ internal class LazyPeopleHttpVisitor(
         val className = "_${originalClassName}ServiceImpl"
         if (classDeclaration.classKind != ClassKind.INTERFACE)
             throw RuntimeException("LazyPeopleHttpService can only decorate interface")
-        val file = environment.codeGenerator.createNewFile(
-            Dependencies(
-                true,
-                classDeclaration.containingFile!!
-            ), packageName, className
-        )
-        writeFile(file, packageName, className, originalClassName, classDeclaration)
-        file.close()
+
+        val jsonFile = File(options.getCustomizeOutputFile())
+        val beans = ArrayList<CustomizeOutputFileBean>()
+        if (!jsonFile.exists())
+            beans.add(CustomizeOutputFileBeanImpl())
+        else
+            beans.addAll(json.decodeFromString<List<CustomizeOutputFileBeanImpl>>(jsonFile.readText()))
+        beans.forEach { bean ->
+            val file = environment.codeGenerator.createNewFile(
+                Dependencies(
+                    true,
+                    classDeclaration.containingFile!!
+                ),
+                packageName,
+                bean.fileName._className(className)._originalClassName(originalClassName),
+                bean.extensionName,
+            )
+            writeFile(file, packageName, className, originalClassName, classDeclaration, bean)
+            file.close()
+        }
     }
 
     //向文件中写入完整内容
@@ -76,38 +81,24 @@ internal class LazyPeopleHttpVisitor(
         packageName: String,
         className: String,
         originalClassName: String,
-        classDeclaration: KSClassDeclaration
+        classDeclaration: KSClassDeclaration,
+        bean: CustomizeOutputFileBean,
     ) {
         file.appendText(
-            "package $packageName\n" +
-                    "\n" +
-                    "import com.lt.lazy_people_http._lazyPeopleHttpFlatten\n" +
-                    "import com.lt.lazy_people_http.call.Call\n" +
-                    "import com.lt.lazy_people_http.call.CallCreator\n" +
-                    "import com.lt.lazy_people_http.config.LazyPeopleHttpConfig\n" +
-                    "import com.lt.lazy_people_http.request.RequestMethod\n" +
-                    "import com.lt.lazy_people_http.service.HttpServiceImpl\n" +
-                    "import kotlin.reflect.typeOf\n" +
-                    "\n" +
-                    "class $className(\n" +
-                    "    val config: LazyPeopleHttpConfig,\n" +
-                    ") : $originalClassName, HttpServiceImpl {\n" +
-                    "    private inline fun <reified T> T?._toJson() = CallCreator.parameterToJson(config, this)\n\n"
+            bean.fileTopContent._packageName(packageName)._className(className)._originalClassName(originalClassName)
         )
-        writeFunction(file, classDeclaration)
+        writeFunction(file, classDeclaration, bean)
         file.appendText(
-            "}\n\n" +
-                    "fun kotlin.reflect.KClass<$originalClassName>.createService(config: LazyPeopleHttpConfig): $originalClassName =\n" +
-                    "    $className(config)"
+            bean.fileBottomContent._className(className)._originalClassName(originalClassName)
         )
     }
 
     //向文件中写入变换后的函数
-    private fun writeFunction(file: OutputStream, classDeclaration: KSClassDeclaration) {
+    private fun writeFunction(file: OutputStream, classDeclaration: KSClassDeclaration, bean: CustomizeOutputFileBean) {
         classDeclaration.superTypes.mapNotNull {
             it.resolve().declaration as? KSClassDeclaration
         }.forEach {
-            writeFunction(file, it)
+            writeFunction(file, it, bean)
         }
         classDeclaration.getDeclaredFunctions().filter {
             it.isAbstract
@@ -127,35 +118,38 @@ internal class LazyPeopleHttpVisitor(
             }
             val typeOf =
                 if (isSuspendFun) returnType else getKSTypeArguments(it.returnType!!).first()
-            val headers = getHeaders(it)
-            val parameterInfo = getParameters(it, methodInfo.method)
+            val funBean = if (isSuspendFun) bean.suspendFunContent else bean.funContent
+            val headers = getHeaders(it, funBean.header)
+            val parameterInfo =
+                getParameters(it, methodInfo.method, funBean)
             var url = methodInfo.url
             parameterInfo.replaceUrlFunction?.forEach {
                 url = url.replace(it.key, "\$${it.value}")
             }
             val functionAnnotations = getFunctionAnnotations(it)
 
-            file.appendText("    override ${if (isSuspendFun) "suspend " else ""}fun $functionName(${parameterInfo.funParameter}): $returnType {\n")
-            file.appendText(
-                "        return $createCallFunName${if (isSuspendFun) "<Call<$returnType>>" else ""}(\n" +
-                        "            config,\n" +
-                        "            \"$url\",\n" +
-                        "            ${parameterInfo.queryParameter},\n" +
-                        "            ${parameterInfo.fieldParameter},\n" +
-                        "            ${parameterInfo.runtimeParameter},\n" +
-                        "            typeOf<$typeOf>(),\n" +
-                        "            ${if (methodInfo.method == null) "null" else "RequestMethod.${methodInfo.method}"},\n" +
-                        "            $headers,\n" +
-                        "            ${if (functionAnnotations.isEmpty()) "null" else "arrayOf($functionAnnotations)"},\n" +
-                        "            $responseName,\n" +
-                        "        )${if (isSuspendFun) ".await()" else ""}\n" +
-                        "    }\n\n"
-            )
+            val funContent = if (isSuspendFun) {
+                bean.suspendFunContent
+            } else {
+                bean.funContent
+            }.content._functionName(functionName)
+                ._funParameter(parameterInfo.funParameter)
+                ._returnType(returnType)
+                ._url(url)
+                ._queryParameter(parameterInfo.queryParameter)
+                ._fieldParameter(parameterInfo.fieldParameter)
+                ._runtimeParameter(parameterInfo.runtimeParameter)
+                ._type(typeOf)
+                ._requestMethod(if (methodInfo.method == null) "null" else "RequestMethod.${methodInfo.method}")
+                ._headers(headers)
+                ._functionAnnotations(if (functionAnnotations.isEmpty()) "null" else "arrayOf($functionAnnotations)")
+                ._responseName(responseName.toString())
+            file.appendText(funContent)
         }
     }
 
     //获取方法的参数和请求参数
-    private fun getParameters(it: KSFunctionDeclaration, method: RequestMethod?): ParameterInfo {
+    private fun getParameters(it: KSFunctionDeclaration, method: RequestMethod?, funBean: FunctionBean): ParameterInfo {
         //如果没有参数
         if (it.parameters.isEmpty()) return ParameterInfo("", "null", "null", "null", null)
         //有参数的话就将参数拆为:方法参数,query参数,field参数,和只有运行时才能处理的参数
@@ -167,7 +161,7 @@ internal class LazyPeopleHttpVisitor(
         it.parameters.forEach {
             val funPName = it.name!!.asString()
             val type = getKSTypeInfo(it.type).toString()
-            funPList.add("$funPName: $type")
+            funPList.add(funBean.funParameterKT._kt(funPName,type))
             getParameterInfo(it, funPName, queryPList, fieldPList, runtimePList, replaceUrlMap)
         }
         //处理方法加了注解,但参数没加注解的情况
@@ -187,17 +181,17 @@ internal class LazyPeopleHttpVisitor(
         //将所有参数拼接成代码
         return ParameterInfo(
             if (funPList.isEmpty()) "" else funPList.joinToString(),
-            if (queryPList.isEmpty()) "null" else queryPList.joinToString(
-                prefix = "arrayOf(",
-                postfix = ")"
+            if (queryPList.isEmpty()) funBean.queryParameter.emptyValue else queryPList.joinToString(
+                prefix = funBean.queryParameter.arrayStart,
+                postfix = funBean.queryParameter.arrayEnd
             ),
-            if (fieldPList.isEmpty()) "null" else fieldPList.joinToString(
-                prefix = "arrayOf(",
-                postfix = ")"
+            if (fieldPList.isEmpty()) funBean.fieldParameter.emptyValue else fieldPList.joinToString(
+                prefix = funBean.fieldParameter.arrayStart,
+                postfix = funBean.fieldParameter.arrayEnd
             ),
-            if (runtimePList.isEmpty()) "null" else runtimePList.joinToString(
-                prefix = "arrayOf(",
-                postfix = ")"
+            if (runtimePList.isEmpty()) funBean.runtimeParameter.emptyValue else runtimePList.joinToString(
+                prefix = funBean.runtimeParameter.arrayStart,
+                postfix = funBean.runtimeParameter.arrayEnd
             ),
             replaceUrlMap,
         )
@@ -290,12 +284,12 @@ internal class LazyPeopleHttpVisitor(
 
     //获取请求头的内容
     @OptIn(KspExperimental::class)
-    private fun getHeaders(it: KSFunctionDeclaration): String {
+    private fun getHeaders(it: KSFunctionDeclaration, header: ParameterBean): String {
         val list = it.getAnnotationsByType(Header::class).toList()
-        if (list.isEmpty()) return "null"
+        if (list.isEmpty()) return header.emptyValue
         return list.joinToString(
-            prefix = "arrayOf(",
-            postfix = ")"
+            prefix = header.arrayStart,
+            postfix = header.arrayEnd
         ) { "\"${it.name}\", \"${it.value}\"" }
     }
 
