@@ -31,5 +31,9 @@ kotlin {
     }
 }
 
-tasks.findByName("signKotlinMultiplatformPublication")!!
-    .dependsOn(tasks.findByName("publishJvmPublicationToSonatypeRepository"))
+try {
+    tasks.findByName("signKotlinMultiplatformPublication")!!
+        .dependsOn(tasks.findByName("publishJvmPublicationToSonatypeRepository"))
+} catch (e: Exception) {
+    e.printStackTrace()
+}
