@@ -1,3 +1,8 @@
+import org.gradle.api.JavaVersion
+import org.gradle.api.Task
+import org.gradle.api.tasks.Delete
+import java.io.File
+
 plugins {
     kotlin("multiplatform")
     id("org.jetbrains.compose")
@@ -106,9 +111,9 @@ kotlin {
     }
     ksp {
         arg("getFunAnnotationsWithLazyPeopleHttp", "true")
-        //arg("createCallFunNameWithLazyPeopleHttp", "CallAdapter.createCall2")
         arg("functionReplaceFromWithLazyPeopleHttp", "_")
         arg("functionReplaceToWithLazyPeopleHttp", "/")
+        arg("customizeOutputFileWithLazyPeopleHttp", "${project.projectDir.absoluteFile}/customizeOutputFile.json")
     }
 }
 
@@ -134,4 +139,15 @@ tasks.register<Delete>("clearBuild") {
     doLast {
         delete(buildDir)
     }
+}
+
+tasks.register<Delete>("clearKsp") {
+    doFirst {
+        delete(File(buildDir, "generated/ksp").absolutePath)
+    }
+}
+
+tasks.register<Task>("runKsp") {
+    dependsOn("clearKsp")
+        .dependsOn("kspCommonMainKotlinMetadata")
 }
