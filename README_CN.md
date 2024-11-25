@@ -159,8 +159,8 @@ hf.postB("123").config {
 ksp {
     //开启运行时配置获取所有注解的功能,不开启时调用[RequestInfo#functionAnnotations]始终返回null
     //arg("getFunAnnotationsWithLazyPeopleHttp", "true")
-    //修改创建Call的方法,来返回自定义的Call
-    //arg("createCallFunNameWithLazyPeopleHttp", "CallAdapter.createCall2")
+    //自定义输出文件的规则,参考[CustomizeOutputFileBean],需要一个json文件,内容是List<CustomizeOutputFile>
+    //arg("customizeOutputFileWithLazyPeopleHttp", "${project.projectDir.absoluteFile}/customizeOutputFile.json")
     //要将方法名的名称当做url时将某值替换为[functionReplaceTo]
     //arg("functionReplaceFromWithLazyPeopleHttp", "_")
     //要将方法名的名称当做url时将[functionReplaceFrom]替换为设置的值

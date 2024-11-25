@@ -1,6 +1,7 @@
 plugins {
     kotlin("multiplatform")
     id("convention.publication")
+    kotlin("plugin.serialization") version kotlinVersion
 }
 
 group = "io.github.ltttttttttttt"
@@ -25,11 +26,16 @@ kotlin {
                 implementation("com.google.devtools.ksp:symbol-processing-api:$kspVersion")
                 implementation(project(":LazyPeopleHttp-lib"))
                 implementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlinVersion")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationJsonVersion")
             }
         }
         val jvmTest by getting
     }
 }
 
-tasks.findByName("signKotlinMultiplatformPublication")!!
-    .dependsOn(tasks.findByName("publishJvmPublicationToSonatypeRepository"))
+try {
+    tasks.findByName("signKotlinMultiplatformPublication")!!
+        .dependsOn(tasks.findByName("publishJvmPublicationToSonatypeRepository"))
+} catch (e: Exception) {
+    e.printStackTrace()
+}

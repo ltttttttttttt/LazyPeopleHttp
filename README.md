@@ -159,8 +159,8 @@ hf.postB("123").config {
 ksp {
     //Enable runtime configuration to obtain all annotations, call [RequestInfo # functionAnnotations] when not enabled and always return null
     //arg("getFunAnnotationsWithLazyPeopleHttp", "true")
-    //Modify the method of creating a Call to return a custom Call
-    //arg("createCallFunNameWithLazyPeopleHttp", "CallAdapter.createCall2")
+    //Rules for customizing output files, refer to [CustomizeOutputFileBean], Need a JSON file, The content is List<CustomizeOutputFile>
+    //arg("customizeOutputFileWithLazyPeopleHttp", "${project.projectDir.absoluteFile}/customizeOutputFile.json")
     //When using the name of a method as a URL, replace a value with [functionReplaceTo]
     //arg("functionReplaceFromWithLazyPeopleHttp", "_")
     //When using the method name as a URL, replace [functionReplaceFrom] with the set value
