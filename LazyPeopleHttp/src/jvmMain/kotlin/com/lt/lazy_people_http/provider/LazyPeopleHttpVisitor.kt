@@ -12,6 +12,7 @@ import com.lt.lazy_people_http.options.ReplaceRule._funParameter
 import com.lt.lazy_people_http.options.ReplaceRule._functionAnnotations
 import com.lt.lazy_people_http.options.ReplaceRule._functionName
 import com.lt.lazy_people_http.options.ReplaceRule._headers
+import com.lt.lazy_people_http.options.ReplaceRule._kt
 import com.lt.lazy_people_http.options.ReplaceRule._originalClassName
 import com.lt.lazy_people_http.options.ReplaceRule._packageName
 import com.lt.lazy_people_http.options.ReplaceRule._queryParameter
@@ -118,7 +119,8 @@ internal class LazyPeopleHttpVisitor(
             val typeOf =
                 if (isSuspendFun) returnType else getKSTypeArguments(it.returnType!!).first()
             val headers = getHeaders(it)
-            val parameterInfo = getParameters(it, methodInfo.method)
+            val parameterInfo =
+                getParameters(it, methodInfo.method, if (isSuspendFun) bean.suspendFunContent else bean.funContent)
             var url = methodInfo.url
             parameterInfo.replaceUrlFunction?.forEach {
                 url = url.replace(it.key, "\$${it.value}")
@@ -129,7 +131,7 @@ internal class LazyPeopleHttpVisitor(
                 bean.suspendFunContent
             } else {
                 bean.funContent
-            }._functionName(functionName)
+            }.content._functionName(functionName)
                 ._funParameter(parameterInfo.funParameter)
                 ._returnType(returnType)
                 ._url(url)
@@ -146,7 +148,7 @@ internal class LazyPeopleHttpVisitor(
     }
 
     //获取方法的参数和请求参数
-    private fun getParameters(it: KSFunctionDeclaration, method: RequestMethod?): ParameterInfo {
+    private fun getParameters(it: KSFunctionDeclaration, method: RequestMethod?, funBean: FunctionBean): ParameterInfo {
         //如果没有参数
         if (it.parameters.isEmpty()) return ParameterInfo("", "null", "null", "null", null)
         //有参数的话就将参数拆为:方法参数,query参数,field参数,和只有运行时才能处理的参数
@@ -158,7 +160,7 @@ internal class LazyPeopleHttpVisitor(
         it.parameters.forEach {
             val funPName = it.name!!.asString()
             val type = getKSTypeInfo(it.type).toString()
-            funPList.add("$funPName: $type")
+            funPList.add(funBean.funParameterKT._kt(funPName,type))
             getParameterInfo(it, funPName, queryPList, fieldPList, runtimePList, replaceUrlMap)
         }
         //处理方法加了注解,但参数没加注解的情况

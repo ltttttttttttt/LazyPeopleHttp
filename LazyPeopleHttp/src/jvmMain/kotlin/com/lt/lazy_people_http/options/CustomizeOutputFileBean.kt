@@ -20,20 +20,23 @@ interface CustomizeOutputFileBean {
     //文件底部内容(类结尾括号,扩展方法等)
     val fileBottomContent: String
 
-    //挂起函数内容(函数的声明和方法体)
-    val suspendFunContent: String
+    //suspend方法内容(方法的声明和方法体)
+    val suspendFunContent: FunctionBean
 
-    //函数内容(函数的声明和方法体)
-    val funContent: String
+    //方法内容(方法的声明和方法体)
+    val funContent: FunctionBean
 }
 
 /**
  * 属性替换规则
  */
 object ReplaceRule {
+    /*类级别*/
     fun String._packageName(packageName: String) = replace("##packageName##", packageName)//包名
     fun String._className(className: String) = replace("##className##", className)//生成后的类名
     fun String._originalClassName(originalClassName: String) = replace("##originalClassName##", originalClassName)//原类名
+
+    /*方法级*/
     fun String._functionName(functionName: String) = replace("##functionName##", functionName)//方法名
     fun String._funParameter(funParameter: String) = replace("##funParameter##", funParameter)//方法参数及类型
     fun String._returnType(returnType: String) = replace("##returnType##", returnType)//方法返回值类型
@@ -50,6 +53,11 @@ object ReplaceRule {
         replace("##functionAnnotations##", functionAnnotations)//方法上所有声明的注解
 
     fun String._responseName(responseName: String) = replace("##responseName##", responseName)//自定义的返回值类型,比如Flow
+
+    /*参数级*/
+    fun String._kt(key: String, type: String) = replace("##key##", key).replace("##type##", type)//参数及类型
+    fun String._kv(key: String, value: String) = replace("##key##", key).replace("##value##", value)//参数名及参数值
+
 }
 
 @Serializable
@@ -73,7 +81,8 @@ class CustomizeOutputFileBeanImpl(
     override val fileBottomContent: String = "}\n\n" +
             "fun kotlin.reflect.KClass<##originalClassName##>.createService(config: LazyPeopleHttpConfig): ##originalClassName## =\n" +
             "    ##className##(config)",
-    override val suspendFunContent: String = "    override suspend fun ##functionName##(##funParameter##): ##returnType## {\n" +
+    override val suspendFunContent: FunctionBean = FunctionBean(
+        "    override suspend fun ##functionName##(##funParameter##): ##returnType## {\n" +
             "        return CallCreator.createResponse<Call<##returnType##>>(\n" +
             "            config,\n" +
             "            \"##url##\",\n" +
@@ -87,7 +96,9 @@ class CustomizeOutputFileBeanImpl(
             "            ##responseName##,\n" +
             "        ).await()\n" +
             "    }\n\n",
-    override val funContent: String = "    override fun ##functionName##(##funParameter##): ##returnType## {\n" +
+    ),
+    override val funContent: FunctionBean = FunctionBean(
+        "    override fun ##functionName##(##funParameter##): ##returnType## {\n" +
             "        return CallCreator.createResponse(\n" +
             "            config,\n" +
             "            \"##url##\",\n" +
@@ -101,4 +112,16 @@ class CustomizeOutputFileBeanImpl(
             "            ##responseName##,\n" +
             "        )\n" +
             "    }\n\n",
+    ),
 ) : CustomizeOutputFileBean
+
+/**
+ * 方法内容
+ */
+@Serializable
+class FunctionBean(
+    //方法内容
+    val content: String,
+    //方法参数及类型
+    val funParameterKT: String = "##key##: ##type##",
+)

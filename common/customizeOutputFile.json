@@ -1,4 +1,17 @@
 [
   {
+  },
+  {
+    "extensionName": "js",
+    "fileTopContent": "import { HttpRequest } from \"../util/HttpUtil\";\n\nclass ##className## {\n\n",
+    "fileBottomContent": "}",
+    "suspendFunContent": {
+      "content": "\tfunction ##functionName##(##funParameter##) {\n\t\treturn HttpRequest({\n\t\t\turl: \"##url##\",\n\t\t\tdata: {\n                ##queryParameter##\n                ##fieldParameter##\n                ##runtimeParameter##\n\t\t\t},\n            method: ##requestMethod##,\n            Headers:{\n                ##headers##\n            }\n\t\t\tannotations: '##functionAnnotations##',\n\t\t})\n\t}\n\n",
+      "funParameterKT": "##key##"
+    },
+    "funContent": {
+      "content": "\tfunction ##functionName##(##funParameter##) {\n\t\treturn HttpRequest({\n\t\t\turl: \"##url##\",\n\t\t\tdata: {\n                ##queryParameter##\n                ##fieldParameter##\n                ##runtimeParameter##\n\t\t\t},\n            method: ##requestMethod##,\n            Headers:{\n                ##headers##\n            }\n\t\t\tannotations: '##functionAnnotations##',\n\t\t})\n\t}\n\n",
+      "funParameterKT": "##key##"
+    }
   }
 ]
