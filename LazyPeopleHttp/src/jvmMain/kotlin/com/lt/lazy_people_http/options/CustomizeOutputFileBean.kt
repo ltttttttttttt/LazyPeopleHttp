@@ -61,6 +61,7 @@ object ReplaceRule {
     /*参数级*/
     fun String._kt(key: String, type: String) = replace("##key##", key).replace("##type##", type)//参数及类型
     fun String._kv(key: String, value: String) = replace("##key##", key).replace("##value##", value)//参数名及参数值
+    fun String._value(value: String) = replace("##value##", value)//参数值
 
 }
 
@@ -80,9 +81,10 @@ class CustomizeOutputFileBeanImpl(
             "\n" +
             "class ##className##(\n" +
             "    val config: LazyPeopleHttpConfig,\n" +
-            ") : ##originalClassName##, HttpServiceImpl {\n" +
-            "    private inline fun <reified T> T?._toJson() = CallCreator.parameterToJson(config, this)\n\n",
-    override val fileBottomContent: String = "}\n\n" +
+            ") : ##originalClassName##, HttpServiceImpl {\n\n",
+    override val fileBottomContent: String =
+        "    private inline fun <reified T> T?._toJson() = CallCreator.parameterToJson(config, this)\n" +
+                "}\n\n" +
             "fun kotlin.reflect.KClass<##originalClassName##>.createService(config: LazyPeopleHttpConfig): ##originalClassName## =\n" +
             "    ##className##(config)",
     override val suspendFunContent: FunctionBean = FunctionBean(
@@ -129,12 +131,8 @@ class FunctionBean(
     val content: String,
     //方法参数及类型
     val funParameterKT: String = "##key##: ##type##",
-    //query参数
-    val queryParameter: ParameterBean = ParameterBean(),
-    //field参数
-    val fieldParameter: ParameterBean = ParameterBean(),
-    //运行时参数
-    val runtimeParameter: ParameterBean = ParameterBean(),
+    //参数
+    val parameter: ParameterBean = ParameterBean(),
     //请求头
     val header: ParameterBean = ParameterBean(),
 )
@@ -144,7 +142,14 @@ class FunctionBean(
  */
 @Serializable
 class ParameterBean(
+    //参数列表为空时
     val emptyValue: String = "null",
+    //参数列表开头
     val arrayStart: String = "arrayOf(",
+    //参数列表结尾
     val arrayEnd: String = ")",
+    //kv形式的参数
+    val keyValue: String = "\"##key##\", ##value##._toJson()",
+    //map形式的参数
+    val mapValue: String = "*##value##._lazyPeopleHttpFlatten()",
 )
