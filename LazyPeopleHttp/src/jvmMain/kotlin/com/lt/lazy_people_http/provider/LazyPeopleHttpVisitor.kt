@@ -46,6 +46,10 @@ internal class LazyPeopleHttpVisitor(
         functionReplaceFrom.isNotEmpty() && functionReplaceTo.isNotEmpty()
     private val json = Json { ignoreUnknownKeys = true }
 
+    companion object {
+        var typeShowPackage = true
+    }
+
     /**
      * 访问class的声明
      */
@@ -64,6 +68,7 @@ internal class LazyPeopleHttpVisitor(
         else
             beans.addAll(json.decodeFromString<List<CustomizeOutputFileBeanImpl>>(jsonFile.readText()))
         beans.forEach { bean ->
+            typeShowPackage = bean.typeShowPackage
             val file = environment.codeGenerator.createNewFile(
                 Dependencies(
                     true,
@@ -128,7 +133,7 @@ internal class LazyPeopleHttpVisitor(
                 getParameters(it, methodInfo.method, funBean)
             var url = methodInfo.url
             parameterInfo.replaceUrlFunction?.forEach {
-                url = url.replace(it.key, "\$${it.value}")
+                url = url.replace(it.key, funBean.replaceUrlName._value(it.value))
             }
             val functionAnnotations = getFunctionAnnotations(it)
 

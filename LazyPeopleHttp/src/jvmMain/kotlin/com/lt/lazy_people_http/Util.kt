@@ -1,11 +1,12 @@
 package com.lt.lazy_people_http
 
-import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
+import com.google.devtools.ksp.processing.*
 import com.google.devtools.ksp.symbol.*
-import com.lt.lazy_people_http.options.KSTypeInfo
-import org.jetbrains.kotlin.js.descriptorUtils.getKotlinTypeFqName
-import org.jetbrains.kotlin.types.KotlinType
-import java.io.OutputStream
+import com.lt.lazy_people_http.options.*
+import com.lt.lazy_people_http.provider.*
+import org.jetbrains.kotlin.js.descriptorUtils.*
+import org.jetbrains.kotlin.types.*
+import java.io.*
 
 /**
  * creator: lt  2022/10/21  lt.dygzs@qq.comS
@@ -48,10 +49,13 @@ internal fun getKSTypeInfo(ks: KSTypeReference): KSTypeInfo {
         }
     }
     //完整type字符串
-    val typeName = ksType.declaration.let {
-        it.qualifiedName?.asString()
-            ?: "${it.packageName.asString()}.${it.simpleName.asString()}"
-    }
+    val typeName = if (LazyPeopleHttpVisitor.typeShowPackage)
+        ksType.declaration.let {
+            it.qualifiedName?.asString()
+                ?: "${it.packageName.asString()}.${it.simpleName.asString()}"
+        }
+    else
+        ksType.declaration.simpleName.asString()
     //是否可空
     val nullable = if (ksType.nullability == Nullability.NULLABLE) "?" else ""
     return KSTypeInfo(
@@ -77,7 +81,7 @@ internal fun getKSTypeArguments(ks: KSTypeReference): List<String> {
     //type对象
     val ksType = ks.resolve()
     //如果是typealias类型
-    return if (ksType.declaration is KSTypeAlias) {
+    return if (ksType.declaration is KSTypeAlias && LazyPeopleHttpVisitor.typeShowPackage) {
         val kotlinType = getKotlinTypeMethod.invoke(ksType) as KotlinType
         kotlinType.arguments.map {
             getKotlinTypeInfo(it.type)
@@ -114,16 +118,19 @@ internal fun getKSTypeOutermostName(ks: KSTypeReference): String {
 internal fun getNewAnnotationString(ksa: KSAnnotation): String {
     val ksType = ksa.annotationType.resolve()
     //完整type字符串
-    val typeName = ksType.declaration.let {
-        val name = it.qualifiedName?.asString()
-        if (name != null)
-            return@let name
-        val packageName = it.packageName.asString()
-        return@let if (packageName.isEmpty())
-            ksa.shortName.asString()
-        else
-            "$packageName.${it.simpleName.asString()}"
-    }
+    val typeName = if (LazyPeopleHttpVisitor.typeShowPackage)
+        ksType.declaration.let {
+            val name = it.qualifiedName?.asString()
+            if (name != null)
+                return@let name
+            val packageName = it.packageName.asString()
+            return@let if (packageName.isEmpty())
+                ksa.shortName.asString()
+            else
+                "$packageName.${it.simpleName.asString()}"
+        }
+    else
+        ksType.declaration.simpleName.asString()
     val args = StringBuilder()
     ksa.arguments.forEach {
         val value = it.value

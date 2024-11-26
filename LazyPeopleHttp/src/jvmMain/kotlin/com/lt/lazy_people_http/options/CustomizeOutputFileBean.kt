@@ -28,6 +28,9 @@ interface CustomizeOutputFileBean {
 
     //[suspendFunContent]等同于[funContent]
     val suspendFunEqualsFunContent: Boolean
+
+    //类型是否显示包名
+    val typeShowPackage: Boolean
 }
 
 /**
@@ -120,6 +123,7 @@ class CustomizeOutputFileBeanImpl(
             "    }\n\n",
     ),
     override val suspendFunEqualsFunContent: Boolean = false,
+    override val typeShowPackage: Boolean = true,
 ) : CustomizeOutputFileBean
 
 /**
@@ -135,6 +139,8 @@ class FunctionBean(
     val parameter: ParameterBean = ParameterBean(),
     //请求头
     val header: ParameterBean = ParameterBean(),
+    //替换请求url中的指定字段
+    val replaceUrlName: String = "\$##value##",
 )
 
 /**
