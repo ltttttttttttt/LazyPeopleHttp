@@ -7,6 +7,7 @@ import com.lt.lazy_people_http.*
 import com.lt.lazy_people_http.annotations.*
 import com.lt.lazy_people_http.options.*
 import com.lt.lazy_people_http.options.ReplaceRule._className
+import com.lt.lazy_people_http.options.ReplaceRule._doc
 import com.lt.lazy_people_http.options.ReplaceRule._fieldParameter
 import com.lt.lazy_people_http.options.ReplaceRule._funParameter
 import com.lt.lazy_people_http.options.ReplaceRule._functionAnnotations
@@ -118,7 +119,8 @@ internal class LazyPeopleHttpVisitor(
             }
             val typeOf =
                 if (isSuspendFun) returnType else getKSTypeArguments(it.returnType!!).first()
-            val funBean = if (isSuspendFun) bean.suspendFunContent else bean.funContent
+            val funBean =
+                if (!isSuspendFun || bean.suspendFunEqualsFunContent) bean.funContent else bean.suspendFunContent
             val headers = getHeaders(it, funBean.header)
             val parameterInfo =
                 getParameters(it, methodInfo.method, funBean)
@@ -128,11 +130,8 @@ internal class LazyPeopleHttpVisitor(
             }
             val functionAnnotations = getFunctionAnnotations(it)
 
-            val funContent = if (isSuspendFun) {
-                bean.suspendFunContent
-            } else {
-                bean.funContent
-            }.content._functionName(functionName)
+            val funContent = funBean.content
+                ._functionName(functionName)
                 ._funParameter(parameterInfo.funParameter)
                 ._returnType(returnType)
                 ._url(url)
@@ -144,6 +143,7 @@ internal class LazyPeopleHttpVisitor(
                 ._headers(headers)
                 ._functionAnnotations(if (functionAnnotations.isEmpty()) "null" else "arrayOf($functionAnnotations)")
                 ._responseName(responseName.toString())
+                ._doc(it.docString?.trim() ?: "")
             file.appendText(funContent)
         }
     }

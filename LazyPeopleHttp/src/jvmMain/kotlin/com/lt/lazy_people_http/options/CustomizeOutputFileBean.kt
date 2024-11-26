@@ -25,6 +25,9 @@ interface CustomizeOutputFileBean {
 
     //方法内容(方法的声明和方法体)
     val funContent: FunctionBean
+
+    //[suspendFunContent]等同于[funContent]
+    val suspendFunEqualsFunContent: Boolean
 }
 
 /**
@@ -53,6 +56,7 @@ object ReplaceRule {
         replace("##functionAnnotations##", functionAnnotations)//方法上所有声明的注解
 
     fun String._responseName(responseName: String) = replace("##responseName##", responseName)//自定义的返回值类型,比如Flow
+    fun String._doc(doc: String) = replace("##doc##", doc)//方法注释
 
     /*参数级*/
     fun String._kt(key: String, type: String) = replace("##key##", key).replace("##type##", type)//参数及类型
@@ -113,6 +117,7 @@ class CustomizeOutputFileBeanImpl(
             "        )\n" +
             "    }\n\n",
     ),
+    override val suspendFunEqualsFunContent: Boolean = false,
 ) : CustomizeOutputFileBean
 
 /**
