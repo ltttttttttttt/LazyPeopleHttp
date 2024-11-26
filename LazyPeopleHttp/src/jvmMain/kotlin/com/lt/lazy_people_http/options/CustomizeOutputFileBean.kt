@@ -31,6 +31,9 @@ interface CustomizeOutputFileBean {
 
     //类型是否显示包名
     val typeShowPackage: Boolean
+
+    //输出目录
+    val outputDir: String
 }
 
 /**
@@ -124,6 +127,7 @@ class CustomizeOutputFileBeanImpl(
     ),
     override val suspendFunEqualsFunContent: Boolean = false,
     override val typeShowPackage: Boolean = true,
+    override val outputDir: String = "",
 ) : CustomizeOutputFileBean
 
 /**

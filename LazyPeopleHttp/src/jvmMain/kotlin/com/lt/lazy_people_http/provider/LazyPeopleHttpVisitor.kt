@@ -69,17 +69,30 @@ internal class LazyPeopleHttpVisitor(
             beans.addAll(json.decodeFromString<List<CustomizeOutputFileBeanImpl>>(jsonFile.readText()))
         beans.forEach { bean ->
             typeShowPackage = bean.typeShowPackage
+            val fileName = bean.fileName._className(className)._originalClassName(originalClassName)
             val file = environment.codeGenerator.createNewFile(
                 Dependencies(
                     true,
                     classDeclaration.containingFile!!
                 ),
                 packageName,
-                bean.fileName._className(className)._originalClassName(originalClassName),
+                fileName,
                 bean.extensionName,
             )
             writeFile(file, packageName, className, originalClassName, classDeclaration, bean)
             file.close()
+
+            if (bean.outputDir.isNotEmpty()) {
+                val fileName = "$fileName.${bean.extensionName}"
+                environment.codeGenerator.generatedFile.find { it.absolutePath.endsWith(fileName) }
+                    ?.let {
+                        val targetFile = if (File(bean.outputDir).isAbsolute)
+                            File(bean.outputDir, fileName)
+                        else
+                            File(File(it.absolutePath.split("\\build\\").first(), bean.outputDir), fileName)
+                        it.copyTo(targetFile, true)
+                    }
+            }
         }
     }
 
