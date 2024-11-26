@@ -7,12 +7,14 @@ import com.lt.lazy_people_http.*
 import com.lt.lazy_people_http.annotations.*
 import com.lt.lazy_people_http.options.*
 import com.lt.lazy_people_http.options.ReplaceRule._className
+import com.lt.lazy_people_http.options.ReplaceRule._doc
 import com.lt.lazy_people_http.options.ReplaceRule._fieldParameter
 import com.lt.lazy_people_http.options.ReplaceRule._funParameter
 import com.lt.lazy_people_http.options.ReplaceRule._functionAnnotations
 import com.lt.lazy_people_http.options.ReplaceRule._functionName
 import com.lt.lazy_people_http.options.ReplaceRule._headers
 import com.lt.lazy_people_http.options.ReplaceRule._kt
+import com.lt.lazy_people_http.options.ReplaceRule._kv
 import com.lt.lazy_people_http.options.ReplaceRule._originalClassName
 import com.lt.lazy_people_http.options.ReplaceRule._packageName
 import com.lt.lazy_people_http.options.ReplaceRule._queryParameter
@@ -22,6 +24,7 @@ import com.lt.lazy_people_http.options.ReplaceRule._returnType
 import com.lt.lazy_people_http.options.ReplaceRule._runtimeParameter
 import com.lt.lazy_people_http.options.ReplaceRule._type
 import com.lt.lazy_people_http.options.ReplaceRule._url
+import com.lt.lazy_people_http.options.ReplaceRule._value
 import com.lt.lazy_people_http.request.*
 import kotlinx.serialization.json.*
 import java.io.*
@@ -43,6 +46,10 @@ internal class LazyPeopleHttpVisitor(
         functionReplaceFrom.isNotEmpty() && functionReplaceTo.isNotEmpty()
     private val json = Json { ignoreUnknownKeys = true }
 
+    companion object {
+        var typeShowPackage = true
+    }
+
     /**
      * 访问class的声明
      */
@@ -61,17 +68,31 @@ internal class LazyPeopleHttpVisitor(
         else
             beans.addAll(json.decodeFromString<List<CustomizeOutputFileBeanImpl>>(jsonFile.readText()))
         beans.forEach { bean ->
+            typeShowPackage = bean.typeShowPackage
+            val fileName = bean.fileName._className(className)._originalClassName(originalClassName)
             val file = environment.codeGenerator.createNewFile(
                 Dependencies(
                     true,
                     classDeclaration.containingFile!!
                 ),
                 packageName,
-                bean.fileName._className(className)._originalClassName(originalClassName),
+                fileName,
                 bean.extensionName,
             )
             writeFile(file, packageName, className, originalClassName, classDeclaration, bean)
             file.close()
+
+            if (bean.outputDir.isNotEmpty()) {
+                val fileName = "$fileName.${bean.extensionName}"
+                environment.codeGenerator.generatedFile.find { it.absolutePath.endsWith(fileName) }
+                    ?.let {
+                        val targetFile = if (File(bean.outputDir).isAbsolute)
+                            File(bean.outputDir, fileName)
+                        else
+                            File(File(it.absolutePath.split("\\build\\").first(), bean.outputDir), fileName)
+                        it.copyTo(targetFile, true)
+                    }
+            }
         }
     }
 
@@ -118,21 +139,19 @@ internal class LazyPeopleHttpVisitor(
             }
             val typeOf =
                 if (isSuspendFun) returnType else getKSTypeArguments(it.returnType!!).first()
-            val funBean = if (isSuspendFun) bean.suspendFunContent else bean.funContent
+            val funBean =
+                if (!isSuspendFun || bean.suspendFunEqualsFunContent) bean.funContent else bean.suspendFunContent
             val headers = getHeaders(it, funBean.header)
             val parameterInfo =
                 getParameters(it, methodInfo.method, funBean)
             var url = methodInfo.url
             parameterInfo.replaceUrlFunction?.forEach {
-                url = url.replace(it.key, "\$${it.value}")
+                url = url.replace(it.key, funBean.replaceUrlName._value(it.value))
             }
             val functionAnnotations = getFunctionAnnotations(it)
 
-            val funContent = if (isSuspendFun) {
-                bean.suspendFunContent
-            } else {
-                bean.funContent
-            }.content._functionName(functionName)
+            val funContent = funBean.content
+                ._functionName(functionName)
                 ._funParameter(parameterInfo.funParameter)
                 ._returnType(returnType)
                 ._url(url)
@@ -144,6 +163,7 @@ internal class LazyPeopleHttpVisitor(
                 ._headers(headers)
                 ._functionAnnotations(if (functionAnnotations.isEmpty()) "null" else "arrayOf($functionAnnotations)")
                 ._responseName(responseName.toString())
+                ._doc(it.docString?.trim() ?: "")
             file.appendText(funContent)
         }
     }
@@ -151,7 +171,13 @@ internal class LazyPeopleHttpVisitor(
     //获取方法的参数和请求参数
     private fun getParameters(it: KSFunctionDeclaration, method: RequestMethod?, funBean: FunctionBean): ParameterInfo {
         //如果没有参数
-        if (it.parameters.isEmpty()) return ParameterInfo("", "null", "null", "null", null)
+        if (it.parameters.isEmpty()) return ParameterInfo(
+            "",
+            funBean.parameter.emptyValue,
+            funBean.parameter.emptyValue,
+            funBean.parameter.emptyValue,
+            null
+        )
         //有参数的话就将参数拆为:方法参数,query参数,field参数,和只有运行时才能处理的参数
         val funPList = ArrayList<String>()
         val queryPList = ArrayList<String>()
@@ -162,7 +188,7 @@ internal class LazyPeopleHttpVisitor(
             val funPName = it.name!!.asString()
             val type = getKSTypeInfo(it.type).toString()
             funPList.add(funBean.funParameterKT._kt(funPName,type))
-            getParameterInfo(it, funPName, queryPList, fieldPList, runtimePList, replaceUrlMap)
+            getParameterInfo(it, funPName, queryPList, fieldPList, runtimePList, replaceUrlMap, funBean.parameter)
         }
         //处理方法加了注解,但参数没加注解的情况
         when (method) {
@@ -181,17 +207,17 @@ internal class LazyPeopleHttpVisitor(
         //将所有参数拼接成代码
         return ParameterInfo(
             if (funPList.isEmpty()) "" else funPList.joinToString(),
-            if (queryPList.isEmpty()) funBean.queryParameter.emptyValue else queryPList.joinToString(
-                prefix = funBean.queryParameter.arrayStart,
-                postfix = funBean.queryParameter.arrayEnd
+            if (queryPList.isEmpty()) funBean.parameter.emptyValue else queryPList.joinToString(
+                prefix = funBean.parameter.arrayStart,
+                postfix = funBean.parameter.arrayEnd
             ),
-            if (fieldPList.isEmpty()) funBean.fieldParameter.emptyValue else fieldPList.joinToString(
-                prefix = funBean.fieldParameter.arrayStart,
-                postfix = funBean.fieldParameter.arrayEnd
+            if (fieldPList.isEmpty()) funBean.parameter.emptyValue else fieldPList.joinToString(
+                prefix = funBean.parameter.arrayStart,
+                postfix = funBean.parameter.arrayEnd
             ),
-            if (runtimePList.isEmpty()) funBean.runtimeParameter.emptyValue else runtimePList.joinToString(
-                prefix = funBean.runtimeParameter.arrayStart,
-                postfix = funBean.runtimeParameter.arrayEnd
+            if (runtimePList.isEmpty()) funBean.parameter.emptyValue else runtimePList.joinToString(
+                prefix = funBean.parameter.arrayStart,
+                postfix = funBean.parameter.arrayEnd
             ),
             replaceUrlMap,
         )
@@ -206,6 +232,7 @@ internal class LazyPeopleHttpVisitor(
         fieldPList: ArrayList<String>,
         runtimePList: ArrayList<String>,
         replaceUrlMap: HashMap<String, String>,
+        parameter: ParameterBean,
     ) {
         val list =
             (it.getAnnotationsByType(Query::class)
@@ -215,20 +242,20 @@ internal class LazyPeopleHttpVisitor(
                     + it.getAnnotationsByType(Url::class)
                     ).toList()
         if (list.isEmpty()) {
-            runtimePList.add("\"$funPName\", $funPName._toJson()")
+            runtimePList.add(parameter.keyValue._kv(funPName, funPName))
             return
         }
         when (val annotation = list.first()) {
-            is Query -> queryPList.add("\"${annotation.name}\", $funPName._toJson()")
+            is Query -> queryPList.add(parameter.keyValue._kv(annotation.name, funPName))
             is QueryMap -> {
                 checkMapType(it, funPName)
-                queryPList.add("*$funPName._lazyPeopleHttpFlatten()")
+                queryPList.add(parameter.mapValue._value(funPName))
             }
 
-            is Field -> fieldPList.add("\"${annotation.name}\", $funPName._toJson()")
+            is Field -> fieldPList.add(parameter.keyValue._kv(annotation.name, funPName))
             is FieldMap -> {
                 checkMapType(it, funPName)
-                fieldPList.add("*$funPName._lazyPeopleHttpFlatten()")
+                fieldPList.add(parameter.mapValue._value(funPName))
             }
 
             is Url -> replaceUrlMap["{${annotation.replaceUrlName}}"] = funPName

@@ -22,6 +22,9 @@ interface HttpFunctions : PostHf, GetHf {
         return 0
     }
 
+    /**
+     * Post method
+     */
     @POST("post/postA")
     fun postA(t: String): Call<NetBean<String>>
 
@@ -35,6 +38,9 @@ interface HttpFunctions : PostHf, GetHf {
 
     suspend fun post_postE(name: String): N<String>
 
+    /**
+     * Set the username
+     */
     fun post_setUserName(
         lastName: String,
         @Field("firstName") newName: String

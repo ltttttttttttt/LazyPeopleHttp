@@ -25,6 +25,15 @@ interface CustomizeOutputFileBean {
 
     //方法内容(方法的声明和方法体)
     val funContent: FunctionBean
+
+    //[suspendFunContent]等同于[funContent]
+    val suspendFunEqualsFunContent: Boolean
+
+    //类型是否显示包名
+    val typeShowPackage: Boolean
+
+    //输出目录
+    val outputDir: String
 }
 
 /**
@@ -53,10 +62,12 @@ object ReplaceRule {
         replace("##functionAnnotations##", functionAnnotations)//方法上所有声明的注解
 
     fun String._responseName(responseName: String) = replace("##responseName##", responseName)//自定义的返回值类型,比如Flow
+    fun String._doc(doc: String) = replace("##doc##", doc)//方法注释
 
     /*参数级*/
     fun String._kt(key: String, type: String) = replace("##key##", key).replace("##type##", type)//参数及类型
     fun String._kv(key: String, value: String) = replace("##key##", key).replace("##value##", value)//参数名及参数值
+    fun String._value(value: String) = replace("##value##", value)//参数值
 
 }
 
@@ -76,9 +87,10 @@ class CustomizeOutputFileBeanImpl(
             "\n" +
             "class ##className##(\n" +
             "    val config: LazyPeopleHttpConfig,\n" +
-            ") : ##originalClassName##, HttpServiceImpl {\n" +
-            "    private inline fun <reified T> T?._toJson() = CallCreator.parameterToJson(config, this)\n\n",
-    override val fileBottomContent: String = "}\n\n" +
+            ") : ##originalClassName##, HttpServiceImpl {\n\n",
+    override val fileBottomContent: String =
+        "    private inline fun <reified T> T?._toJson() = CallCreator.parameterToJson(config, this)\n" +
+                "}\n\n" +
             "fun kotlin.reflect.KClass<##originalClassName##>.createService(config: LazyPeopleHttpConfig): ##originalClassName## =\n" +
             "    ##className##(config)",
     override val suspendFunContent: FunctionBean = FunctionBean(
@@ -113,6 +125,9 @@ class CustomizeOutputFileBeanImpl(
             "        )\n" +
             "    }\n\n",
     ),
+    override val suspendFunEqualsFunContent: Boolean = false,
+    override val typeShowPackage: Boolean = true,
+    override val outputDir: String = "",
 ) : CustomizeOutputFileBean
 
 /**
@@ -124,14 +139,12 @@ class FunctionBean(
     val content: String,
     //方法参数及类型
     val funParameterKT: String = "##key##: ##type##",
-    //query参数
-    val queryParameter: ParameterBean = ParameterBean(),
-    //field参数
-    val fieldParameter: ParameterBean = ParameterBean(),
-    //运行时参数
-    val runtimeParameter: ParameterBean = ParameterBean(),
+    //参数
+    val parameter: ParameterBean = ParameterBean(),
     //请求头
     val header: ParameterBean = ParameterBean(),
+    //替换请求url中的指定字段
+    val replaceUrlName: String = "\$##value##",
 )
 
 /**
@@ -139,7 +152,14 @@ class FunctionBean(
  */
 @Serializable
 class ParameterBean(
+    //参数列表为空时
     val emptyValue: String = "null",
+    //参数列表开头
     val arrayStart: String = "arrayOf(",
+    //参数列表结尾
     val arrayEnd: String = ")",
+    //kv形式的参数
+    val keyValue: String = "\"##key##\", ##value##._toJson()",
+    //map形式的参数
+    val mapValue: String = "*##value##._lazyPeopleHttpFlatten()",
 )
