@@ -31,7 +31,7 @@ internal inline fun String?.ifNullOfEmpty(defaultValue: () -> String): String =
  * 打印日志
  */
 internal fun String?.w(environment: SymbolProcessorEnvironment) {
-    environment.logger.warn("lllttt VirtualReflection: ${this ?: "空字符串"}")
+    environment.logger.warn("lllttt LazyPeopleHttp: ${this ?: "空字符串"}")
 }
 
 /**
@@ -42,14 +42,14 @@ internal fun getKSTypeInfo(ks: KSTypeReference): KSTypeInfo {
     //type对象
     val ksType = ks.resolve()
     val arguments = ksType.arguments
-    val typeString = if (arguments.isEmpty()) "" else {
+    val childTypeString = if (arguments.isEmpty()) "" else {
         //有泛型
         arguments.filter { it.type != null }.joinToString(prefix = "<", postfix = ">") {
             getKSTypeInfo(it.type!!).toString()
         }
     }
     //完整type字符串
-    val typeName = if (LazyPeopleHttpVisitor.typeShowPackage)
+    val thisTypeName = if (LazyPeopleHttpVisitor.typeShowPackage)
         ksType.declaration.let {
             it.qualifiedName?.asString()
                 ?: "${it.packageName.asString()}.${it.simpleName.asString()}"
@@ -57,12 +57,12 @@ internal fun getKSTypeInfo(ks: KSTypeReference): KSTypeInfo {
     else
         ksType.declaration.simpleName.asString()
     //是否可空
-    val nullable = if (ksType.nullability == Nullability.NULLABLE) "?" else ""
+    val nullable = if (ksType.nullability == Nullability.NULLABLE) LazyPeopleHttpVisitor.nullabilityType else ""
     return KSTypeInfo(
         //自身或泛型包含Buff注解
-        typeName,
+        thisTypeName,
         nullable,
-        typeString
+        childTypeString
     )
 }
 

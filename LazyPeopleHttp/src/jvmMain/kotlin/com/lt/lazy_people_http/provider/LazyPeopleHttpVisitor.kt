@@ -48,6 +48,7 @@ internal class LazyPeopleHttpVisitor(
 
     companion object {
         var typeShowPackage = true
+        var nullabilityType = ""
     }
 
     /**
@@ -69,6 +70,7 @@ internal class LazyPeopleHttpVisitor(
             beans.addAll(json.decodeFromString<List<CustomizeOutputFileBeanImpl>>(jsonFile.readText()))
         beans.forEach { bean ->
             typeShowPackage = bean.typeShowPackage
+            nullabilityType = bean.nullabilityType
             val fileName = bean.fileName._className(className)._originalClassName(originalClassName)
             val file = environment.codeGenerator.createNewFile(
                 Dependencies(
