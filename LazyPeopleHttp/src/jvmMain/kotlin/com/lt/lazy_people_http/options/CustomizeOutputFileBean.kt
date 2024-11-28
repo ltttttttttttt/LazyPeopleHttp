@@ -34,6 +34,9 @@ interface CustomizeOutputFileBean {
 
     //输出目录
     val outputDir: String
+
+    //可空的type声明
+    val nullabilityType: String
 }
 
 /**
@@ -128,6 +131,7 @@ class CustomizeOutputFileBeanImpl(
     override val suspendFunEqualsFunContent: Boolean = false,
     override val typeShowPackage: Boolean = true,
     override val outputDir: String = "",
+    override val nullabilityType: String = "##type##?",
 ) : CustomizeOutputFileBean
 
 /**

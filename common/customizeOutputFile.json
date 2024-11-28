@@ -8,6 +8,7 @@
     "suspendFunEqualsFunContent": true,
     "typeShowPackage": false,
     "outputDir": "build",
+    "nullabilityType": "##type## | null",
     "funContent": {
       "content": "\t/*##doc##*/\n\tfunction ##functionName##(##funParameter##) /*##type##*/ {\n\t\treturn HttpRequest({\n\t\t\turl: `##url##`,\n\t\t\tdataArray: [...##queryParameter##, ...##fieldParameter##, ...##runtimeParameter##],\n            method: \"##requestMethod##\",\n            headerArray:##headers##,\n\t\t\tannotations: '##functionAnnotations##',\n\t\t})\n\t}\n\n",
       "funParameterKT": "##key##/*##type##*/",
