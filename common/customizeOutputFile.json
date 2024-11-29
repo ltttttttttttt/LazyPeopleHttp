@@ -2,11 +2,12 @@
   {
   },
   {
+    "fileName": "##className##2",
     "extensionName": "js",
     "fileTopContent": "import { HttpRequest } from \"../util/HttpUtil\";\n\nclass ##className## {\n\n",
     "fileBottomContent": "\tfunction _toJson(value) {\n\t\tif (value == undefined || value == null)\n\t\t\treturn value\n\t\tswitch (typeof(value)) {\n\t\t\tcase \"number\":\n\t\t\tcase \"string\":\n\t\t\tcase \"boolean\":\n\t\t\t\treturn value.toString()\n\t\t\tdefault:\n\t\t\t\treturn JSON.stringify(value)\n\t\t}\n\t}\n\n\tfunction _lazyPeopleHttpFlatten(map) {\n\t\tconst array = []\n\t\tObject.entries(map).forEach((entrie) => {\n\t\t\tarray.push(entrie[0]);\n\t\t\tarray.push(entrie[1])\n\t\t})\n\t\treturn array\n\t}\n}",
     "suspendFunEqualsFunContent": true,
-    "typeShowPackage": false,
+    "typeContent": "bean.##type##",
     "outputDir": "build",
     "nullabilityType": "##type## | null",
     "funContent": {

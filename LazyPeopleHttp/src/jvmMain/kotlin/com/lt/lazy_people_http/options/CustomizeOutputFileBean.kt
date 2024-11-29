@@ -29,8 +29,8 @@ interface CustomizeOutputFileBean {
     //[suspendFunContent]等同于[funContent]
     val suspendFunEqualsFunContent: Boolean
 
-    //类型是否显示包名
-    val typeShowPackage: Boolean
+    //类型显示
+    val typeContent: String
 
     //输出目录
     val outputDir: String
@@ -129,7 +129,7 @@ class CustomizeOutputFileBeanImpl(
             "    }\n\n",
     ),
     override val suspendFunEqualsFunContent: Boolean = false,
-    override val typeShowPackage: Boolean = true,
+    override val typeContent: String = "##packageName##.##type##",
     override val outputDir: String = "",
     override val nullabilityType: String = "##type##?",
 ) : CustomizeOutputFileBean
