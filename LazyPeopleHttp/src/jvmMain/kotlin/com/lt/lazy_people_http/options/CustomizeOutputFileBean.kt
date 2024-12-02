@@ -59,6 +59,7 @@ object ReplaceRule {
         replace("##runtimeParameter##", runtimeParameter)//运行时设置的请求参数
 
     fun String._type(type: String) = replace("##type##", type)//需要被解析的类型,如果是suspend方法则与returnType一致
+    fun String._typeChild(typeChild: String) = replace("##typeChild##", typeChild)//需要被解析的类型中的泛型
     fun String._requestMethod(requestMethod: String) = replace("##requestMethod##", requestMethod)//网络请求使用的方法
     fun String._headers(headers: String) = replace("##headers##", headers)//注解中声明的请求头
     fun String._functionAnnotations(functionAnnotations: String) =

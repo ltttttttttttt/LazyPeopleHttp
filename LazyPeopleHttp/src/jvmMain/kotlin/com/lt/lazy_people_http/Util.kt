@@ -121,10 +121,14 @@ internal fun getNewAnnotationString(ksa: KSAnnotation): String {
     val ksType = ksa.annotationType.resolve()
     //完整type字符串
     val typeName = ksType.declaration.let {
-        return@let LazyPeopleHttpVisitor.typeContent
-            ._packageName(it.packageName.asString())
-            ._type(it.simpleName.asString())
-        }
+        //todo bug? <ERROR TYPE: xxx>
+        return@let if (ksType.isError)
+            ksa.annotationType.toString()
+        else
+            LazyPeopleHttpVisitor.typeContent
+                ._packageName(it.packageName.asString())
+                ._type(it.simpleName.asString())
+    }
     val args = StringBuilder()
     ksa.arguments.forEach {
         val value = it.value
@@ -196,4 +200,13 @@ internal fun montageUrl(url1: String, url2: String): String {
     else
         sb.append(url2)
     return sb.toString()
+}
+
+/**
+ * 获取字符串type的子type,如果没有返回自身
+ */
+internal fun getTypeChild(type: String): String {
+    if (!type.contains("<"))
+        return type
+    return type.substring(type.indexOf("<") + 1, type.lastIndexOf(">"))
 }

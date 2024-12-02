@@ -23,6 +23,7 @@ import com.lt.lazy_people_http.options.ReplaceRule._responseName
 import com.lt.lazy_people_http.options.ReplaceRule._returnType
 import com.lt.lazy_people_http.options.ReplaceRule._runtimeParameter
 import com.lt.lazy_people_http.options.ReplaceRule._type
+import com.lt.lazy_people_http.options.ReplaceRule._typeChild
 import com.lt.lazy_people_http.options.ReplaceRule._url
 import com.lt.lazy_people_http.options.ReplaceRule._value
 import com.lt.lazy_people_http.request.*
@@ -161,11 +162,12 @@ internal class LazyPeopleHttpVisitor(
                 ._fieldParameter(parameterInfo.fieldParameter)
                 ._runtimeParameter(parameterInfo.runtimeParameter)
                 ._type(typeOf)
+                ._typeChild(getTypeChild(typeOf))
                 ._requestMethod(if (methodInfo.method == null) "null" else "RequestMethod.${methodInfo.method}")
                 ._headers(headers)
                 ._functionAnnotations(if (functionAnnotations.isEmpty()) "null" else "arrayOf($functionAnnotations)")
                 ._responseName(responseName.toString())
-                ._doc(it.docString?.trim() ?: "")
+                ._doc(it.docString?.trim() ?: "")//todo bug? 不支持类传递?子类的返回null,当前类可以返回
             file.appendText(funContent)
         }
     }
@@ -189,7 +191,7 @@ internal class LazyPeopleHttpVisitor(
         it.parameters.forEach {
             val funPName = it.name!!.asString()
             val type = getKSTypeInfo(it.type).toString()
-            funPList.add(funBean.funParameterKT._kt(funPName,type))
+            funPList.add(funBean.funParameterKT._kt(funPName, type))
             getParameterInfo(it, funPName, queryPList, fieldPList, runtimePList, replaceUrlMap, funBean.parameter)
         }
         //处理方法加了注解,但参数没加注解的情况
@@ -268,7 +270,7 @@ internal class LazyPeopleHttpVisitor(
     //校验map的类型和泛型
     private fun checkMapType(
         it: KSValueParameter,
-        funPName: String
+        funPName: String,
     ) {
         val ksType = it.type.resolve()
         //如果类型不是Map则报错
@@ -327,7 +329,7 @@ internal class LazyPeopleHttpVisitor(
     private fun getMethodInfo(
         it: KSFunctionDeclaration,
         functionName: String,
-        classDeclaration: KSClassDeclaration
+        classDeclaration: KSClassDeclaration,
     ): MethodInfo {
         val urlMidSegment =
             classDeclaration.getAnnotationsByType(UrlMidSegment::class).firstOrNull()?.url ?: ""
