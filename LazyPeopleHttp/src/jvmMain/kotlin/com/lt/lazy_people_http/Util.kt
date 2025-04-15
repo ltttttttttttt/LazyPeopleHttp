@@ -89,9 +89,9 @@ internal fun getKSTypeArguments(ks: KSTypeReference): List<String> {
             getKotlinTypeInfo(it.type)
         }
     } else {
-        ks.element!!.typeArguments.map {
+        ks.element?.typeArguments?.map {
             getKSTypeInfo(it.type!!).toString()
-        }
+        } ?: listOf()
     }
 }
 

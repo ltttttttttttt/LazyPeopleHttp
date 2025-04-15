@@ -141,7 +141,14 @@ internal class LazyPeopleHttpVisitor(
                 else "\"$responseType\""
             }
             val typeOf =
-                if (isSuspendFun) returnType else getKSTypeArguments(it.returnType!!).first()
+                if (isSuspendFun) returnType else {
+                    val ksTypeArguments = getKSTypeArguments(it.returnType!!)
+                    if (ksTypeArguments.isEmpty()) {
+                        environment.logger.error("Fun($functionName) is not suspend fun, return type must be parameterized as Call<T> or similar.")
+                        ""
+                    } else
+                        ksTypeArguments.first()
+                }
             val funBean =
                 if (!isSuspendFun || bean.suspendFunEqualsFunContent) bean.funContent else bean.suspendFunContent
             val headers = getHeaders(it, funBean.header)
