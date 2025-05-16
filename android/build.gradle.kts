@@ -6,7 +6,7 @@ plugins {
 }
 
 group "com.lt"
-version "1.0-SNAPSHOT"
+version "1.0"
 
 repositories {
     maven("https://mirrors.tencent.com/nexus/repository/maven-public/")
@@ -20,7 +20,7 @@ dependencies {
 }
 
 android {
-    compileSdkVersion(34)
+    compileSdkVersion(35)
     namespace = "com.lt.android"
     defaultConfig {
         applicationId = "com.lt.android"

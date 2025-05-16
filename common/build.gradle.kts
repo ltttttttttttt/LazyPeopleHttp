@@ -1,7 +1,4 @@
-import org.gradle.api.JavaVersion
-import org.gradle.api.Task
-import org.gradle.api.tasks.Delete
-import java.io.File
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 
 plugins {
     kotlin("multiplatform")
@@ -17,7 +14,7 @@ group = "com.lt"
 version = "1.0-SNAPSHOT"
 
 kotlin {
-    android()
+    androidTarget()
     jvm("desktop") {
         compilations.all {
             kotlinOptions {
@@ -25,7 +22,8 @@ kotlin {
             }
         }
     }
-    ios()
+    iosX64()
+    iosArm64()
     iosSimulatorArm64()
     js(IR) {
         browser()
@@ -91,18 +89,28 @@ kotlin {
             }
         }
         val desktopTest by getting
-        val iosMain by getting {
+
+
+        fun KotlinSourceSet.iosDependencies() {
             dependencies {
+                //网络请求引擎
                 api("io.ktor:ktor-client-darwin:$ktorVersion")
             }
         }
-        val iosTest by getting
+
+        val iosX64Main by getting {
+            iosDependencies()
+        }
+        val iosX64Test by getting
+        val iosArm64Main by getting {
+            iosDependencies()
+        }
+        val iosArm64Test by getting
         val iosSimulatorArm64Main by getting {
-            dependsOn(iosMain)
+            iosDependencies()
         }
-        val iosSimulatorArm64Test by getting {
-            dependsOn(iosTest)
-        }
+        val iosSimulatorArm64Test by getting
+
         val jsMain by getting {
             dependencies {
                 api("io.ktor:ktor-client-js:$ktorVersion")
@@ -119,7 +127,7 @@ kotlin {
 
 android {
     namespace = "com.lt.lazy_people_http.common"
-    compileSdkVersion(33)
+    compileSdkVersion(35)
     sourceSets["main"].manifest.srcFile("src/androidMain/AndroidManifest.xml")
     defaultConfig {
         minSdkVersion(21)
