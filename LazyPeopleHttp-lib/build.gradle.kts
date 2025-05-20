@@ -222,7 +222,6 @@ afterEvaluate {
             .mustRunAfter(tasks.findByName("publishIosX64PublicationToSonatypeRepository"))
         tasks.findByName("signWasmJsPublication")!!
             .mustRunAfter(tasks.findByName("publishIosSimulatorArm64PublicationToSonatypeRepository"))
-    } catch (e: Exception) {
-        e.printStackTrace()
+    } catch (ignore: Exception) {
     }
 }

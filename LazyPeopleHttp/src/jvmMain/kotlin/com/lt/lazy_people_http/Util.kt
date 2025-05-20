@@ -1,5 +1,6 @@
 package com.lt.lazy_people_http
 
+import com.google.devtools.ksp.findActualType
 import com.google.devtools.ksp.processing.*
 import com.google.devtools.ksp.symbol.*
 import com.lt.lazy_people_http.options.*
@@ -84,6 +85,7 @@ internal fun getKSTypeArguments(ks: KSTypeReference): List<String> {
     val ksType = ks.resolve()
     //如果是typealias类型
     return if (ksType.declaration is KSTypeAlias) {
+        // TODO by lt test KSType.expand https://github.com/google/ksp/issues/1371
         val kotlinType = getKotlinTypeMethod.invoke(ksType) as KotlinType
         kotlinType.arguments.map {
             getKotlinTypeInfo(it.type)
@@ -104,13 +106,12 @@ internal fun getKSTypeOutermostName(ks: KSTypeReference): String {
     val ksType = ks.resolve()
     //如果是typealias类型
     return if (ksType.declaration is KSTypeAlias) {
-        val kotlinType = getKotlinTypeMethod.invoke(ksType) as KotlinType
-        kotlinType.getKotlinTypeFqName(false)
+        (ksType.declaration as KSTypeAlias).findActualType()
     } else {
-        ksType.declaration.let {
-            it.qualifiedName?.asString()
-                ?: "${it.packageName.asString()}.${it.simpleName.asString()}"
-        }
+        ksType.declaration
+    }.let {
+        it.qualifiedName?.asString()
+            ?: "${it.packageName.asString()}.${it.simpleName.asString()}"
     }
 }
 
