@@ -70,9 +70,9 @@ internal fun getKSTypeInfo(ks: KSTypeReference): KSTypeInfo {
 }
 
 
-private val getKotlinTypeMethod =
-    Class.forName("com.google.devtools.ksp.symbol.impl.kotlin.KSTypeImpl")
-        .getMethod("getKotlinType")
+//private val getKotlinTypeMethod =
+//    Class.forName("com.google.devtools.ksp.symbol.impl.kotlin.KSTypeImpl")
+//        .getMethod("getKotlinType")
 
 /**
  * 获取ksType的完整子泛型信息列表,返回可直接使用的String
@@ -81,20 +81,23 @@ private val getKotlinTypeMethod =
  * 参考: https://github.com/google/ksp/issues/1371 方案C
  */
 internal fun getKSTypeArguments(ks: KSTypeReference): List<String> {
-    //type对象
-    val ksType = ks.resolve()
-    //如果是typealias类型
-    return if (ksType.declaration is KSTypeAlias) {
-        // TODO by lt test KSType.expand https://github.com/google/ksp/issues/1371
-        val kotlinType = getKotlinTypeMethod.invoke(ksType) as KotlinType
-        kotlinType.arguments.map {
-            getKotlinTypeInfo(it.type)
-        }
-    } else {
-        ks.element?.typeArguments?.map {
+//    //type对象
+//    val ksType = ks.resolve()
+//    //如果是typealias类型
+//    return if (ksType.declaration is KSTypeAlias) {
+//        // TODO by lt test KSType.expand https://github.com/google/ksp/issues/1371
+//        val kotlinType = getKotlinTypeMethod.invoke(ksType) as KotlinType
+//        kotlinType.arguments.map {
+//            getKotlinTypeInfo(it.type)
+//        }
+//    } else {
+//        ks.element?.typeArguments?.map {
+//            getKSTypeInfo(it.type!!).toString()
+//        } ?: listOf()
+//    }
+    return ks.element?.typeArguments?.map {
             getKSTypeInfo(it.type!!).toString()
         } ?: listOf()
-    }
 }
 
 /**

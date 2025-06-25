@@ -19,10 +19,7 @@ kotlin {
     }
 
     jvm {
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = "17"
-            }
+        compilerOptions {
         }
     }
 
@@ -38,7 +35,7 @@ kotlin {
     }
 
     wasmJs {
-        moduleName = "common_app"
+        outputModuleName = "common_app"
         browser {
             commonWebpackConfig {
                 outputFileName = "common_app.js"

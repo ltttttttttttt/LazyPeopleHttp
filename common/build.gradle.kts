@@ -16,10 +16,7 @@ version = "1.0-SNAPSHOT"
 kotlin {
     androidTarget()
     jvm("desktop") {
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = "17"
-            }
+        compilerOptions {
         }
     }
     iosX64()

@@ -11,10 +11,7 @@ version = mVersion
 
 kotlin {
     jvm {
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = "11"
-            }
+        compilerOptions {
         }
     }
     sourceSets {

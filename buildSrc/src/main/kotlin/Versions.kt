@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-const val kotlinVersion = "2.1.21"//kotlin版本
+const val kotlinVersion = "2.2.0"//kotlin版本
 const val coroutinesVersion = "1.8.0"//协程版本
 const val ktorVersion = "3.0.0"//ktor版本
 const val serializationJsonVersion = "1.6.3"//json序列号版本
-const val kspVersion = "$kotlinVersion-2.0.1"//ksp版本
+const val kspVersion = "$kotlinVersion-2.0.2"//ksp版本
 
-const val mVersion = "2.2.1"//此库的版本
+const val mVersion = "2.2.2"//此库的版本
