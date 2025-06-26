@@ -41,26 +41,53 @@ internal fun String?.w(environment: SymbolProcessorEnvironment) {
  * 获取ksType的完整泛型信息,返回可直接使用的String
  * [ks] KSTypeReference信息
  */
-internal fun getKSTypeInfo(ks: KSTypeReference): KSTypeInfo {
+internal fun getKSTypeInfo(
+    ks: KSTypeReference,
+    childClass: KSClassDeclaration?,
+    thisClass: KSClassDeclaration,
+): KSTypeInfo {
     //type对象
     val ksType = ks.resolve()
     val arguments = ksType.arguments
     val childTypeString = if (arguments.isEmpty()) "" else {
         //有泛型
         arguments.filter { it.type != null }.joinToString(prefix = "<", postfix = ">") {
-            getKSTypeInfo(it.type!!).toString()
+            getKSTypeInfo(it.type!!, childClass, thisClass).toString()
         }
     }
+    //是否可空
+    var nullable = if (ksType.nullability == Nullability.NULLABLE) LazyPeopleHttpVisitor.nullabilityType else ""
     //完整type字符串
     val thisTypeName =
         ksType.declaration.let {
-//            it.qualifiedName?.asString()?: "${it.packageName.asString()}.${it.simpleName.asString()}"
-            LazyPeopleHttpVisitor.typeContent
-                ._packageName(it.packageName.asString())
-                ._type(it.simpleName.asString())
+            val parentDeclaration = it.parentDeclaration
+            if (parentDeclaration != null) {
+                //处理使用父类的泛型(alpha),通过子类获取父类的子泛型(对比泛型名)
+                childClass?.superTypes?.toList()?.findBy {
+                    val thisType = it.resolve()
+                    thisType.declaration.qualifiedName?.asString() == childClass.qualifiedName?.asString()
+                    thisType
+                }?.let { thisType ->
+                    thisType.arguments[
+                        parentDeclaration.typeParameters.indexOfFirst { typeParameter ->
+                            typeParameter.name.asString() == it.simpleName.asString()
+                        }
+                    ].type?.let {
+                        val ksType = it.resolve()
+                        val declaration = ksType.declaration
+                        nullable =
+                            if (ksType.nullability == Nullability.NULLABLE) LazyPeopleHttpVisitor.nullabilityType else ""
+                        LazyPeopleHttpVisitor.typeContent
+                            ._packageName(declaration.packageName.asString())
+                            ._type(declaration.simpleName.asString())
+                    }
+                } ?: "*"
+            } else {
+                LazyPeopleHttpVisitor.typeContent
+                    ._packageName(it.packageName.asString())
+                    ._type(it.simpleName.asString())
+            }
         }
-    //是否可空
-    val nullable = if (ksType.nullability == Nullability.NULLABLE) LazyPeopleHttpVisitor.nullabilityType else ""
     return KSTypeInfo(
         //自身或泛型包含Buff注解
         thisTypeName,
@@ -80,7 +107,11 @@ internal fun getKSTypeInfo(ks: KSTypeReference): KSTypeInfo {
  * [ks] KSTypeReference信息
  * 参考: https://github.com/google/ksp/issues/1371 方案C
  */
-internal fun getKSTypeArguments(ks: KSTypeReference): List<String> {
+internal fun getKSTypeArguments(
+    ks: KSTypeReference,
+    childClass: KSClassDeclaration?,
+    thisClass: KSClassDeclaration,
+): List<String> {
 //    //type对象
 //    val ksType = ks.resolve()
 //    //如果是typealias类型
@@ -96,7 +127,7 @@ internal fun getKSTypeArguments(ks: KSTypeReference): List<String> {
 //        } ?: listOf()
 //    }
     return ks.element?.typeArguments?.map {
-            getKSTypeInfo(it.type!!).toString()
+        getKSTypeInfo(it.type!!, childClass, thisClass).toString()
         } ?: listOf()
 }
 
@@ -213,4 +244,17 @@ internal fun getTypeChild(type: String): String {
     if (!type.contains("<"))
         return type
     return type.substring(type.indexOf("<") + 1, type.lastIndexOf(">"))
+}
+
+/**
+ * 查找获取lambda中的数据,如果不为空则停止遍历
+ */
+inline fun <T, R : Any> Iterable<T>.findBy(find: (T) -> R?): R? {
+    var r: R? = null
+    for (t in this) {
+        r = find(t)
+        if (r != null)
+            break
+    }
+    return r
 }

@@ -118,11 +118,16 @@ internal class LazyPeopleHttpVisitor(
     }
 
     //向文件中写入变换后的函数
-    private fun writeFunction(file: OutputStream, classDeclaration: KSClassDeclaration, bean: CustomizeOutputFileBean) {
+    private fun writeFunction(
+        file: OutputStream,
+        classDeclaration: KSClassDeclaration,
+        bean: CustomizeOutputFileBean,
+        childClass: KSClassDeclaration? = null,
+    ) {
         classDeclaration.superTypes.mapNotNull {
             it.resolve().declaration as? KSClassDeclaration
         }.forEach {
-            writeFunction(file, it, bean)
+            writeFunction(file, it, bean, classDeclaration)
         }
         classDeclaration.getDeclaredFunctions().filter {
             it.isAbstract
@@ -130,7 +135,7 @@ internal class LazyPeopleHttpVisitor(
             val functionName = it.simpleName.asString()
             val methodInfo = getMethodInfo(it, functionName, classDeclaration)
             //返回的全类型
-            val returnType = getKSTypeInfo(it.returnType!!).toString()
+            val returnType = getKSTypeInfo(it.returnType!!, childClass, classDeclaration).toString()
             val isSuspendFun = Modifier.SUSPEND in it.modifiers
             //返回的最外层的类型
             val responseName = if (isSuspendFun)
@@ -142,7 +147,7 @@ internal class LazyPeopleHttpVisitor(
             }
             val typeOf =
                 if (isSuspendFun) returnType else {
-                    val ksTypeArguments = getKSTypeArguments(it.returnType!!)
+                    val ksTypeArguments = getKSTypeArguments(it.returnType!!, childClass, classDeclaration)
                     if (ksTypeArguments.isEmpty()) {
                         environment.logger.error("Fun($functionName) is not suspend fun, return type must be parameterized as Call<T> or similar.")
                         ""
@@ -153,7 +158,7 @@ internal class LazyPeopleHttpVisitor(
                 if (!isSuspendFun || bean.suspendFunEqualsFunContent) bean.funContent else bean.suspendFunContent
             val headers = getHeaders(it, funBean.header)
             val parameterInfo =
-                getParameters(it, methodInfo.method, funBean)
+                getParameters(it, methodInfo.method, funBean, childClass, classDeclaration)
             var url = methodInfo.url
             parameterInfo.replaceUrlFunction?.forEach {
                 url = url.replace(it.key, funBean.replaceUrlName._value(it.value))
@@ -174,13 +179,19 @@ internal class LazyPeopleHttpVisitor(
                 ._headers(headers)
                 ._functionAnnotations(if (functionAnnotations.isEmpty()) "null" else "arrayOf($functionAnnotations)")
                 ._responseName(responseName.toString())
-                ._doc(it.docString?.trim() ?: "")//todo bug? 不支持类传递?子类的返回null,当前类可以返回
+                ._doc(it.docString?.trim() ?: "")
             file.appendText(funContent)
         }
     }
 
     //获取方法的参数和请求参数
-    private fun getParameters(it: KSFunctionDeclaration, method: RequestMethod?, funBean: FunctionBean): ParameterInfo {
+    private fun getParameters(
+        it: KSFunctionDeclaration,
+        method: RequestMethod?,
+        funBean: FunctionBean,
+        childClass: KSClassDeclaration?,
+        thisClass: KSClassDeclaration,
+    ): ParameterInfo {
         //如果没有参数
         if (it.parameters.isEmpty()) return ParameterInfo(
             "",
@@ -197,7 +208,7 @@ internal class LazyPeopleHttpVisitor(
         val replaceUrlMap = HashMap<String, String>()
         it.parameters.forEach {
             val funPName = it.name!!.asString()
-            val type = getKSTypeInfo(it.type).toString()
+            val type = getKSTypeInfo(it.type, childClass, thisClass).toString()
             funPList.add(funBean.funParameterKT._kt(funPName, type))
             getParameterInfo(it, funPName, queryPList, fieldPList, runtimePList, replaceUrlMap, funBean.parameter)
         }
