@@ -65,8 +65,10 @@ internal fun getKSTypeInfo(
                 //处理使用父类的泛型(alpha),通过子类获取父类的子泛型(对比泛型名)
                 childClass?.superTypes?.toList()?.findBy {
                     val thisType = it.resolve()
-                    thisType.declaration.qualifiedName?.asString() == childClass.qualifiedName?.asString()
-                    thisType
+                    if (thisType.declaration.simpleName.asString() == thisClass.simpleName.asString())
+                        thisType
+                    else
+                        null
                 }?.let { thisType ->
                     thisType.arguments[
                         parentDeclaration.typeParameters.indexOfFirst { typeParameter ->
