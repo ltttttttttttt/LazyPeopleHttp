@@ -37,6 +37,7 @@ import java.io.*
  */
 internal class LazyPeopleHttpVisitor(
     private val environment: SymbolProcessorEnvironment,
+    private val resolver: Resolver,
 ) : KSVisitorVoid() {
 
     private val options = KspOptions(environment)
@@ -147,7 +148,7 @@ internal class LazyPeopleHttpVisitor(
             }
             val typeOf =
                 if (isSuspendFun) returnType else {
-                    val ksTypeArguments = getKSTypeArguments(it.returnType!!, childClass, classDeclaration)
+                    val ksTypeArguments = getKSTypeArguments(it.returnType!!, childClass, classDeclaration, resolver)
                     if (ksTypeArguments.isEmpty()) {
                         environment.logger.error("Fun($functionName) is not suspend fun, return type must be parameterized as Call<T> or similar.")
                         ""

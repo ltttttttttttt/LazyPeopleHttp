@@ -96,11 +96,6 @@ internal fun getKSTypeInfo(
     )
 }
 
-
-//private val getKotlinTypeMethod =
-//    Class.forName("com.google.devtools.ksp.symbol.impl.kotlin.KSTypeImpl")
-//        .getMethod("getKotlinType")
-
 /**
  * 获取ksType的完整子泛型信息列表,返回可直接使用的String
  * 可以自动判断是否是typealias类型并获取其中的真实类型
@@ -111,24 +106,19 @@ internal fun getKSTypeArguments(
     ks: KSTypeReference,
     childClass: KSClassDeclaration?,
     thisClass: KSClassDeclaration,
+    resolver: Resolver,
 ): List<String> {
-//    //type对象
-//    val ksType = ks.resolve()
-//    //如果是typealias类型
-//    return if (ksType.declaration is KSTypeAlias) {
-//        // TODO by lt test KSType.expand https://github.com/google/ksp/issues/1371
-//        val kotlinType = getKotlinTypeMethod.invoke(ksType) as KotlinType
-//        kotlinType.arguments.map {
-//            getKotlinTypeInfo(it.type)
-//        }
-//    } else {
-//        ks.element?.typeArguments?.map {
-//            getKSTypeInfo(it.type!!).toString()
-//        } ?: listOf()
-//    }
-    return ks.element?.typeArguments?.map {
+    //type对象
+    val ksType = ks.resolve()
+    //如果是typealias类型
+    val arguments = if (ksType.declaration is KSTypeAlias) {
+        resolver.expandType(ksType).arguments
+    } else {
+        ks.element?.typeArguments
+    }
+    return arguments?.map {
         getKSTypeInfo(it.type!!, childClass, thisClass).toString()
-        } ?: listOf()
+    } ?: listOf()
 }
 
 /**
@@ -257,4 +247,48 @@ inline fun <T, R : Any> Iterable<T>.findBy(find: (T) -> R?): R? {
             break
     }
     return r
+}
+
+/**
+ * 获取typealias的真实类型
+ * 参考: https://github.com/google/ksp/issues/1371
+ * https://github.com/google/ksp/blob/646d6d32f6d1bf7d5c08684d85c2135d1952a417/test-utils/src/main/kotlin/com/google/devtools/ksp/processor/TypeAliasProcessor.kt#L129
+ */
+private fun Resolver.expandType(
+    type: KSType,
+    substitutions: MutableMap<KSTypeParameter, KSType> = mutableMapOf(),
+): KSType {
+    val decl = type.declaration
+    return when (decl) {
+        is KSClassDeclaration -> {
+            val arguments = type.arguments.map {
+                val argType = it.type?.resolve() ?: return@map it
+                getTypeArgument(createKSTypeReferenceFromKSType(expandType(argType, substitutions)), it.variance)
+            }
+            decl.asType(arguments)
+        }
+
+        is KSTypeParameter -> {
+            val substituted = substitutions.get(decl) ?: return type
+            val fullySubstituted = expandType(substituted, substitutions)
+            // update/cache with refined substitution
+            if (substituted != fullySubstituted)
+                substitutions[decl] = fullySubstituted
+            fullySubstituted
+        }
+
+        is KSTypeAlias -> {
+            val aliasedType = decl.type.resolve()
+
+            decl.typeParameters.zip(type.arguments).forEach { (param, arg) ->
+                arg.type?.resolve()?.let {
+                    substitutions[param] = it
+                }
+            }
+
+            expandType(aliasedType, substitutions)
+        }
+
+        else -> type
+    }
 }
