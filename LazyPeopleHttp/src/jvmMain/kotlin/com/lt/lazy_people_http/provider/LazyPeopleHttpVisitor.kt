@@ -93,7 +93,7 @@ internal class LazyPeopleHttpVisitor(
                         val targetFile = if (File(bean.outputDir).isAbsolute)
                             File(bean.outputDir, fileName)
                         else
-                            File(File(it.absolutePath.split("\\build\\").first(), bean.outputDir), fileName)
+                            File(File(it.absolutePath.split("${File.separator}build${File.separator}").first(), bean.outputDir), fileName)
                         it.copyTo(targetFile, true)
                     }
             }
