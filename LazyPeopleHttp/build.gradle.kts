@@ -11,10 +11,7 @@ version = mVersion
 
 kotlin {
     jvm {
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = "11"
-            }
+        compilerOptions {
         }
     }
     sourceSets {
@@ -36,6 +33,5 @@ kotlin {
 try {
     tasks.findByName("signKotlinMultiplatformPublication")!!
         .dependsOn(tasks.findByName("publishJvmPublicationToSonatypeRepository"))
-} catch (e: Exception) {
-    e.printStackTrace()
+} catch (ignore: Exception) {
 }

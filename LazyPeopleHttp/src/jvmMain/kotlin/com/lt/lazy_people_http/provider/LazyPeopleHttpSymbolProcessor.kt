@@ -23,7 +23,7 @@ internal class LazyPeopleHttpSymbolProcessor(private val environment: SymbolProc
             .forEach {
                 if (it is KSClassDeclaration) {
                     if (!it.validate()) ret.add(it)
-                    else it.accept(LazyPeopleHttpVisitor(environment), Unit)//处理符号
+                    else it.accept(LazyPeopleHttpVisitor(environment, resolver), Unit)//处理符号
                 }
             }
         //返回无法处理的符号

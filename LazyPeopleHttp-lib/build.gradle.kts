@@ -1,3 +1,4 @@
+import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
 plugins {
@@ -13,19 +14,17 @@ group = "io.github.ltttttttttttt"
 version = mVersion
 
 kotlin {
-    android {
+    androidTarget {
         publishLibraryVariants("debug", "release")
     }
 
     jvm {
-        compilations.all {
-            kotlinOptions {
-                jvmTarget = "17"
-            }
+        compilerOptions {
         }
     }
 
-    ios()
+    iosX64()
+    iosArm64()
     iosSimulatorArm64()
 
     js(IR) {
@@ -36,7 +35,7 @@ kotlin {
     }
 
     wasmJs {
-        moduleName = "common_app"
+        outputModuleName = "common_app"
         browser {
             commonWebpackConfig {
                 outputFileName = "common_app.js"
@@ -74,7 +73,7 @@ kotlin {
                 //kt的跨平台json解析
                 api("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationJsonVersion")
                 //compose runtime
-                compileOnly("org.jetbrains.compose.runtime:runtime:1.7.0")
+                implementation("org.jetbrains.compose.runtime:runtime:1.7.0")
             }
         }
         val commonTest by getting {
@@ -99,19 +98,24 @@ kotlin {
         }
         val jvmTest by getting
 
-        val iosMain by getting {
+        fun KotlinSourceSet.iosDependencies() {
             dependencies {
                 //网络请求引擎
                 api("io.ktor:ktor-client-darwin:$ktorVersion")
             }
         }
-        val iosTest by getting
+        val iosX64Main by getting {
+            iosDependencies()
+        }
+        val iosX64Test by getting
+        val iosArm64Main by getting {
+            iosDependencies()
+        }
+        val iosArm64Test by getting
         val iosSimulatorArm64Main by getting {
-            dependsOn(iosMain)
+            iosDependencies()
         }
-        val iosSimulatorArm64Test by getting {
-            dependsOn(iosTest)
-        }
+        val iosSimulatorArm64Test by getting
 
         val jsMain by getting {
             dependencies {
@@ -215,7 +219,6 @@ afterEvaluate {
             .mustRunAfter(tasks.findByName("publishIosX64PublicationToSonatypeRepository"))
         tasks.findByName("signWasmJsPublication")!!
             .mustRunAfter(tasks.findByName("publishIosSimulatorArm64PublicationToSonatypeRepository"))
-    } catch (e: Exception) {
-        e.printStackTrace()
+    } catch (ignore: Exception) {
     }
 }

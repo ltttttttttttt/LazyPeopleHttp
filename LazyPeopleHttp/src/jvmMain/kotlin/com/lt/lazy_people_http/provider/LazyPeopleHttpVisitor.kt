@@ -23,6 +23,7 @@ import com.lt.lazy_people_http.options.ReplaceRule._responseName
 import com.lt.lazy_people_http.options.ReplaceRule._returnType
 import com.lt.lazy_people_http.options.ReplaceRule._runtimeParameter
 import com.lt.lazy_people_http.options.ReplaceRule._type
+import com.lt.lazy_people_http.options.ReplaceRule._typeChild
 import com.lt.lazy_people_http.options.ReplaceRule._url
 import com.lt.lazy_people_http.options.ReplaceRule._value
 import com.lt.lazy_people_http.request.*
@@ -36,6 +37,7 @@ import java.io.*
  */
 internal class LazyPeopleHttpVisitor(
     private val environment: SymbolProcessorEnvironment,
+    private val resolver: Resolver,
 ) : KSVisitorVoid() {
 
     private val options = KspOptions(environment)
@@ -91,7 +93,7 @@ internal class LazyPeopleHttpVisitor(
                         val targetFile = if (File(bean.outputDir).isAbsolute)
                             File(bean.outputDir, fileName)
                         else
-                            File(File(it.absolutePath.split("\\build\\").first(), bean.outputDir), fileName)
+                            File(File(it.absolutePath.split("${File.separator}build${File.separator}").first(), bean.outputDir), fileName)
                         it.copyTo(targetFile, true)
                     }
             }
@@ -117,11 +119,16 @@ internal class LazyPeopleHttpVisitor(
     }
 
     //向文件中写入变换后的函数
-    private fun writeFunction(file: OutputStream, classDeclaration: KSClassDeclaration, bean: CustomizeOutputFileBean) {
+    private fun writeFunction(
+        file: OutputStream,
+        classDeclaration: KSClassDeclaration,
+        bean: CustomizeOutputFileBean,
+        childClass: KSClassDeclaration? = null,
+    ) {
         classDeclaration.superTypes.mapNotNull {
             it.resolve().declaration as? KSClassDeclaration
         }.forEach {
-            writeFunction(file, it, bean)
+            writeFunction(file, it, bean, classDeclaration)
         }
         classDeclaration.getDeclaredFunctions().filter {
             it.isAbstract
@@ -129,7 +136,7 @@ internal class LazyPeopleHttpVisitor(
             val functionName = it.simpleName.asString()
             val methodInfo = getMethodInfo(it, functionName, classDeclaration)
             //返回的全类型
-            val returnType = getKSTypeInfo(it.returnType!!).toString()
+            val returnType = getKSTypeInfo(it.returnType!!, childClass, classDeclaration).toString()
             val isSuspendFun = Modifier.SUSPEND in it.modifiers
             //返回的最外层的类型
             val responseName = if (isSuspendFun)
@@ -140,12 +147,19 @@ internal class LazyPeopleHttpVisitor(
                 else "\"$responseType\""
             }
             val typeOf =
-                if (isSuspendFun) returnType else getKSTypeArguments(it.returnType!!).first()
+                if (isSuspendFun) returnType else {
+                    val ksTypeArguments = getKSTypeArguments(it.returnType!!, childClass, classDeclaration, resolver)
+                    if (ksTypeArguments.isEmpty()) {
+                        environment.logger.error("Fun($functionName) is not suspend fun, return type must be parameterized as Call<T> or similar.")
+                        ""
+                    } else
+                        ksTypeArguments.first()
+                }
             val funBean =
                 if (!isSuspendFun || bean.suspendFunEqualsFunContent) bean.funContent else bean.suspendFunContent
             val headers = getHeaders(it, funBean.header)
             val parameterInfo =
-                getParameters(it, methodInfo.method, funBean)
+                getParameters(it, methodInfo.method, funBean, childClass, classDeclaration)
             var url = methodInfo.url
             parameterInfo.replaceUrlFunction?.forEach {
                 url = url.replace(it.key, funBean.replaceUrlName._value(it.value))
@@ -161,6 +175,7 @@ internal class LazyPeopleHttpVisitor(
                 ._fieldParameter(parameterInfo.fieldParameter)
                 ._runtimeParameter(parameterInfo.runtimeParameter)
                 ._type(typeOf)
+                ._typeChild(getTypeChild(typeOf))
                 ._requestMethod(if (methodInfo.method == null) "null" else "RequestMethod.${methodInfo.method}")
                 ._headers(headers)
                 ._functionAnnotations(if (functionAnnotations.isEmpty()) "null" else "arrayOf($functionAnnotations)")
@@ -171,7 +186,13 @@ internal class LazyPeopleHttpVisitor(
     }
 
     //获取方法的参数和请求参数
-    private fun getParameters(it: KSFunctionDeclaration, method: RequestMethod?, funBean: FunctionBean): ParameterInfo {
+    private fun getParameters(
+        it: KSFunctionDeclaration,
+        method: RequestMethod?,
+        funBean: FunctionBean,
+        childClass: KSClassDeclaration?,
+        thisClass: KSClassDeclaration,
+    ): ParameterInfo {
         //如果没有参数
         if (it.parameters.isEmpty()) return ParameterInfo(
             "",
@@ -188,8 +209,8 @@ internal class LazyPeopleHttpVisitor(
         val replaceUrlMap = HashMap<String, String>()
         it.parameters.forEach {
             val funPName = it.name!!.asString()
-            val type = getKSTypeInfo(it.type).toString()
-            funPList.add(funBean.funParameterKT._kt(funPName,type))
+            val type = getKSTypeInfo(it.type, childClass, thisClass).toString()
+            funPList.add(funBean.funParameterKT._kt(funPName, type))
             getParameterInfo(it, funPName, queryPList, fieldPList, runtimePList, replaceUrlMap, funBean.parameter)
         }
         //处理方法加了注解,但参数没加注解的情况
@@ -268,7 +289,7 @@ internal class LazyPeopleHttpVisitor(
     //校验map的类型和泛型
     private fun checkMapType(
         it: KSValueParameter,
-        funPName: String
+        funPName: String,
     ) {
         val ksType = it.type.resolve()
         //如果类型不是Map则报错
@@ -327,7 +348,7 @@ internal class LazyPeopleHttpVisitor(
     private fun getMethodInfo(
         it: KSFunctionDeclaration,
         functionName: String,
-        classDeclaration: KSClassDeclaration
+        classDeclaration: KSClassDeclaration,
     ): MethodInfo {
         val urlMidSegment =
             classDeclaration.getAnnotationsByType(UrlMidSegment::class).firstOrNull()?.url ?: ""
