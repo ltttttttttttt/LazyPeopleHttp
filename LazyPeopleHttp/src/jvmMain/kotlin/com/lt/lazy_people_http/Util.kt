@@ -61,6 +61,7 @@ internal fun getKSTypeInfo(
     val thisTypeName =
         ksType.declaration.let {
             val parentDeclaration = it.parentDeclaration
+            //如果有父类,并且使用了父类的泛型
             if (parentDeclaration != null) {
                 //处理使用父类的泛型(alpha),通过子类获取父类的子泛型(对比泛型名)
                 childClass?.superTypes?.toList()?.findBy {
@@ -70,20 +71,22 @@ internal fun getKSTypeInfo(
                     else
                         null
                 }?.let { thisType ->
-                    thisType.arguments[
+                    thisType.arguments.getOrNull(
                         parentDeclaration.typeParameters.indexOfFirst { typeParameter ->
                             typeParameter.name.asString() == it.simpleName.asString()
                         }
-                    ].type?.let {
-                        val ksType = it.resolve()
-                        val declaration = ksType.declaration
+                    )?.type?.let {
+                        val type = it.resolve()
+                        val declaration = type.declaration
                         nullable =
-                            if (ksType.nullability == Nullability.NULLABLE) LazyPeopleHttpVisitor.nullabilityType else ""
+                            if (type.nullability == Nullability.NULLABLE || ksType.isMarkedNullable) LazyPeopleHttpVisitor.nullabilityType else ""
                         LazyPeopleHttpVisitor.typeContent
                             ._packageName(declaration.packageName.asString())
                             ._type(declaration.simpleName.asString())
                     }
-                } ?: "*"
+                } ?: LazyPeopleHttpVisitor.typeContent
+                    ._packageName(it.packageName.asString())
+                    ._type(it.simpleName.asString())
             } else {
                 LazyPeopleHttpVisitor.typeContent
                     ._packageName(it.packageName.asString())

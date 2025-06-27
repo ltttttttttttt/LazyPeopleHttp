@@ -105,7 +105,7 @@ interface PostHf {
 }
 
 @UrlMidSegment("get")
-interface GetHf : FindAll<String>, FindAll2<Int, Boolean> {
+interface GetHf : FindAll<String>, FindAll2<Int, Boolean?> {
     @GET("getC")
     fun getC2(name: String): Call<NetBean<String>>
 
@@ -118,7 +118,10 @@ interface GetHf : FindAll<String>, FindAll2<Int, Boolean> {
 
 interface FindAll<T> {
     fun findAll(): Call<NetBean<List<T>>>
-    fun findAll2(): Call<String>
+    fun findAll2(): Call<Int>
+    fun findAll3(a:T?): Call<T>
+    fun findAll4(a:T): Call<T?>
+    fun findAll5(a:T?): Call<T?>
 }
 
 interface FindAll2<K, T> {
