@@ -1,10 +1,18 @@
 package com.lt.lazy_people_http.provider
 
-import com.google.devtools.ksp.*
-import com.google.devtools.ksp.processing.*
+import com.google.devtools.ksp.KspExperimental
+import com.google.devtools.ksp.getAnnotationsByType
+import com.google.devtools.ksp.getDeclaredFunctions
+import com.google.devtools.ksp.processing.Dependencies
+import com.google.devtools.ksp.processing.Resolver
+import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
 import com.google.devtools.ksp.symbol.*
-import com.lt.lazy_people_http.*
+import com.lt.ksp.*
+import com.lt.ksp.model.KSTypeInfo
 import com.lt.lazy_people_http.annotations.*
+import com.lt.lazy_people_http.asString
+import com.lt.lazy_people_http.getNewAnnotationString
+import com.lt.lazy_people_http.montageUrl
 import com.lt.lazy_people_http.options.*
 import com.lt.lazy_people_http.options.ReplaceRule._className
 import com.lt.lazy_people_http.options.ReplaceRule._doc
@@ -26,9 +34,10 @@ import com.lt.lazy_people_http.options.ReplaceRule._type
 import com.lt.lazy_people_http.options.ReplaceRule._typeChild
 import com.lt.lazy_people_http.options.ReplaceRule._url
 import com.lt.lazy_people_http.options.ReplaceRule._value
-import com.lt.lazy_people_http.request.*
-import kotlinx.serialization.json.*
-import java.io.*
+import com.lt.lazy_people_http.request.RequestMethod
+import kotlinx.serialization.json.Json
+import java.io.File
+import java.io.OutputStream
 
 /**
  * creator: lt  2022/10/20  lt.dygzs@qq.com
@@ -136,19 +145,24 @@ internal class LazyPeopleHttpVisitor(
             val functionName = it.simpleName.asString()
             val methodInfo = getMethodInfo(it, functionName, classDeclaration)
             //返回的全类型
-            val returnType = getKSTypeInfo(it.returnType!!, childClass, classDeclaration).toString()
+            val returnType = getKSTypeInfo(it.returnType!!, childClass, classDeclaration).asString()
             val isSuspendFun = Modifier.SUSPEND in it.modifiers
             //返回的最外层的类型
             val responseName = if (isSuspendFun)
                 null
             else {
-                val responseType = getKSTypeOutermostName(it.returnType!!)
+                val responseType = getKSTypeOutermostName(it.returnType!!).asString()
                 if (responseType == "com.lt.lazy_people_http.call.Call") null
                 else "\"$responseType\""
             }
             val typeOf =
                 if (isSuspendFun) returnType else {
-                    val ksTypeArguments = getKSTypeArguments(it.returnType!!, childClass, classDeclaration, resolver)
+                    val ksTypeArguments = getKSTypeArguments(
+                        it.returnType!!,
+                        childClass,
+                        classDeclaration,
+                        resolver
+                    ).map(KSTypeInfo::asString)
                     if (ksTypeArguments.isEmpty()) {
                         environment.logger.error("Fun($functionName) is not suspend fun, return type must be parameterized as Call<T> or similar.")
                         ""
@@ -209,7 +223,7 @@ internal class LazyPeopleHttpVisitor(
         val replaceUrlMap = HashMap<String, String>()
         it.parameters.forEach {
             val funPName = it.name!!.asString()
-            val type = getKSTypeInfo(it.type, childClass, thisClass).toString()
+            val type = getKSTypeInfo(it.type, childClass, thisClass).asString()
             funPList.add(funBean.funParameterKT._kt(funPName, type))
             getParameterInfo(it, funPName, queryPList, fieldPList, runtimePList, replaceUrlMap, funBean.parameter)
         }
