@@ -24,6 +24,7 @@ kotlin {
                 implementation(project(":LazyPeopleHttp-lib"))
                 implementation("org.jetbrains.kotlin:kotlin-compiler-embeddable:$kotlinVersion")
                 implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:$serializationJsonVersion")
+                implementation("com.github.ltttttttttttt:KSPUtil:1.0.1")
             }
         }
         val jvmTest by getting

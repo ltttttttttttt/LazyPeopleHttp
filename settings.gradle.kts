@@ -1,5 +1,6 @@
 pluginManagement {
     repositories {
+        maven("https://jitpack.io")
         maven("https://mirrors.tencent.com/nexus/repository/maven-public/")
         maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
         google()
