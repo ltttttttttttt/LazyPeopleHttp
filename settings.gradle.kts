@@ -29,5 +29,3 @@ include(
     ":LazyPeopleHttp-lib",
     ":LazyPeopleHttp"
 )
-
-includeBuild("convention-plugins")
