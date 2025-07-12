@@ -93,6 +93,7 @@ internal class LazyPeopleHttpVisitor(
                 bean.extensionName,
             )
             writeFile(file, packageName, className, originalClassName, classDeclaration, bean)
+            file.flush()
             file.close()
 
             if (bean.outputDir.isNotEmpty()) {
