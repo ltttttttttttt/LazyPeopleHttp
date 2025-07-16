@@ -1,5 +1,3 @@
-import PublishConfig.inceptionYear
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
 plugins {
@@ -139,24 +137,14 @@ kotlin {
                 api("io.ktor:ktor-client-darwin:${ktorVersion}")
             }
         }
-        val iosTest by creating
         val iosSimulatorArm64Main by getting {
             dependsOn(iosMain)
-        }
-        val iosSimulatorArm64Test by getting {
-            dependsOn(iosTest)
         }
         val iosArm64Main by getting {
             dependsOn(iosMain)
         }
-        val iosArm64Test by getting {
-            dependsOn(iosTest)
-        }
         val iosX64Main by getting {
             dependsOn(iosMain)
-        }
-        val iosX64Test by getting {
-            dependsOn(iosTest)
         }
 
         val jsMain by getting {
