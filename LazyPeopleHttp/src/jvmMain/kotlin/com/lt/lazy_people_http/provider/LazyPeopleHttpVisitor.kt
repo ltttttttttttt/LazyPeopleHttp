@@ -82,11 +82,12 @@ internal class LazyPeopleHttpVisitor(
         beans.forEach { bean ->
             typeContent = bean.typeContent
             nullabilityType = bean.nullabilityType
+            val sources = classDeclaration.containingFile?.let { arrayOf(it) } ?: run { arrayOf() }
             val fileName = bean.fileName._className(className)._originalClassName(originalClassName)
             val file = environment.codeGenerator.createNewFile(
                 Dependencies(
                     true,
-                    classDeclaration.containingFile!!
+                    *sources,
                 ),
                 packageName,
                 fileName,
