@@ -4,7 +4,7 @@ plugins {
     //https://www.jetbrains.com/help/kotlin-multiplatform-dev/multiplatform-publish-libraries.html#publish-to-maven-central-using-continuous-integration
     //https://central.sonatype.com/publishing/deployments
     id("com.vanniktech.maven.publish") version publishVersion
-    kotlin("plugin.serialization") version kotlinVersion
+    kotlin("plugin.serialization")
 }
 
 group = PublishConfig.group
