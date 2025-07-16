@@ -1,5 +1,3 @@
-import PublishConfig.inceptionYear
-import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
 plugins {
@@ -9,7 +7,7 @@ plugins {
     //https://github.com/vanniktech/gradle-maven-publish-plugin
     //https://www.jetbrains.com/help/kotlin-multiplatform-dev/multiplatform-publish-libraries.html#publish-to-maven-central-using-continuous-integration
     //https://central.sonatype.com/publishing/deployments
-    id("com.vanniktech.maven.publish") version publishVersion
+    id("com.vanniktech.maven.publish")
 }
 
 group = PublishConfig.group
@@ -94,8 +92,8 @@ kotlin {
             baseName = "LazyPeopleHttp"
             isStatic = true
         }
-        //extraSpecAttributes["resources"] =
-        //    "['resources/**']"
+        extraSpecAttributes["resources"] =
+            "['resources/**']"
     }
 
     sourceSets {
@@ -133,24 +131,21 @@ kotlin {
         }
         val jvmTest by getting
 
-        fun KotlinSourceSet.iosDependencies() {
+        val iosMain by creating {
             dependencies {
-                //网络请求引擎
-                api("io.ktor:ktor-client-darwin:$ktorVersion")
+                dependsOn(commonMain)//网络请求引擎
+                api("io.ktor:ktor-client-darwin:${ktorVersion}")
             }
         }
-        val iosX64Main by getting {
-            iosDependencies()
-        }
-        val iosX64Test by getting
-        val iosArm64Main by getting {
-            iosDependencies()
-        }
-        val iosArm64Test by getting
         val iosSimulatorArm64Main by getting {
-            iosDependencies()
+            dependsOn(iosMain)
         }
-        val iosSimulatorArm64Test by getting
+        val iosArm64Main by getting {
+            dependsOn(iosMain)
+        }
+        val iosX64Main by getting {
+            dependsOn(iosMain)
+        }
 
         val jsMain by getting {
             dependencies {
