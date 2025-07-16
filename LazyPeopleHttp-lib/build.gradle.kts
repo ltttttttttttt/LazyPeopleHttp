@@ -94,8 +94,8 @@ kotlin {
             baseName = "LazyPeopleHttp"
             isStatic = true
         }
-        //extraSpecAttributes["resources"] =
-        //    "['resources/**']"
+        extraSpecAttributes["resources"] =
+            "['resources/**']"
     }
 
     sourceSets {
@@ -133,24 +133,31 @@ kotlin {
         }
         val jvmTest by getting
 
-        fun KotlinSourceSet.iosDependencies() {
+        val iosMain by creating {
             dependencies {
-                //网络请求引擎
-                api("io.ktor:ktor-client-darwin:$ktorVersion")
+                dependsOn(commonMain)//网络请求引擎
+                api("io.ktor:ktor-client-darwin:${ktorVersion}")
             }
         }
-        val iosX64Main by getting {
-            iosDependencies()
-        }
-        val iosX64Test by getting
-        val iosArm64Main by getting {
-            iosDependencies()
-        }
-        val iosArm64Test by getting
+        val iosTest by creating
         val iosSimulatorArm64Main by getting {
-            iosDependencies()
+            dependsOn(iosMain)
         }
-        val iosSimulatorArm64Test by getting
+        val iosSimulatorArm64Test by getting {
+            dependsOn(iosTest)
+        }
+        val iosArm64Main by getting {
+            dependsOn(iosMain)
+        }
+        val iosArm64Test by getting {
+            dependsOn(iosTest)
+        }
+        val iosX64Main by getting {
+            dependsOn(iosMain)
+        }
+        val iosX64Test by getting {
+            dependsOn(iosTest)
+        }
 
         val jsMain by getting {
             dependencies {
