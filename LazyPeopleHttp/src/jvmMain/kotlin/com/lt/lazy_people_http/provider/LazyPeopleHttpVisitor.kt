@@ -137,11 +137,15 @@ internal class LazyPeopleHttpVisitor(
     ) {
         classDeclaration.superTypes.mapNotNull {
             it.resolve().declaration as? KSClassDeclaration
+        }.sortedBy {
+            it.packageName.asString() + it.simpleName.asString()
         }.forEach {
             writeFunction(file, it, bean, classDeclaration)
         }
         classDeclaration.getDeclaredFunctions().filter {
             it.isAbstract
+        }.sortedBy {
+            it.simpleName.asString()
         }.forEach {
             val functionName = it.simpleName.asString()
             val methodInfo = getMethodInfo(it, functionName, classDeclaration)
