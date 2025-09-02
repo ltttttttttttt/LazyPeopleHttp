@@ -1,25 +1,17 @@
 package com.lt.lazy_people_http.call
 
+import com.lt.lazy_people_http.Cache
 import com.lt.lazy_people_http.call.adapter.SuspendHook
 import com.lt.lazy_people_http.config.CustomConfigsNode
 import com.lt.lazy_people_http.config.LazyPeopleHttpConfig
 import com.lt.lazy_people_http.config.ParameterLocation
 import com.lt.lazy_people_http.request.RequestInfo
 import com.lt.lazy_people_http.type.JsonString
-import io.ktor.client.request.HttpRequestBuilder
-import io.ktor.client.request.forms.FormDataContent
-import io.ktor.client.request.parameter
-import io.ktor.client.request.request
-import io.ktor.client.request.setBody
-import io.ktor.client.request.url
-import io.ktor.client.statement.HttpResponse
-import io.ktor.client.statement.bodyAsText
-import io.ktor.http.Parameters
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import io.ktor.client.request.*
+import io.ktor.client.request.forms.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
+import kotlinx.coroutines.*
 
 /**
  * creator: lt  2023/3/10  lt.dygzs@qq.com
@@ -68,7 +60,7 @@ class RealCall<T>(
     private suspend fun getData(
         config: LazyPeopleHttpConfig = this.config,
         info: RequestInfo = this.info,
-    ): T = withContext(Dispatchers.Default) {
+    ): T = withContext(Dispatchers.Cache) {
         //创建请求对象
         val builder: HttpRequestBuilder.() -> Unit = {
             //设置请求方法

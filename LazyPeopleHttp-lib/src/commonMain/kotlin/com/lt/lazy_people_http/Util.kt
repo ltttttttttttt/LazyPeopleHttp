@@ -1,5 +1,8 @@
 package com.lt.lazy_people_http
 
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+
 /**
  * creator: lt  2022/10/21  lt.dygzs@qq.comS
  * effect : 工具类
@@ -40,3 +43,5 @@ fun Map<String, String?>._lazyPeopleHttpFlatten(): Array<String?> {
             entry.value
     }
 }
+
+expect val Dispatchers.Cache: CoroutineDispatcher
