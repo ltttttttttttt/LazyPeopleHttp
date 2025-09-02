@@ -4,5 +4,5 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
 
-actual val Dispatchers.Cache: CoroutineDispatcher
+internal actual val Dispatchers.Cache: CoroutineDispatcher
     get() = Dispatchers.IO

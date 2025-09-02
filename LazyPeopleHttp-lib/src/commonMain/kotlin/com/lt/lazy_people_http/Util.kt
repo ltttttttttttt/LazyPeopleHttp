@@ -44,4 +44,4 @@ fun Map<String, String?>._lazyPeopleHttpFlatten(): Array<String?> {
     }
 }
 
-expect val Dispatchers.Cache: CoroutineDispatcher
+internal expect val Dispatchers.Cache: CoroutineDispatcher
