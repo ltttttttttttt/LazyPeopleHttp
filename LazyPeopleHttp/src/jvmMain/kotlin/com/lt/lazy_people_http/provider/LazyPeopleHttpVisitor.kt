@@ -6,14 +6,38 @@ import com.google.devtools.ksp.getDeclaredFunctions
 import com.google.devtools.ksp.processing.Dependencies
 import com.google.devtools.ksp.processing.Resolver
 import com.google.devtools.ksp.processing.SymbolProcessorEnvironment
-import com.google.devtools.ksp.symbol.*
-import com.lt.ksp.*
+import com.google.devtools.ksp.symbol.ClassKind
+import com.google.devtools.ksp.symbol.KSClassDeclaration
+import com.google.devtools.ksp.symbol.KSFunctionDeclaration
+import com.google.devtools.ksp.symbol.KSValueParameter
+import com.google.devtools.ksp.symbol.KSVisitorVoid
+import com.google.devtools.ksp.symbol.Modifier
+import com.google.devtools.ksp.symbol.Nullability
+import com.lt.ksp.appendText
+import com.lt.ksp.getKSTypeArguments
+import com.lt.ksp.getKSTypeInfo
+import com.lt.ksp.getKSTypeOutermostName
+import com.lt.ksp.getTypeChild
 import com.lt.ksp.model.KSTypeInfo
-import com.lt.lazy_people_http.annotations.*
+import com.lt.lazy_people_http.annotations.Field
+import com.lt.lazy_people_http.annotations.FieldMap
+import com.lt.lazy_people_http.annotations.GET
+import com.lt.lazy_people_http.annotations.Header
+import com.lt.lazy_people_http.annotations.POST
+import com.lt.lazy_people_http.annotations.Query
+import com.lt.lazy_people_http.annotations.QueryMap
+import com.lt.lazy_people_http.annotations.Url
+import com.lt.lazy_people_http.annotations.UrlMidSegment
 import com.lt.lazy_people_http.asString
 import com.lt.lazy_people_http.getNewAnnotationString
 import com.lt.lazy_people_http.montageUrl
-import com.lt.lazy_people_http.options.*
+import com.lt.lazy_people_http.options.CustomizeOutputFileBean
+import com.lt.lazy_people_http.options.CustomizeOutputFileBeanImpl
+import com.lt.lazy_people_http.options.FunctionBean
+import com.lt.lazy_people_http.options.KspOptions
+import com.lt.lazy_people_http.options.MethodInfo
+import com.lt.lazy_people_http.options.ParameterBean
+import com.lt.lazy_people_http.options.ParameterInfo
 import com.lt.lazy_people_http.options.ReplaceRule._className
 import com.lt.lazy_people_http.options.ReplaceRule._doc
 import com.lt.lazy_people_http.options.ReplaceRule._fieldParameter
@@ -382,11 +406,26 @@ internal class LazyPeopleHttpVisitor(
             }))
         if (list.size > 1)
             throw RuntimeException("Function $functionName there are multiple http method annotations")
-        return when (val annotation = list.first()) {
-            is GET -> MethodInfo(RequestMethod.GET_QUERY, montageUrl(urlMidSegment, annotation.url))
-            is POST -> MethodInfo(RequestMethod.POST_FIELD, montageUrl(urlMidSegment, annotation.url))
+        val annotationUrl: String
+        val method: RequestMethod
+        when (val annotation = list.first()) {
+            is GET -> {
+                method = RequestMethod.GET_QUERY
+                annotationUrl = annotation.url
+            }
+
+            is POST -> {
+                method = RequestMethod.POST_FIELD
+                annotationUrl = annotation.url
+            }
             else -> throw RuntimeException("There is a problem with the getMethodInfo function")
         }
+        val url =
+            if (annotationUrl.startsWith("http://") || annotationUrl.startsWith("https://"))
+                annotationUrl
+            else
+                montageUrl(urlMidSegment, annotationUrl)
+        return MethodInfo(method, url)
     }
 
     //获取方法和其参数以及返回值上的注解(不包含Type的注解)

@@ -87,6 +87,9 @@ interface PostHf {
 
     suspend fun postE(name: String): N<String>
 
+    @POST("https://a.com/postF")
+    fun postF(name: String): C<String>
+
     fun setUserName(
         lastName: String,
         @Field("firstName") newName: String
